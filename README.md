@@ -48,6 +48,11 @@ data as tables across all engines (including the k3s variants):
 - [Logging](docs/explanation-logging.md) — container/server logs, slow-query and audit round trips, run-time level, strategy notes
 - [Scenarios](docs/explanation-scenarios.md) — domain workloads (Chatter, GraphRec) with per-op latency tables and curves
 
+## Results at a glance
+
+![Operations](docs/charts/operations.png)
+![Capabilities](docs/charts/capabilities.png)
+
 ## Layout
 ```
 stacks/<engine>/compose.yaml + lab.yaml   one directory per engine: compose file, init/config, harness metadata
