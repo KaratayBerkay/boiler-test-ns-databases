@@ -33,6 +33,21 @@ dataset* into each (the very values used by the sibling relational lab `rd-datab
 Everything is driven by one Python harness (`harness/`, `uv run nslab ...`) and summarised in `results/SUMMARY.md`
 (+ `docs/report.html`, a self-contained interactive report).
 
+## Report sections
+The interactive report (`docs/report.html`) is broken down into per-section markdown explanations, each with the full
+data as tables across all engines (including the k3s variants):
+
+- [Engines](docs/explanation-engines.md) — fleet overview: versions, load throughput, replication topologies, per-collection load detail
+- [Operation latency & capability matrix](docs/explanation-operations.md) — all 28 catalog operations × every engine (p50/p95/rows, n/a and ERR)
+- [Feature probes](docs/explanation-capabilities.md) — 33 capability probes (indexes, consistency, model, operations, limits, logging) × every engine
+- [Optimisation experiments](docs/explanation-optimisation.md) — 9 before/after experiments (index, projection, pagination, batching, multi-get, embedding, durability, consistency, connection reuse)
+- [Connections & concurrency](docs/explanation-connections.md) — connect latency, throughput vs workers, CAS contention, full concurrency curves
+- [Replication & failover](docs/explanation-replication.md) — visibility lag, write rejection, catch-up, read scaling, failover downtime
+- [Multi-connection bulk-insert load test](docs/explanation-load-test.md) — docs/s by workers and entry point, busiest container
+- [Backup & restore](docs/explanation-backup.md) — backup/restore seconds, artifacts, downtime, verification, incremental, DR drill, strategy notes
+- [Logging](docs/explanation-logging.md) — container/server logs, slow-query and audit round trips, run-time level, strategy notes
+- [Scenarios](docs/explanation-scenarios.md) — domain workloads (Chatter, GraphRec) with per-op latency tables and curves
+
 ## Layout
 ```
 stacks/<engine>/compose.yaml + lab.yaml   one directory per engine: compose file, init/config, harness metadata
