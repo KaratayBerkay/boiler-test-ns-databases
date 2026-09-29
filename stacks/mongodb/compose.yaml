@@ -1,0 +1,88 @@
+# MongoDB 7.0 — 3-member replica set (1 primary + 2 secondaries, automatic elections), no auth (lab), WiredTiger cache 4 GB.
+# The one-shot `init` service runs rs.initiate() once the members answer; members advertise the host-mapped ports so a
+# client on the host can also connect with replicaSet=rs0 (targets use directConnection for per-node measurements).
+name: nslab-mongodb
+# Logging strategy (shared by every stack): the json-file driver with rotation so a chatty engine cannot fill the
+# host disk, `compress` for rotated files. `docker logs <container>` still works; a shipper (promtail/fluent-bit/otel
+# collector) tails the same files. Engine-side slow-query / audit settings live in the service `command`/`environment`.
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "50m"
+    max-file: "3"
+    compress: "true"
+services:
+  mongo1: &mongo
+    image: mongo:7
+    container_name: nslab-mongo1
+    # --profile 1 --slowms 100: operations slower than 100 ms go to the JSON log (component COMMAND, "Slow query") AND to the
+    # capped system.profile collection (the logging strategy the harness reads back); mongod logs are JSON (mongod >= 4.4).
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all", "--port", "27017", "--wiredTigerCacheSizeGB", "4", "--maxConns", "5000",
+              "--profile", "1", "--slowms", "100", "--slowOpSampleRate", "1.0"]
+    logging: *logging
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
+    ports:
+      - "27117:27017"
+    volumes:
+      - mongo1:/data/db
+      - backups:/backups
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 3s
+      timeout: 5s
+      retries: 30
+  mongo2:
+    <<: *mongo
+    container_name: nslab-mongo2
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all", "--port", "27018", "--wiredTigerCacheSizeGB", "4", "--maxConns", "5000",
+              "--profile", "1", "--slowms", "100", "--slowOpSampleRate", "1.0"]
+    ports:
+      - "27118:27018"
+    volumes:
+      - mongo2:/data/db
+      - backups:/backups
+    healthcheck:
+      test: ["CMD", "mongosh", "--port", "27018", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 3s
+      timeout: 5s
+      retries: 30
+  mongo3:
+    <<: *mongo
+    container_name: nslab-mongo3
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all", "--port", "27019", "--wiredTigerCacheSizeGB", "4", "--maxConns", "5000",
+              "--profile", "1", "--slowms", "100", "--slowOpSampleRate", "1.0"]
+    ports:
+      - "27119:27019"
+    volumes:
+      - mongo3:/data/db
+      - backups:/backups
+    healthcheck:
+      test: ["CMD", "mongosh", "--port", "27019", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 3s
+      timeout: 5s
+      retries: 30
+
+  init:
+    image: mongo:7
+    container_name: nslab-mongo-init
+    restart: "no"
+    logging: *logging
+    depends_on:
+      mongo1:
+        condition: service_healthy
+      mongo2:
+        condition: service_healthy
+      mongo3:
+        condition: service_healthy
+    volumes:
+      - ./init:/init:ro
+    command: ["mongosh", "--host", "mongo1", "--port", "27017", "--quiet", "--file", "/init/rs-init.js"]
+
+volumes:
+  mongo1:
+  mongo2:
+  mongo3:
+  backups:          # mongodump archives (backup phase) — removed with `down -v`

@@ -1,0 +1,134 @@
+{
+  "engine": "neo4j",
+  "display": "Neo4j 5",
+  "category": "property graph (native, index-free adjacency)",
+  "family": "graph",
+  "driver": "bolt",
+  "image": "neo4j:5-community",
+  "run_id": "20260913-143611-c0ae12",
+  "started": "2026-09-13T11:36:11+00:00",
+  "scale": 1.0,
+  "notes": "Neo4j 5 Community, single instance (causal clustering, CDC, online backup and read routing are Enterprise-only). Order items are CONTAINS relationships, categories a CHILD_OF tree, so graph_traversal and join_lookup are native. Built-in full-text (Lucene) and HNSW vector indexes; no native TTL or pub/sub.",
+  "phases": {
+    "loadtest": {
+      "batch_rows": 1000,
+      "seconds_per_run": 15.0,
+      "containers": [
+        "nslab-neo4j"
+      ],
+      "runs": [
+        {
+          "workers": 4,
+          "target": "primary",
+          "rows": 211000,
+          "batches": 211,
+          "errors": 0,
+          "seconds": 15.0,
+          "rows_per_s": 14067,
+          "batch_ms": {
+            "n": 211,
+            "min": 93.426537,
+            "p50": 135.170919,
+            "p90": 233.528458,
+            "p95": 1296.9387550000001,
+            "p99": 6430.89997640002,
+            "max": 16045.466117,
+            "mean": 367.5586581990521,
+            "stdev": 1318.6149840960024
+          },
+          "first_error": null,
+          "workers_reported": 4,
+          "cleanup_s": 3.9,
+          "container_usage": {
+            "nslab-neo4j": {
+              "cpu_cores_avg": 1.912,
+              "cpu_limit_cores": null,
+              "cpu_pct_of_limit": null,
+              "mem_peak_mb": 6746,
+              "mem_end_mb": 6427,
+              "mem_limit_mb": null,
+              "cpu_cores_avg_during_inserts": 3.937
+            }
+          }
+        },
+        {
+          "workers": 16,
+          "target": "primary",
+          "rows": 173000,
+          "batches": 173,
+          "errors": 0,
+          "seconds": 15.0,
+          "rows_per_s": 11533,
+          "batch_ms": {
+            "n": 173,
+            "min": 101.832912,
+            "p50": 208.306047,
+            "p90": 3697.6395418,
+            "p95": 8444.286179600002,
+            "p99": 31012.953730560006,
+            "max": 33932.462586,
+            "mean": 2018.2371175895953,
+            "stdev": 5291.139008085636
+          },
+          "first_error": null,
+          "workers_reported": 16,
+          "cleanup_s": 2.1,
+          "container_usage": {
+            "nslab-neo4j": {
+              "cpu_cores_avg": 1.869,
+              "cpu_limit_cores": null,
+              "cpu_pct_of_limit": null,
+              "mem_peak_mb": 6787,
+              "mem_end_mb": 6394,
+              "mem_limit_mb": null,
+              "cpu_cores_avg_during_inserts": 4.524
+            }
+          }
+        },
+        {
+          "workers": 32,
+          "target": "primary",
+          "rows": 219000,
+          "batches": 219,
+          "errors": 1,
+          "seconds": 15.0,
+          "rows_per_s": 14600,
+          "batch_ms": {
+            "n": 219,
+            "min": 111.963998,
+            "p50": 206.708896,
+            "p90": 8643.785003200002,
+            "p95": 17300.1203439,
+            "p99": 32192.311629319996,
+            "max": 33691.848469,
+            "mean": 3391.068711689498,
+            "stdev": 7084.4828464303655
+          },
+          "first_error": "{neo4j_code: Neo.TransientError.Transaction.DeadlockDetected} {message: ForsetiClient[transactionId=189350, clientId=12072] can't acquire UpdateLock{owners=ForsetiClient[transactionId=189351, clientId",
+          "workers_reported": 32,
+          "cleanup_s": 2.5,
+          "container_usage": {
+            "nslab-neo4j": {
+              "cpu_cores_avg": 1.977,
+              "cpu_limit_cores": null,
+              "cpu_pct_of_limit": null,
+              "mem_peak_mb": 6834,
+              "mem_end_mb": 6421,
+              "mem_limit_mb": null,
+              "cpu_cores_avg_during_inserts": 5.81
+            }
+          }
+        }
+      ],
+      "best": {
+        "target": "primary",
+        "workers": 32,
+        "rows_per_s": 14600
+      },
+      "_seconds": 111.4
+    }
+  },
+  "partial": false,
+  "server_version": "Neo4j Kernel 5.26.30 (community)",
+  "finished": "2026-09-13T11:38:03+00:00"
+}

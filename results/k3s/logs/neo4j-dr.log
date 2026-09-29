@@ -1,0 +1,28 @@
+[neo4j] starting stack ...
+[neo4j] up in 22.2s: ['neo4j']
+[neo4j] phase: load
+  schema created (14 items, 1.86s)
+  customers       20,000 docs     4.31s      4,642 docs/s  [bulk_put]
+  categories         200 docs     0.37s        538 docs/s  [bulk_put]
+  products         5,000 docs     2.47s      2,023 docs/s  [bulk_put]
+  orders         200,000 docs    55.04s      3,634 docs/s  [bulk_put]
+  events       1,000,000 docs   137.34s      7,281 docs/s  [bulk_put]
+  inventory       20,000 docs     1.61s     12,428 docs/s  [bulk_put]
+saved 
+/home/berkay-server/repos/boilers/raw-codes/databases/ns-databases/results/k3s/n
+eo4j/20260914-180745-fa4c2e.json
+  fingerprint: counts={'customers': 20000, 'categories': 200, 'products': 5000, 
+'inventory': 20000} customers 1-50=50 probe=100
+  backup [stop server; neo4j-admin database dump; start (Community: offline)] 
+49.65s artifact 269,237,736 B
+  exported 269,237,736 B to 
+/home/berkay-server/repos/boilers/raw-codes/databases/ns-databases/data/backups/
+neo4j/nslab-dr-20260914-181109 in 1.33s
+  stack destroyed (down -v) in 44.8s; bringing a fresh one up ...
+  fresh stack up in 27.9s
+Received notification from DBMS server: <GqlStatusObject gql_status='01N50', status_description='warn: label does not exist. The label `Customer` does not exist. Verify that the spelling is correct.', position=<SummaryInputPosition line=1, column=10, offset=9>, raw_classification='UNRECOGNIZED', classification=<NotificationClassification.UNRECOGNIZED: 'UNRECOGNIZED'>, raw_severity='WARNING', severity=<NotificationSeverity.WARNING: 'WARNING'>, diagnostic_record={'_classification': 'UNRECOGNIZED', '_severity': 'WARNING', '_position': {'offset': 9, 'line': 1, 'column': 10}, 'OPERATION': '', 'OPERATION_CODE': '0', 'CURRENT_SCHEMA': '/'}> for query: 'MATCH (n:Customer) RETURN count(n) AS c'
+Received notification from DBMS server: <GqlStatusObject gql_status='01N50', status_description='warn: label does not exist. The label `Probe` does not exist. Verify that the spelling is correct.', position=<SummaryInputPosition line=1, column=10, offset=9>, raw_classification='UNRECOGNIZED', classification=<NotificationClassification.UNRECOGNIZED: 'UNRECOGNIZED'>, raw_severity='WARNING', severity=<NotificationSeverity.WARNING: 'WARNING'>, diagnostic_record={'_classification': 'UNRECOGNIZED', '_severity': 'WARNING', '_position': {'offset': 9, 'line': 1, 'column': 10}, 'OPERATION': '', 'OPERATION_CODE': '0', 'CURRENT_SCHEMA': '/'}> for query: 'MATCH (n:Probe) RETURN count(n) AS c'
+  after destroy: {'customers': 0, 'repl_probe': 0}
+  imported artifact back into the fresh stack in 4.85s
+  restore [stop server; neo4j-admin database load --overwrite-destination; 
+start] 52.92s -> verified=True 

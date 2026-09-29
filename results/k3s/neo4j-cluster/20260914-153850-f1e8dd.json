@@ -1,0 +1,91 @@
+{
+  "engine": "neo4j-cluster",
+  "run_id": "20260914-153850-f1e8dd",
+  "partial": true,
+  "phases": {
+    "backup": {
+      "dr": {
+        "tag": "nslab-dr-20260914-153850",
+        "fingerprint_before": {
+          "counts": {
+            "customers": 20000,
+            "categories": 200,
+            "products": 5000,
+            "inventory": 20000
+          },
+          "customers_present": 50,
+          "probe_count": 100,
+          "post_probe_present": false
+        },
+        "backup": {
+          "method": "neo4j-admin database backup lab --from=neo4j1:6362 --type=full (online, Enterprise)",
+          "online": true,
+          "artifact": "/backups/nslab-dr-20260914-153850/lab-2026-09-14T12-39-01.backup",
+          "artifact_bytes": 91716027,
+          "files": [
+            "lab-2026-09-14T12-39-01.backup"
+          ],
+          "tool_output": "-09-14T12-39-01.backup' for database 'lab', took 1s 22ms.\n2026-09-14 12:39:06.807+0000 INFO  [c.n.b.b.BackupOutputMonitor] Backup of database 'lab' completed, took 7s 226ms.\nBackup command completed.\n",
+          "seconds": 16.27
+        },
+        "export": {
+          "dir": "/home/berkay-server/repos/boilers/raw-codes/databases/ns-databases/data/backups/neo4j-cluster/nslab-dr-20260914-153850",
+          "files": [
+            "/home/berkay-server/repos/boilers/raw-codes/databases/ns-databases/data/backups/neo4j-cluster/nslab-dr-20260914-153850/nslab-dr-20260914-153850"
+          ],
+          "bytes": 91716027,
+          "seconds": 0.82
+        },
+        "destroy": {
+          "method": "docker compose down -v (data + backups volumes removed)",
+          "seconds": 48.7
+        },
+        "fresh_up": {
+          "seconds": 54.4,
+          "services": [
+            "neo4j1",
+            "neo4j2",
+            "neo4j3"
+          ]
+        },
+        "after_destroy": {
+          "customers": "error: ClientError: {neo4j_code: Neo.ClientError.Database.DatabaseNotFound} {message: U",
+          "repl_probe": "error: ClientError: {neo4j_code: Neo.ClientError.Database.DatabaseNotFound} {message: U"
+        },
+        "import": {
+          "placed": [
+            "nslab-neo4j1:/backups/nslab-dr-20260914-153850"
+          ],
+          "seconds": 3.32
+        },
+        "restore": {
+          "method": "DROP DATABASE + CREATE DATABASE ... OPTIONS {existingData:'use', seedURI:'file://.../<tag>.backup'} WAIT (every primary seeds from the shared file)",
+          "online": false,
+          "downtime_ms": 15271.0,
+          "drop_ms": 298.9,
+          "seed_uri": "file:///backups/nslab-dr-20260914-153850/lab-2026-09-14T12-39-01.backup",
+          "seconds": 15.48,
+          "checks": {
+            "counts_match": true,
+            "customers_present": true,
+            "probe_count_match": true
+          },
+          "verified": true
+        },
+        "fingerprint_after_restore": {
+          "counts": {
+            "customers": 20000,
+            "categories": 200,
+            "products": 5000,
+            "inventory": 20000
+          },
+          "customers_present": 50,
+          "probe_count": 100,
+          "post_probe_present": false
+        },
+        "_seconds": 150.6
+      }
+    }
+  },
+  "platform": "k3s"
+}

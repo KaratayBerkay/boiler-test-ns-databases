@@ -1,0 +1,14 @@
+{
+  "engine": "mongodb",
+  "run_id": "20260914-150800-61d364",
+  "partial": true,
+  "phases": {
+    "backup": {
+      "dr": {
+        "_error": "NotPrimaryError: not primary, full error: {'topologyVersion': {'processId': ObjectId('6aa7e39b701c78bbbbf0bbc5'), 'counter': 3}, 'ok': 0.0, 'errmsg': 'not primary', 'code': 10107, 'codeName': 'NotWritablePrimary', '$clusterTime': {'clusterTime': Timestamp(1789387680, 1), 'signature': {'hash': b'\\x00",
+        "_seconds": 2.2
+      }
+    }
+  },
+  "platform": "k3s"
+}

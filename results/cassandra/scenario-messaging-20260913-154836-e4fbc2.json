@@ -1,0 +1,970 @@
+{
+  "scenario": "messaging",
+  "engine": "cassandra",
+  "size": "small",
+  "sizes": {
+    "users": 40000,
+    "conversations": 60000,
+    "group_frac": 0.3,
+    "avg_degree": 25,
+    "max_group": 300,
+    "msg_cap": 800,
+    "msg_skew": 5.0,
+    "user_skew": 2.4,
+    "group_size_skew": 3.5
+  },
+  "fanout": "write",
+  "mix": {
+    "load_history": 25,
+    "load_inbox": 20,
+    "send_message": 15,
+    "mark_read": 12,
+    "unread_badge": 8,
+    "typing": 5,
+    "list_friends": 4,
+    "send_request": 3,
+    "accept_request": 2,
+    "mutual_friends": 2,
+    "people_you_may_know": 2,
+    "register": 1
+  },
+  "server": "Cassandra 5.0.9 keyspace=chatter RF=3 CL=6 fanout=write",
+  "runs": [
+    {
+      "workers": 8,
+      "seconds": 25.0,
+      "mode": "closed",
+      "rate": null,
+      "think_ms": 0.0,
+      "throughput_ops_s": 1299,
+      "ops": 32475,
+      "errors": 0,
+      "per_op": {
+        "load_history": {
+          "n": 8197,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 8197,
+            "min": 4.620698,
+            "p50": 6.38898,
+            "p90": 9.026512400000001,
+            "p95": 10.302873400000001,
+            "p99": 15.4946836,
+            "max": 48.827889,
+            "mean": 7.009146280346468,
+            "stdev": 2.6203006587100797
+          }
+        },
+        "load_inbox": {
+          "n": 6541,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 6541,
+            "min": 0.989828,
+            "p50": 1.756761,
+            "p90": 4.90341,
+            "p95": 10.91659,
+            "p99": 77.29466600000018,
+            "max": 161.647915,
+            "mean": 4.0396320256841465,
+            "stdev": 10.668248425996902
+          }
+        },
+        "send_message": {
+          "n": 5048,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 5048,
+            "min": 2.682582,
+            "p50": 4.1685675,
+            "p90": 40.376306400000026,
+            "p95": 86.98399054999994,
+            "p99": 144.19180642999999,
+            "max": 185.807231,
+            "mean": 14.620596408676704,
+            "stdev": 28.979295783193344
+          }
+        },
+        "mark_read": {
+          "n": 3926,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 3926,
+            "min": 1.474077,
+            "p50": 1.9996425,
+            "p90": 3.306973,
+            "p95": 3.9200065,
+            "p99": 6.0197575,
+            "max": 41.543887,
+            "mean": 2.3627427656647986,
+            "stdev": 1.5800002970735243
+          }
+        },
+        "unread_badge": {
+          "n": 2558,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 2558,
+            "min": 0.711512,
+            "p50": 1.0367795000000002,
+            "p90": 1.7115562,
+            "p95": 2.1370451000000004,
+            "p99": 3.5901878099999807,
+            "max": 14.355665,
+            "mean": 1.2251978917122752,
+            "stdev": 0.6951053947007878
+          }
+        },
+        "typing": {
+          "n": 1612,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 1612,
+            "min": 0.513595,
+            "p50": 0.69627,
+            "p90": 1.046163,
+            "p95": 1.2741480999999977,
+            "p99": 2.229782789999982,
+            "max": 12.541393,
+            "mean": 0.7995909038461538,
+            "stdev": 0.45960228737330255
+          }
+        },
+        "list_friends": {
+          "n": 1313,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 1313,
+            "min": 0.908547,
+            "p50": 1.348222,
+            "p90": 2.2773774,
+            "p95": 2.7620579999999992,
+            "p99": 4.742350599999949,
+            "max": 40.302097,
+            "mean": 1.6450290426504188,
+            "stdev": 1.6771822435872044
+          }
+        },
+        "send_request": {
+          "n": 988,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 988,
+            "min": 1.139852,
+            "p50": 1.594797,
+            "p90": 2.559836000000001,
+            "p95": 3.12783,
+            "p99": 6.555617819999998,
+            "max": 36.394359,
+            "mean": 1.9391816589068827,
+            "stdev": 1.7269960399356863
+          }
+        },
+        "accept_request": {
+          "n": 680,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 680,
+            "min": 2.220952,
+            "p50": 2.9054254999999998,
+            "p90": 4.5821495,
+            "p95": 5.6684046499999985,
+            "p99": 15.052680550000028,
+            "max": 35.327153,
+            "mean": 3.534896829411765,
+            "stdev": 2.6755068165932143
+          }
+        },
+        "mutual_friends": {
+          "n": 635,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 635,
+            "min": 2.878349,
+            "p50": 4.116319,
+            "p90": 7.072801800000001,
+            "p95": 8.857983199999998,
+            "p99": 12.617225819999996,
+            "max": 39.06656,
+            "mean": 4.850964226771653,
+            "stdev": 2.6650810758568144
+          }
+        },
+        "people_you_may_know": {
+          "n": 648,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 648,
+            "min": 5.633307,
+            "p50": 14.491708,
+            "p90": 74.34469590000003,
+            "p95": 89.78359224999998,
+            "p99": 122.87998306999988,
+            "max": 149.268216,
+            "mean": 26.45337223148148,
+            "stdev": 27.03902056148543
+          }
+        },
+        "register": {
+          "n": 329,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 329,
+            "min": 2.750999,
+            "p50": 3.783078,
+            "p90": 5.572581,
+            "p95": 6.557979799999998,
+            "p99": 12.279888439999997,
+            "max": 43.103692,
+            "mean": 4.343608288753799,
+            "stdev": 2.5792100080657456
+          }
+        }
+      },
+      "container_usage": {
+        "nslab-cassandra1": {
+          "cpu_cores_avg": 4.388,
+          "cpu_limit_cores": null,
+          "cpu_pct_of_limit": null,
+          "mem_peak_mb": 8227,
+          "mem_end_mb": 8109,
+          "mem_limit_mb": null,
+          "cpu_cores_avg_during_run": 4.711
+        },
+        "nslab-cassandra2": {
+          "cpu_cores_avg": 4.307,
+          "cpu_limit_cores": null,
+          "cpu_pct_of_limit": null,
+          "mem_peak_mb": 8201,
+          "mem_end_mb": 8073,
+          "mem_limit_mb": null,
+          "cpu_cores_avg_during_run": 4.624
+        },
+        "nslab-cassandra3": {
+          "cpu_cores_avg": 4.399,
+          "cpu_limit_cores": null,
+          "cpu_pct_of_limit": null,
+          "mem_peak_mb": 8069,
+          "mem_end_mb": 7959,
+          "mem_limit_mb": null,
+          "cpu_cores_avg_during_run": 4.722
+        }
+      }
+    },
+    {
+      "workers": 32,
+      "seconds": 25.0,
+      "mode": "closed",
+      "rate": null,
+      "think_ms": 0.0,
+      "throughput_ops_s": 1939,
+      "ops": 48473,
+      "errors": 0,
+      "per_op": {
+        "load_history": {
+          "n": 12334,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 12334,
+            "min": 1.647411,
+            "p50": 21.511144,
+            "p90": 32.2004152,
+            "p95": 37.20241434999998,
+            "p99": 58.86741520000001,
+            "max": 121.360257,
+            "mean": 23.094743845873197,
+            "stdev": 8.779443991074814
+          }
+        },
+        "load_inbox": {
+          "n": 9566,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 9566,
+            "min": 1.391642,
+            "p50": 5.3994064999999996,
+            "p90": 15.578067,
+            "p95": 28.36396575,
+            "p99": 161.79195140000044,
+            "max": 398.058928,
+            "mean": 10.64190662450345,
+            "stdev": 24.171853774530618
+          }
+        },
+        "send_message": {
+          "n": 7471,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 7471,
+            "min": 3.952802,
+            "p50": 13.367372,
+            "p90": 78.621171,
+            "p95": 163.4607935,
+            "p99": 267.1879246000001,
+            "max": 374.611979,
+            "mean": 32.48934670097711,
+            "stdev": 52.59925061569033
+          }
+        },
+        "mark_read": {
+          "n": 5977,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 5977,
+            "min": 2.282054,
+            "p50": 6.751065,
+            "p90": 12.369179800000008,
+            "p95": 15.051847599999997,
+            "p99": 24.853742879999924,
+            "max": 84.185024,
+            "mean": 7.83733372963025,
+            "stdev": 4.775314796566081
+          }
+        },
+        "unread_badge": {
+          "n": 3958,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 3958,
+            "min": 1.017965,
+            "p50": 3.4411215,
+            "p90": 7.241778700000003,
+            "p95": 9.001987699999999,
+            "p99": 14.462575159999998,
+            "max": 70.340699,
+            "mean": 4.244690794593229,
+            "stdev": 3.3147835080971397
+          }
+        },
+        "typing": {
+          "n": 2361,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 2361,
+            "min": 0.572867,
+            "p50": 1.814952,
+            "p90": 4.143735,
+            "p95": 5.363788,
+            "p99": 10.332736800000012,
+            "max": 51.723467,
+            "mean": 2.4120804603981365,
+            "stdev": 2.6559765795007446
+          }
+        },
+        "list_friends": {
+          "n": 1944,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 1944,
+            "min": 1.421409,
+            "p50": 4.091713,
+            "p90": 8.061265500000001,
+            "p95": 9.883083199999998,
+            "p99": 15.507233509999976,
+            "max": 47.22422,
+            "mean": 4.883607920781893,
+            "stdev": 3.3094908344514904
+          }
+        },
+        "send_request": {
+          "n": 1467,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 1467,
+            "min": 1.718643,
+            "p50": 5.294863,
+            "p90": 9.7802792,
+            "p95": 12.242765900000002,
+            "p99": 24.645262939999995,
+            "max": 76.86055,
+            "mean": 6.351662721881391,
+            "stdev": 4.915749475904073
+          }
+        },
+        "accept_request": {
+          "n": 984,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 984,
+            "min": 3.339473,
+            "p50": 9.471247,
+            "p90": 17.219273900000005,
+            "p95": 22.188130899999976,
+            "p99": 37.00267768999996,
+            "max": 64.246699,
+            "mean": 11.086661763211383,
+            "stdev": 6.1441076000289385
+          }
+        },
+        "mutual_friends": {
+          "n": 975,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 975,
+            "min": 4.19448,
+            "p50": 13.38666,
+            "p90": 22.934386,
+            "p95": 28.23755589999999,
+            "p99": 48.68926427999998,
+            "max": 75.198765,
+            "mean": 15.269699284102565,
+            "stdev": 7.97468897168296
+          }
+        },
+        "people_you_may_know": {
+          "n": 952,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 952,
+            "min": 11.346898,
+            "p50": 36.1147,
+            "p90": 113.7539312,
+            "p95": 154.7636186499999,
+            "p99": 220.83643493000002,
+            "max": 297.050476,
+            "mean": 52.67311466281513,
+            "stdev": 44.499603625511654
+          }
+        },
+        "register": {
+          "n": 484,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 484,
+            "min": 3.049334,
+            "p50": 9.8553705,
+            "p90": 16.8394272,
+            "p95": 20.214365899999997,
+            "p99": 26.857485380000025,
+            "max": 71.293451,
+            "mean": 11.047713262396694,
+            "stdev": 6.6246509417649815
+          }
+        }
+      },
+      "container_usage": {
+        "nslab-cassandra1": {
+          "cpu_cores_avg": 4.473,
+          "cpu_limit_cores": null,
+          "cpu_pct_of_limit": null,
+          "mem_peak_mb": 8253,
+          "mem_end_mb": 8149,
+          "mem_limit_mb": null,
+          "cpu_cores_avg_during_run": 5.034
+        },
+        "nslab-cassandra2": {
+          "cpu_cores_avg": 4.83,
+          "cpu_limit_cores": null,
+          "cpu_pct_of_limit": null,
+          "mem_peak_mb": 8255,
+          "mem_end_mb": 8116,
+          "mem_limit_mb": null,
+          "cpu_cores_avg_during_run": 5.436
+        },
+        "nslab-cassandra3": {
+          "cpu_cores_avg": 5.16,
+          "cpu_limit_cores": null,
+          "cpu_pct_of_limit": null,
+          "mem_peak_mb": 8134,
+          "mem_end_mb": 8011,
+          "mem_limit_mb": null,
+          "cpu_cores_avg_during_run": 5.808
+        }
+      }
+    },
+    {
+      "workers": 64,
+      "seconds": 25.0,
+      "mode": "closed",
+      "rate": null,
+      "think_ms": 0.0,
+      "throughput_ops_s": 2064,
+      "ops": 51600,
+      "errors": 0,
+      "per_op": {
+        "load_history": {
+          "n": 13205,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 13205,
+            "min": 2.53421,
+            "p50": 41.344089,
+            "p90": 69.71439040000001,
+            "p95": 83.30767859999999,
+            "p99": 115.71587867999983,
+            "max": 232.220927,
+            "mean": 45.356288983415375,
+            "stdev": 20.1824443481797
+          }
+        },
+        "load_inbox": {
+          "n": 10392,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 10392,
+            "min": 1.451897,
+            "p50": 8.4350545,
+            "p90": 26.22517489999999,
+            "p95": 43.734238899999966,
+            "p99": 210.34054491000015,
+            "max": 471.894528,
+            "mean": 16.041839061104696,
+            "stdev": 32.97897759737096
+          }
+        },
+        "send_message": {
+          "n": 7904,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 7904,
+            "min": 5.290789,
+            "p50": 24.869736,
+            "p90": 157.7472666,
+            "p95": 302.3847449999991,
+            "p99": 529.75487409,
+            "max": 936.113367,
+            "mean": 61.83329180225202,
+            "stdev": 103.95076568203396
+          }
+        },
+        "mark_read": {
+          "n": 6245,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 6245,
+            "min": 2.532212,
+            "p50": 12.698711,
+            "p90": 27.349256600000004,
+            "p95": 34.25427739999999,
+            "p99": 60.466589919999926,
+            "max": 218.621488,
+            "mean": 15.60885081521217,
+            "stdev": 11.134625630772916
+          }
+        },
+        "unread_badge": {
+          "n": 4176,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 4176,
+            "min": 0.982028,
+            "p50": 6.2057595,
+            "p90": 14.967750500000001,
+            "p95": 20.282697,
+            "p99": 36.723263,
+            "max": 93.56388,
+            "mean": 8.238985078065134,
+            "stdev": 7.165918317166672
+          }
+        },
+        "typing": {
+          "n": 2546,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 2546,
+            "min": 0.663559,
+            "p50": 3.5109195,
+            "p90": 9.3139535,
+            "p95": 12.70911925,
+            "p99": 29.233488700000084,
+            "max": 82.541113,
+            "mean": 4.994340362922231,
+            "stdev": 5.6594243234501835
+          }
+        },
+        "list_friends": {
+          "n": 2010,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 2010,
+            "min": 1.431636,
+            "p50": 6.7552734999999995,
+            "p90": 16.036148700000002,
+            "p95": 21.73033979999999,
+            "p99": 38.88001768000007,
+            "max": 149.898441,
+            "mean": 8.822019344776118,
+            "stdev": 7.785351368056286
+          }
+        },
+        "send_request": {
+          "n": 1557,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 1557,
+            "min": 2.326002,
+            "p50": 8.826827,
+            "p90": 21.552154600000005,
+            "p95": 29.779009599999977,
+            "p99": 51.61685404000005,
+            "max": 92.269985,
+            "mean": 11.630599437379576,
+            "stdev": 9.349107054523428
+          }
+        },
+        "accept_request": {
+          "n": 1030,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 1030,
+            "min": 4.810856,
+            "p50": 15.7952595,
+            "p90": 38.0206146,
+            "p95": 50.6032501,
+            "p99": 82.5254313400001,
+            "max": 121.442342,
+            "mean": 20.600375400970876,
+            "stdev": 15.216424861056153
+          }
+        },
+        "mutual_friends": {
+          "n": 990,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 990,
+            "min": 6.553261,
+            "p50": 23.6129935,
+            "p90": 46.2196105,
+            "p95": 57.124250049999965,
+            "p99": 89.86979741000002,
+            "max": 120.606138,
+            "mean": 27.406791513131314,
+            "stdev": 15.117037492488063
+          }
+        },
+        "people_you_may_know": {
+          "n": 1040,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 1040,
+            "min": 14.363981,
+            "p50": 72.582117,
+            "p90": 226.52394410000008,
+            "p95": 301.53783089999996,
+            "p99": 436.94710872999855,
+            "max": 828.15773,
+            "mean": 103.84735818557692,
+            "stdev": 91.03521873149828
+          }
+        },
+        "register": {
+          "n": 505,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 505,
+            "min": 3.686111,
+            "p50": 14.126527,
+            "p90": 28.0710408,
+            "p95": 42.282021599999965,
+            "p99": 66.74850311999995,
+            "max": 101.196235,
+            "mean": 16.955127364356436,
+            "stdev": 11.987080160613756
+          }
+        }
+      },
+      "container_usage": {
+        "nslab-cassandra1": {
+          "cpu_cores_avg": 4.462,
+          "cpu_limit_cores": null,
+          "cpu_pct_of_limit": null,
+          "mem_peak_mb": 8333,
+          "mem_end_mb": 8230,
+          "mem_limit_mb": null,
+          "cpu_cores_avg_during_run": 5.317
+        },
+        "nslab-cassandra2": {
+          "cpu_cores_avg": 4.516,
+          "cpu_limit_cores": null,
+          "cpu_pct_of_limit": null,
+          "mem_peak_mb": 8326,
+          "mem_end_mb": 8186,
+          "mem_limit_mb": null,
+          "cpu_cores_avg_during_run": 5.381
+        },
+        "nslab-cassandra3": {
+          "cpu_cores_avg": 4.87,
+          "cpu_limit_cores": null,
+          "cpu_pct_of_limit": null,
+          "mem_peak_mb": 8167,
+          "mem_end_mb": 8139,
+          "mem_limit_mb": null,
+          "cpu_cores_avg_during_run": 5.803
+        }
+      }
+    },
+    {
+      "workers": 128,
+      "seconds": 25.0,
+      "mode": "closed",
+      "rate": null,
+      "think_ms": 0.0,
+      "throughput_ops_s": 1993,
+      "ops": 49821,
+      "errors": 0,
+      "per_op": {
+        "load_history": {
+          "n": 12659,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 12659,
+            "min": 3.113351,
+            "p50": 79.176818,
+            "p90": 136.73109860000002,
+            "p95": 161.59786469999995,
+            "p99": 223.78309354,
+            "max": 818.058546,
+            "mean": 86.18399759522869,
+            "stdev": 42.83752044025659
+          }
+        },
+        "load_inbox": {
+          "n": 10102,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 10102,
+            "min": 1.498873,
+            "p50": 14.895119000000001,
+            "p90": 47.8496598,
+            "p95": 74.51592944999992,
+            "p99": 300.9832598199998,
+            "max": 982.00669,
+            "mean": 27.337929286180955,
+            "stdev": 53.53601559734327
+          }
+        },
+        "send_message": {
+          "n": 7628,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 7628,
+            "min": 4.203094,
+            "p50": 51.1637385,
+            "p90": 377.86222390000023,
+            "p95": 765.114686349997,
+            "p99": 1407.7332716099968,
+            "max": 2494.387423,
+            "mean": 146.7603488147614,
+            "stdev": 273.6950524593489
+          }
+        },
+        "mark_read": {
+          "n": 6011,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 6011,
+            "min": 2.686599,
+            "p50": 25.616908,
+            "p90": 57.677903,
+            "p95": 75.4456155,
+            "p99": 131.29563899999943,
+            "max": 460.074228,
+            "mean": 31.957796964897685,
+            "stdev": 25.967904537265778
+          }
+        },
+        "unread_badge": {
+          "n": 4117,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 4117,
+            "min": 1.428023,
+            "p50": 12.411986,
+            "p90": 33.648438600000006,
+            "p95": 44.2617982,
+            "p99": 93.03387920000019,
+            "max": 478.812847,
+            "mean": 17.318573992470245,
+            "stdev": 18.845017062063675
+          }
+        },
+        "typing": {
+          "n": 2389,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 2389,
+            "min": 0.839457,
+            "p50": 8.23124,
+            "p90": 23.230541800000026,
+            "p95": 32.4229396,
+            "p99": 63.49674999999968,
+            "max": 241.83775,
+            "mean": 12.040996345332776,
+            "stdev": 15.479064129407593
+          }
+        },
+        "list_friends": {
+          "n": 1958,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 1958,
+            "min": 1.792982,
+            "p50": 12.215652,
+            "p90": 32.83741,
+            "p95": 41.861486949999964,
+            "p99": 73.20078398000003,
+            "max": 204.411595,
+            "mean": 16.573791578651687,
+            "stdev": 15.581691205035742
+          }
+        },
+        "send_request": {
+          "n": 1549,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 1549,
+            "min": 2.380793,
+            "p50": 15.814,
+            "p90": 50.38628020000001,
+            "p95": 70.8419265999999,
+            "p99": 101.79196927999996,
+            "max": 210.726651,
+            "mean": 23.13395950032279,
+            "stdev": 22.243891658618615
+          }
+        },
+        "accept_request": {
+          "n": 989,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 989,
+            "min": 5.249892,
+            "p50": 31.15021,
+            "p90": 99.0484036,
+            "p95": 130.53027159999994,
+            "p99": 177.30865540000002,
+            "max": 285.596559,
+            "mean": 45.556734809908995,
+            "stdev": 38.559569694749094
+          }
+        },
+        "mutual_friends": {
+          "n": 958,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 958,
+            "min": 8.016464,
+            "p50": 45.068012499999995,
+            "p90": 89.53677730000003,
+            "p95": 109.17112639999998,
+            "p99": 164.7199655299997,
+            "max": 273.114176,
+            "mean": 52.272373417536535,
+            "stdev": 31.60848255133969
+          }
+        },
+        "people_you_may_know": {
+          "n": 974,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 974,
+            "min": 21.144972,
+            "p50": 173.39268650000002,
+            "p90": 595.7461266000007,
+            "p95": 832.9302751499996,
+            "p99": 1212.4313545599998,
+            "max": 1618.386782,
+            "mean": 256.95945312217657,
+            "stdev": 249.75933928715267
+          }
+        },
+        "register": {
+          "n": 487,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 487,
+            "min": 4.602273,
+            "p50": 26.242889,
+            "p90": 70.8624882,
+            "p95": 89.69407939999998,
+            "p99": 116.10952763999963,
+            "max": 206.620506,
+            "mean": 34.57251002258727,
+            "stdev": 26.6613807561137
+          }
+        }
+      },
+      "container_usage": {
+        "nslab-cassandra1": {
+          "cpu_cores_avg": 4.29,
+          "cpu_limit_cores": null,
+          "cpu_pct_of_limit": null,
+          "mem_peak_mb": 8366,
+          "mem_end_mb": 8250,
+          "mem_limit_mb": null,
+          "cpu_cores_avg_during_run": 5.206
+        },
+        "nslab-cassandra2": {
+          "cpu_cores_avg": 4.486,
+          "cpu_limit_cores": null,
+          "cpu_pct_of_limit": null,
+          "mem_peak_mb": 8348,
+          "mem_end_mb": 8232,
+          "mem_limit_mb": null,
+          "cpu_cores_avg_during_run": 5.444
+        },
+        "nslab-cassandra3": {
+          "cpu_cores_avg": 4.671,
+          "cpu_limit_cores": null,
+          "cpu_pct_of_limit": null,
+          "mem_peak_mb": 8266,
+          "mem_end_mb": 8119,
+          "mem_limit_mb": null,
+          "cpu_cores_avg_during_run": 5.668
+        }
+      }
+    }
+  ],
+  "peak_throughput_ops_s": 2064,
+  "peak_workers": 64,
+  "run_id": "20260913-154836-e4fbc2",
+  "saved": "2026-09-13T12:48:36+00:00"
+}

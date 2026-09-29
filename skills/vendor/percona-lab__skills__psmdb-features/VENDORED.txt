@@ -1,0 +1,3 @@
+source: https://github.com/Percona-Lab/skills/tree/main/psmdb-features
+license: MIT
+vendored: 2026-09-14 (ns-databases lab, backup/logging pass)

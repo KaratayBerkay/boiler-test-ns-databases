@@ -1,0 +1,170 @@
+{
+  "engine": "cassandra",
+  "run_id": "20260914-124513-2ac1a2",
+  "partial": true,
+  "phases": {
+    "backup": {
+      "dr": {
+        "tag": "nslab-dr-20260914-124513",
+        "fingerprint_before": {
+          "counts": {
+            "customers": 20000,
+            "categories": 200,
+            "products": 5000,
+            "inventory": 20000
+          },
+          "customers_present": 50,
+          "probe_count": 100,
+          "post_probe_present": false
+        },
+        "backup": {
+          "method": "nodetool flush + snapshot --ttl 3h on every node, export to /backups (sstableloader layout)",
+          "online": true,
+          "artifact": "/backups/nslab-dr-20260914-124513/<node>/lab/<table>/",
+          "artifact_bytes": 378554712,
+          "per_node": {
+            "primary": {
+              "snapshot_ms": 3804.9,
+              "export_ms": 222.7,
+              "bytes": 126208816
+            },
+            "node2": {
+              "snapshot_ms": 3934.0,
+              "export_ms": 218.6,
+              "bytes": 126173742
+            },
+            "node3": {
+              "snapshot_ms": 3844.8,
+              "export_ms": 222.4,
+              "bytes": 126172154
+            }
+          },
+          "listsnapshots_sample": [
+            "nslab-dr-20260914-124513           lab           inventory            1.23 KiB  485.8 KiB    2026-09-14T09:45:18.333Z 2026-09-14T12:45:18.333Z",
+            "nslab-dr-20260914-124513           lab           orders               1.22 KiB  21.13 MiB    2026-09-14T09:45:18.333Z 2026-09-14T12:45:18.333Z",
+            "nslab-dr-20260914-124513           lab           orders_by_time       1.2 KiB   2.91 MiB     2026-09-14T09:45:18.333Z 2026-09-14T12:45:18.333Z"
+          ],
+          "note": "RF=3 on 3 nodes: each node's export is a full copy of the keyspace; every node re-imports its own",
+          "seconds": 13.42
+        },
+        "export": {
+          "dir": "/home/berkay-server/repos/boilers/raw-codes/databases/ns-databases/data/backups/cassandra/nslab-dr-20260914-124513",
+          "files": [
+            "/home/berkay-server/repos/boilers/raw-codes/databases/ns-databases/data/backups/cassandra/nslab-dr-20260914-124513/nslab-dr-20260914-124513"
+          ],
+          "bytes": 378554712,
+          "seconds": 1.05
+        },
+        "destroy": {
+          "method": "docker compose down -v (data + backups volumes removed)",
+          "seconds": 34.2
+        },
+        "fresh_up": {
+          "seconds": 55.5,
+          "services": [
+            "cassandra1",
+            "cassandra2",
+            "cassandra3"
+          ]
+        },
+        "after_destroy": {
+          "customers": "error: InvalidRequest: Error from server: code=2200 [Invalid query] message=\"No keyspac",
+          "repl_probe": "error: InvalidRequest: Error from server: code=2200 [Invalid query] message=\"No keyspac"
+        },
+        "import": {
+          "placed": [
+            "nslab-cassandra1:/backups/nslab-dr-20260914-124513"
+          ],
+          "seconds": 1.08
+        },
+        "restore": {
+          "method": "TRUNCATE tables + nodetool import --copy-data of each node's own snapshot export (parallel per node)",
+          "online": true,
+          "schema_created": true,
+          "truncate_ms": 419.9,
+          "tables": 14,
+          "per_node": {
+            "node2": {
+              "ms": 22111.4,
+              "per_table_ms": {
+                "categories": 1214.1,
+                "customers": 1301.0,
+                "events": 2111.3,
+                "inventory": 1248.4,
+                "inventory_qty": 1169.6,
+                "items_by_order": 1384.5,
+                "order_items": 1457.4,
+                "orders": 1443.0,
+                "orders_by_customer": 1200.1,
+                "orders_by_time": 1181.9,
+                "products": 4879.1,
+                "products_by_category": 1150.1,
+                "repl_probe": 1181.1,
+                "scratch": 1189.6
+              }
+            },
+            "node3": {
+              "ms": 22502.6,
+              "per_table_ms": {
+                "categories": 1202.9,
+                "customers": 1290.4,
+                "events": 2600.0,
+                "inventory": 1235.1,
+                "inventory_qty": 1116.0,
+                "items_by_order": 1365.1,
+                "order_items": 1584.7,
+                "orders": 1375.2,
+                "orders_by_customer": 1174.8,
+                "orders_by_time": 1186.4,
+                "products": 4901.9,
+                "products_by_category": 1150.0,
+                "repl_probe": 1130.8,
+                "scratch": 1189.5
+              }
+            },
+            "primary": {
+              "ms": 22781.5,
+              "per_table_ms": {
+                "categories": 1218.2,
+                "customers": 1263.0,
+                "events": 2619.2,
+                "inventory": 1133.3,
+                "inventory_qty": 1152.9,
+                "items_by_order": 1413.1,
+                "order_items": 1557.3,
+                "orders": 1532.4,
+                "orders_by_customer": 1224.6,
+                "orders_by_time": 1213.7,
+                "products": 5022.1,
+                "products_by_category": 1127.2,
+                "repl_probe": 1154.2,
+                "scratch": 1150.0
+              }
+            }
+          },
+          "nodetool_invocations": 42,
+          "note": "sstableloader (client-side streaming) fails on the vector<float, 8> column in 5.0.x: 'Could not parse type name'",
+          "seconds": 39.3,
+          "checks": {
+            "counts_match": true,
+            "customers_present": true,
+            "probe_count_match": true
+          },
+          "verified": true
+        },
+        "fingerprint_after_restore": {
+          "counts": {
+            "customers": 20000,
+            "categories": 200,
+            "products": 5000,
+            "inventory": 20000
+          },
+          "customers_present": 50,
+          "probe_count": 100,
+          "post_probe_present": false
+        },
+        "_seconds": 152.9
+      }
+    }
+  }
+}

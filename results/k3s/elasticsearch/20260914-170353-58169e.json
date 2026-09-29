@@ -1,0 +1,110 @@
+{
+  "engine": "elasticsearch",
+  "run_id": "20260914-170353-58169e",
+  "partial": true,
+  "phases": {
+    "backup": {
+      "dr": {
+        "tag": "nslab-dr-20260914-170353",
+        "fingerprint_before": {
+          "counts": {
+            "customers": 20000,
+            "categories": 200,
+            "products": 5000,
+            "inventory": 20000
+          },
+          "customers_present": 50,
+          "probe_count": 100,
+          "post_probe_present": false
+        },
+        "backup": {
+          "method": "PUT _snapshot/nslab/<tag> (fs repository, compress)",
+          "online": true,
+          "artifact": "/backups/nslab (repository) snapshot nslab-dr-20260914-170353",
+          "artifact_bytes": 166646624,
+          "repository_bytes": 166736190,
+          "files": 65,
+          "data_dir_bytes": 167075193,
+          "indices": 8,
+          "shards": {
+            "total": 8,
+            "failed": 0,
+            "successful": 8
+          },
+          "server_ms": 4403,
+          "slm": "SLM policy nslab-nightly: daily 01:30, keep 3-30 snapshots / 7 days",
+          "seconds": 5.18
+        },
+        "export": {
+          "dir": "/home/berkay-server/repos/boilers/raw-codes/databases/ns-databases/data/backups/elasticsearch/nslab-dr-20260914-170353",
+          "files": [
+            "/home/berkay-server/repos/boilers/raw-codes/databases/ns-databases/data/backups/elasticsearch/nslab-dr-20260914-170353/nslab"
+          ],
+          "bytes": 166662462,
+          "seconds": 2.95
+        },
+        "destroy": {
+          "method": "docker compose down -v (data + backups volumes removed)",
+          "seconds": 57.1
+        },
+        "fresh_up": {
+          "seconds": 39.3,
+          "services": [
+            "es1",
+            "es2",
+            "es3"
+          ]
+        },
+        "after_destroy": {
+          "customers": "error: EngineError: POST /lab_customers/_refresh -> 404: {\"error\":{\"root_cause\":[{\"type",
+          "repl_probe": "error: EngineError: POST /lab_repl_probe/_refresh -> 404: {\"error\":{\"root_cause\":[{\"typ"
+        },
+        "import": {
+          "placed": [
+            "nslab-es1:/backups/nslab"
+          ],
+          "seconds": 5.38
+        },
+        "restore": {
+          "method": "DELETE the 0 lab_* indices (by name) + POST _snapshot/nslab/<tag>/_restore",
+          "online": true,
+          "shards": {
+            "total": 8,
+            "failed": 0,
+            "successful": 8
+          },
+          "indices": [
+            "lab_customers",
+            "lab_products",
+            "lab_order_items",
+            "lab_categories",
+            "lab_repl_probe",
+            "lab_inventory",
+            "lab_orders",
+            "lab_events"
+          ],
+          "seconds": 3.88,
+          "checks": {
+            "counts_match": true,
+            "customers_present": true,
+            "probe_count_match": true
+          },
+          "verified": true
+        },
+        "fingerprint_after_restore": {
+          "counts": {
+            "customers": 20000,
+            "categories": 200,
+            "products": 5000,
+            "inventory": 20000
+          },
+          "customers_present": 50,
+          "probe_count": 100,
+          "post_probe_present": false
+        },
+        "_seconds": 122.4
+      }
+    }
+  },
+  "platform": "k3s"
+}

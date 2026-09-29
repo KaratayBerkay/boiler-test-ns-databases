@@ -1,0 +1,212 @@
+{
+  "engine": "elasticsearch",
+  "display": "Elasticsearch 9",
+  "category": "search / analytics engine (Lucene, inverted index)",
+  "family": "search",
+  "driver": "es",
+  "image": "elasticsearch:9.5.3",
+  "run_id": "20260913-143953-3dc073",
+  "started": "2026-09-13T11:39:53+00:00",
+  "scale": 1.0,
+  "notes": "Elasticsearch 9 single node, security disabled. One index per collection, every field indexed at mapping time (inverted index for keyword/text, BKD tree for numeric/geo, HNSW for dense_vector). Eventually consistent for search (30 s refresh; the harness refreshes after load). No multi-document transactions, no server-side joins across indices, no per-document TTL.",
+  "phases": {
+    "connections": {
+      "max_connections": null,
+      "connect_latency": {
+        "primary": {
+          "target": "primary",
+          "n": 30,
+          "ms": {
+            "n": 30,
+            "min": 3.428997,
+            "p50": 4.151535,
+            "p90": 4.8211838,
+            "p95": 4.8688433,
+            "p99": 5.317829270000001,
+            "max": 5.489549,
+            "mean": 4.1931519,
+            "stdev": 0.4393844415650415
+          },
+          "errors": [],
+          "error_count": 0
+        }
+      },
+      "concurrency": {
+        "primary": [
+          {
+            "workers": 1,
+            "targets": [
+              "primary"
+            ],
+            "ops": 1494,
+            "errors": 0,
+            "seconds": 4.0,
+            "ops_per_s": 374,
+            "latency_ms": {
+              "n": 1494,
+              "min": 1.2571,
+              "p50": 2.7257675,
+              "p90": 3.0997273,
+              "p95": 3.25644235,
+              "p99": 3.6362625799999995,
+              "max": 26.814267,
+              "mean": 2.6762601044176706,
+              "stdev": 0.7626180258265862
+            },
+            "first_error": null,
+            "workers_reported": 1
+          },
+          {
+            "workers": 4,
+            "targets": [
+              "primary"
+            ],
+            "ops": 8567,
+            "errors": 0,
+            "seconds": 4.0,
+            "ops_per_s": 2142,
+            "latency_ms": {
+              "n": 8567,
+              "min": 0.964449,
+              "p50": 1.804252,
+              "p90": 2.4590428,
+              "p95": 2.6716398999999997,
+              "p99": 3.1264426200000006,
+              "max": 29.282936,
+              "mean": 1.8661632210808918,
+              "stdev": 0.6715705401336892
+            },
+            "first_error": null,
+            "workers_reported": 4
+          },
+          {
+            "workers": 16,
+            "targets": [
+              "primary"
+            ],
+            "ops": 43884,
+            "errors": 0,
+            "seconds": 4.0,
+            "ops_per_s": 10971,
+            "latency_ms": {
+              "n": 43884,
+              "min": 1.025995,
+              "p50": 1.380196,
+              "p90": 1.6285767,
+              "p95": 1.8203583499999998,
+              "p99": 2.3213557799999993,
+              "max": 39.736639,
+              "mean": 1.4569275369838666,
+              "stdev": 0.9886111691682209
+            },
+            "first_error": null,
+            "workers_reported": 16
+          },
+          {
+            "workers": 32,
+            "targets": [
+              "primary"
+            ],
+            "ops": 46109,
+            "errors": 0,
+            "seconds": 4.0,
+            "ops_per_s": 11527,
+            "latency_ms": {
+              "n": 46109,
+              "min": 1.180729,
+              "p50": 2.514118,
+              "p90": 3.9305618,
+              "p95": 4.5139607999999996,
+              "p99": 6.005524119999998,
+              "max": 65.445558,
+              "mean": 2.7745881658244596,
+              "stdev": 1.575158845428104
+            },
+            "first_error": null,
+            "workers_reported": 32
+          },
+          {
+            "workers": 64,
+            "targets": [
+              "primary"
+            ],
+            "ops": 53708,
+            "errors": 0,
+            "seconds": 4.0,
+            "ops_per_s": 13427,
+            "latency_ms": {
+              "n": 53708,
+              "min": 1.348658,
+              "p50": 4.351995499999999,
+              "p90": 7.203348900000001,
+              "p95": 8.268083749999997,
+              "p99": 10.922189080000003,
+              "max": 91.032259,
+              "mean": 4.76708505447978,
+              "stdev": 2.4315176228827244
+            },
+            "first_error": null,
+            "workers_reported": 64
+          }
+        ]
+      },
+      "pool_saturation": {
+        "pool_size": 8,
+        "workers": 32,
+        "ops": 2658,
+        "ops_per_s": 655,
+        "checkout_wait_ms": {
+          "n": 2658,
+          "min": 0.00222,
+          "p50": 0.005408,
+          "p90": 0.007957800000000003,
+          "p95": 0.008736150000000002,
+          "p99": 0.030854099999999055,
+          "max": 4010.972184,
+          "mean": 35.33773416252822,
+          "stdev": 370.18636227010086
+        },
+        "exec_ms": {
+          "n": 2658,
+          "min": 1.320792,
+          "p50": 9.7870205,
+          "p90": 24.033803800000005,
+          "p95": 30.099037050000014,
+          "p99": 42.26977913999995,
+          "max": 64.072377,
+          "mean": 12.136033700150488,
+          "stdev": 8.852091617502929
+        }
+      },
+      "write_contention": {
+        "threads": 4,
+        "iters_per_thread": 50,
+        "applied": 90,
+        "rejected": 110,
+        "errors": 0,
+        "version_before": 3,
+        "version_after": 59,
+        "version_delta": 56,
+        "atomic": false,
+        "seconds": 1.15,
+        "cas_ms": {
+          "n": 200,
+          "min": 8.866872,
+          "p50": 22.407961,
+          "p90": 29.485020900000002,
+          "p95": 30.963119599999978,
+          "p99": 38.181940669999996,
+          "max": 39.433113,
+          "mean": 22.706295814999997,
+          "stdev": 5.297882086235472
+        },
+        "first_error": null,
+        "interpretation": "version drifted from applied count: lost or duplicated updates"
+      },
+      "_seconds": 38.4
+    }
+  },
+  "partial": false,
+  "server_version": "elasticsearch 9.5.3",
+  "finished": "2026-09-13T11:40:31+00:00"
+}

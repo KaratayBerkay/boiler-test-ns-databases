@@ -1,0 +1,90 @@
+{
+  "engine": "lmdb",
+  "display": "LMDB",
+  "category": "embedded ordered key-value (memory-mapped B+tree)",
+  "family": "embedded",
+  "driver": "lmdb",
+  "image": "(embedded, python lmdb package)",
+  "run_id": "20260913-144848-e02997",
+  "started": "2026-09-13T11:48:48+00:00",
+  "scale": 1.0,
+  "notes": "Lightning Memory-Mapped Database, in-process, single writer / many MVCC readers. No query engine: an ordered key-value map. The lab models documents plus hand-maintained ordered index keyspaces (idx/...); aggregations, text, geo and vector scan the primary keyspace. 8 GB map. No server, no network, no replication.",
+  "phases": {
+    "connections": {
+      "max_connections": null,
+      "connect_latency": {
+        "embedded": {
+          "target": "embedded",
+          "n": 30,
+          "ms": {
+            "n": 30,
+            "min": 0.233085,
+            "p50": 0.2673185,
+            "p90": 0.3148515,
+            "p95": 0.32860205000000003,
+            "p99": 0.9831359700000009,
+            "max": 1.25017,
+            "mean": 0.30009496666666663,
+            "stdev": 0.1786243975115537
+          },
+          "errors": [],
+          "error_count": 0
+        }
+      },
+      "concurrency": {
+        "embedded": [
+          {
+            "workers": 1,
+            "targets": [
+              "embedded"
+            ],
+            "ops": 384986,
+            "errors": 0,
+            "seconds": 4.0,
+            "ops_per_s": 96246,
+            "latency_ms": {
+              "n": 384986,
+              "min": 0.007383,
+              "p50": 0.00926,
+              "p90": 0.010072,
+              "p95": 0.016638,
+              "p99": 0.025135,
+              "max": 0.221399,
+              "mean": 0.009985023437215898,
+              "stdev": 0.003634955859046694
+            },
+            "first_error": null,
+            "workers_reported": 1,
+            "mode": "threads (embedded engine)"
+          },
+          {
+            "workers": 4,
+            "error": "Error: The environment '/home/berkay-server/repos/boilers/raw-codes/databases/ns-databases/data/lmdb/lab.mdb' is already open in this process."
+          },
+          {
+            "workers": 16,
+            "error": "Error: The environment '/home/berkay-server/repos/boilers/raw-codes/databases/ns-databases/data/lmdb/lab.mdb' is already open in this process."
+          },
+          {
+            "workers": 32,
+            "error": "Error: The environment '/home/berkay-server/repos/boilers/raw-codes/databases/ns-databases/data/lmdb/lab.mdb' is already open in this process."
+          },
+          {
+            "workers": 64,
+            "error": "Error: The environment '/home/berkay-server/repos/boilers/raw-codes/databases/ns-databases/data/lmdb/lab.mdb' is already open in this process."
+          }
+        ]
+      },
+      "pool_saturation": {
+        "error": "Error: The environment '/home/berkay-server/repos/boilers/raw-codes/databases/ns-databases/data/lmdb/lab.mdb' is already open in this process."
+      },
+      "write_contention": {
+        "error": "Error: The environment '/home/berkay-server/repos/boilers/raw-codes/databases/ns-databases/data/lmdb/lab.mdb' is already open in this process."
+      },
+      "_seconds": 4.5
+    }
+  },
+  "partial": false,
+  "server_version": "unknown",
+  "finished": "2026-09-13T11:48:53+00:00"
+}

@@ -1,0 +1,14 @@
+{
+  "engine": "elasticsearch",
+  "run_id": "20260914-151738-1b0e54",
+  "partial": true,
+  "phases": {
+    "backup": {
+      "dr": {
+        "_error": "RuntimeError: kubectl cp nslab-elasticsearch/es1-8699ffb6db-q66rj:/backups/nslab /home/berkay-server/repos/boilers/raw-codes/databases/ns-databases/data/backups/elasticsearch/nslab-dr-20260914-151738/nslab rc=1 error: Internal error occurred: Internal error occurred: error executing command in conta",
+        "_seconds": 3.8
+      }
+    }
+  },
+  "platform": "k3s"
+}

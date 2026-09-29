@@ -1,0 +1,117 @@
+{
+  "engine": "lmdb",
+  "display": "LMDB",
+  "category": "embedded ordered key-value (memory-mapped B+tree)",
+  "family": "embedded",
+  "driver": "lmdb",
+  "image": "(embedded, python lmdb package)",
+  "run_id": "20260913-145129-2308b9",
+  "started": "2026-09-13T11:51:29+00:00",
+  "scale": 1.0,
+  "notes": "Lightning Memory-Mapped Database, in-process, single writer / many MVCC readers. No query engine: an ordered key-value map. The lab models documents plus hand-maintained ordered index keyspaces (idx/...); aggregations, text, geo and vector scan the primary keyspace. 8 GB map. No server, no network, no replication.",
+  "phases": {
+    "connections": {
+      "max_connections": null,
+      "connect_latency": {
+        "embedded": {
+          "target": "embedded",
+          "n": 30,
+          "ms": {
+            "n": 30,
+            "min": 0.000534,
+            "p50": 0.0005875,
+            "p90": 0.0008635,
+            "p95": 0.0015593499999999967,
+            "p99": 0.0032034900000000015,
+            "max": 0.003644,
+            "mean": 0.0007674333333333334,
+            "stdev": 0.0006048490546317229
+          },
+          "errors": [],
+          "error_count": 0
+        }
+      },
+      "concurrency": {
+        "embedded": [
+          {
+            "workers": 1,
+            "error": "Error: The environment '/home/berkay-server/repos/boilers/raw-codes/databases/ns-databases/data/lmdb/lab.mdb' is already open in this process."
+          },
+          {
+            "workers": 4,
+            "error": "Error: The environment '/home/berkay-server/repos/boilers/raw-codes/databases/ns-databases/data/lmdb/lab.mdb' is already open in this process."
+          },
+          {
+            "workers": 16,
+            "error": "Error: The environment '/home/berkay-server/repos/boilers/raw-codes/databases/ns-databases/data/lmdb/lab.mdb' is already open in this process."
+          },
+          {
+            "workers": 32,
+            "error": "Error: The environment '/home/berkay-server/repos/boilers/raw-codes/databases/ns-databases/data/lmdb/lab.mdb' is already open in this process."
+          },
+          {
+            "workers": 64,
+            "error": "Error: The environment '/home/berkay-server/repos/boilers/raw-codes/databases/ns-databases/data/lmdb/lab.mdb' is already open in this process."
+          }
+        ]
+      },
+      "pool_saturation": {
+        "pool_size": 8,
+        "workers": 32,
+        "ops": 95477,
+        "ops_per_s": 23831,
+        "checkout_wait_ms": {
+          "n": 95477,
+          "min": 0.001096,
+          "p50": 0.002843,
+          "p90": 0.003795,
+          "p95": 0.005536,
+          "p99": 0.006413,
+          "max": 3995.738326,
+          "mean": 0.9160395115158624,
+          "stdev": 57.762712477525184
+        },
+        "exec_ms": {
+          "n": 95477,
+          "min": 0.012411,
+          "p50": 0.031549,
+          "p90": 0.05689440000000001,
+          "p95": 0.068727,
+          "p99": 9.207644960000033,
+          "max": 154.120719,
+          "mean": 0.33070439604302604,
+          "stdev": 3.0600443307662917
+        }
+      },
+      "write_contention": {
+        "threads": 4,
+        "iters_per_thread": 50,
+        "applied": 200,
+        "rejected": 0,
+        "errors": 0,
+        "version_before": 6,
+        "version_after": 56,
+        "version_delta": 50,
+        "atomic": false,
+        "seconds": 0.02,
+        "cas_ms": {
+          "n": 200,
+          "min": 0.074674,
+          "p50": 0.356925,
+          "p90": 0.39676239999999996,
+          "p95": 0.4193090999999999,
+          "p99": 0.5777296699999991,
+          "max": 1.28404,
+          "mean": 0.365571875,
+          "stdev": 0.0832397244126227
+        },
+        "first_error": null,
+        "interpretation": "version drifted from applied count: lost or duplicated updates"
+      },
+      "_seconds": 4.3
+    }
+  },
+  "partial": false,
+  "server_version": "unknown",
+  "finished": "2026-09-13T11:51:33+00:00"
+}

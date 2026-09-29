@@ -1,0 +1,594 @@
+{
+  "engine": "mongodb",
+  "display": "MongoDB 7.0",
+  "category": "document store (replica set)",
+  "family": "document",
+  "driver": "pymongo",
+  "image": "mongo:7",
+  "run_id": "20260914-112415-04e5ff",
+  "started": "2026-09-14T08:24:15+00:00",
+  "scale": 1.0,
+  "notes": "Official mongo:7 image (7.0.x). mongo:8 (8.3.9) refuses to start on this host's Linux 7.0.0 kernel (SERVER-121912: TCMalloc rseq incompatibility with kernels 6.19-7.0.13, exits at startup, no bypass) so the lab pins 7.0. 3-member replica set rs0 (priorities 3/2/1) initiated by a one-shot mongosh container; no auth. Per-node targets use directConnection=true; writes w=1 unless an experiment says otherwise. $vectorSearch is Atlas / mongot-only, so vector_knn is unsupported on Community.",
+  "phases": {
+    "load": {
+      "scale": 1.0,
+      "collections": {
+        "customers": {
+          "rows": 20000,
+          "counted": 20000,
+          "expected": 20000,
+          "seconds": 1.16,
+          "rows_per_s": 17312,
+          "method": "insert_many(5000, ordered=False, w=1)",
+          "ok": true
+        },
+        "categories": {
+          "rows": 200,
+          "counted": 200,
+          "expected": 200,
+          "seconds": 0.0,
+          "rows_per_s": 50582,
+          "method": "insert_many(5000, ordered=False, w=1)",
+          "ok": true
+        },
+        "products": {
+          "rows": 5000,
+          "counted": 5000,
+          "expected": 5000,
+          "seconds": 0.84,
+          "rows_per_s": 5918,
+          "method": "insert_many(5000, ordered=False, w=1)",
+          "ok": true
+        },
+        "orders": {
+          "rows": 200000,
+          "counted": 200000,
+          "expected": 200000,
+          "seconds": 5.76,
+          "rows_per_s": 34740,
+          "method": "insert_many(5000, ordered=False, w=1) x4 connections",
+          "ok": true
+        },
+        "order_items": {
+          "rows": 487606,
+          "counted": 487606,
+          "expected": 487606,
+          "seconds": 6.09,
+          "rows_per_s": 80016,
+          "method": "insert_many(5000, ordered=False, w=1) x4 connections",
+          "ok": true
+        },
+        "events": {
+          "rows": 1000000,
+          "counted": 1000000,
+          "expected": 1000000,
+          "seconds": 23.27,
+          "rows_per_s": 42977,
+          "method": "insert_many(5000, ordered=False, w=1) x4 connections",
+          "ok": true
+        },
+        "inventory": {
+          "rows": 20000,
+          "counted": 20000,
+          "expected": 20000,
+          "seconds": 0.61,
+          "rows_per_s": 33027,
+          "method": "insert_many(5000, ordered=False, w=1)",
+          "ok": true
+        }
+      },
+      "schema": [
+        "customers: [('email', 1)] {'unique': True}",
+        "customers: [('country_code', 1), ('tier', 1)]",
+        "customers: [('location', '2dsphere')]",
+        "customers: [('attrs.lang', 1), ('tier', 1)]",
+        "categories: [('parent_id', 1)]",
+        "products: [('category_id', 1), ('price', -1)]",
+        "products: [('sku', 1)] {'unique': True}",
+        "products: [('attrs.tags', 1)]",
+        "products: [('description', 'text')]",
+        "orders: [('customer_id', 1)]",
+        "orders: [('status', 1), ('ordered_at', 1)]",
+        "orders: [('ordered_at', 1), ('_id', 1)]",
+        "order_items: [('order_id', 1)]",
+        "order_items: [('product_id', 1)]",
+        "events: [('customer_id', 1)]",
+        "inventory: [('product_id', 1), ('warehouse_id', 1)]",
+        "scratch: [('expires_at', 1)] {'expireAfterSeconds': 0}"
+      ],
+      "errors": [],
+      "schema_seconds": 0.29,
+      "load_seconds": 38.79,
+      "after_load": [],
+      "post_seconds": 0.0,
+      "server_version": "MongoDB 7.0.37",
+      "_seconds": 39.1
+    },
+    "capabilities": {
+      "secondary_index": {
+        "title": "Create a secondary index on a non-key field and use it",
+        "group": "indexing",
+        "status": "supported",
+        "detail": "createIndex on any field",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "compound_index": {
+        "title": "Compound / composite index over two fields",
+        "group": "indexing",
+        "status": "supported",
+        "detail": "compound index (ESR rule: equality, sort, range)",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "unique_constraint": {
+        "title": "Unique constraint on a non-key field (duplicate rejected)",
+        "group": "indexing",
+        "status": "supported",
+        "detail": "duplicate rejected (E11000): E11000 duplicate key error collection: lab.scratch index: u_",
+        "ms": 41.7
+      },
+      "ttl_expiry": {
+        "title": "Native per-document/key expiry",
+        "group": "indexing",
+        "status": "supported",
+        "detail": "TTL index (expireAfterSeconds; background sweep every 60 s)",
+        "ms": 31.5
+      },
+      "text_index": {
+        "title": "Full-text index with tokenised search",
+        "group": "indexing",
+        "status": "supported",
+        "detail": "text index + $text (community); Atlas Search for BM25/analyzers",
+        "ms": 12.5
+      },
+      "geo_index": {
+        "title": "Geospatial index and radius query",
+        "group": "indexing",
+        "status": "supported",
+        "detail": "2dsphere index + $nearSphere / $geoWithin",
+        "ms": 2.4
+      },
+      "vector_index": {
+        "title": "Vector (ANN) index and kNN query",
+        "group": "indexing",
+        "status": "unsupported",
+        "detail": "$vectorSearch: $vectorSearch stage is only allowed on MongoDB Atlas, full error: {'ok': 0.0, 'errmsg': '$vectorSearch stage is only all",
+        "ms": 5.8
+      },
+      "partial_update": {
+        "title": "Update a single field without rewriting the document",
+        "group": "model",
+        "status": "supported",
+        "detail": "$set / $unset / $inc operators",
+        "ms": 6.0
+      },
+      "atomic_increment": {
+        "title": "Server-side atomic numeric increment",
+        "group": "consistency",
+        "status": "supported",
+        "detail": "$inc via findOneAndUpdate -> [(363,)]",
+        "ms": 2.7
+      },
+      "optimistic_concurrency": {
+        "title": "Compare-and-set / version or ETag-guarded write",
+        "group": "consistency",
+        "status": "supported",
+        "detail": "filter on version + $inc version -> [(1, 2)]",
+        "ms": 3.4
+      },
+      "multi_doc_transaction": {
+        "title": "Multi-document / multi-key ACID transaction with rollback",
+        "group": "consistency",
+        "status": "supported",
+        "detail": "multi-document ACID transactions with abort (replica set / sharded)",
+        "ms": 2.3
+      },
+      "tunable_consistency": {
+        "title": "Per-request consistency / write concern / read preference",
+        "group": "consistency",
+        "status": "supported",
+        "detail": "writeConcern (w, j, wtimeout), readConcern (local/majority/linearizable), readPreference",
+        "ms": 6.4
+      },
+      "nested_query": {
+        "title": "Filter on a field inside a nested object",
+        "group": "model",
+        "status": "supported",
+        "detail": "dot notation on embedded documents",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "array_operators": {
+        "title": "Query and update array-valued fields (contains, push)",
+        "group": "model",
+        "status": "supported",
+        "detail": "$push/$addToSet/$pull, $elemMatch, array equality match -> 1",
+        "ms": 9.7
+      },
+      "aggregation": {
+        "title": "Server-side group-by aggregation",
+        "group": "model",
+        "status": "supported",
+        "detail": "aggregation pipeline",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "server_side_join": {
+        "title": "Join / lookup between two collections inside the engine",
+        "group": "model",
+        "status": "supported",
+        "detail": "$lookup (+ $graphLookup)",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "graph_traversal": {
+        "title": "Variable-depth traversal over references",
+        "group": "model",
+        "status": "supported",
+        "detail": "$graphLookup",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "schema_validation": {
+        "title": "Server-enforced document schema / constraints",
+        "group": "model",
+        "status": "supported",
+        "detail": "$jsonSchema validator rejects non-conforming documents",
+        "ms": 22.1
+      },
+      "change_streams": {
+        "title": "Change feed / watch / keyspace notifications",
+        "group": "operations",
+        "status": "supported",
+        "detail": "change streams (oplog-backed) -> insert",
+        "ms": 7.0
+      },
+      "server_side_scripting": {
+        "title": "Stored procedures / Lua / JS / UDF executed by the server",
+        "group": "operations",
+        "status": "unsupported",
+        "detail": "no server-side JS since 4.2 (no such command: 'eval', full error: {'ok': 0.0, '); $function/$accumulator in aggregation only",
+        "ms": 0.5
+      },
+      "pubsub": {
+        "title": "Publish/subscribe messaging built into the engine",
+        "group": "operations",
+        "status": "unsupported",
+        "detail": "no pub/sub; change streams or capped tailable cursors",
+        "ms": 0.0
+      },
+      "explain_plan": {
+        "title": "Query plan / profile output for a query",
+        "group": "operations",
+        "status": "supported",
+        "detail": "explain(executionStats) -> FETCH",
+        "ms": 1.0
+      },
+      "bulk_import": {
+        "title": "Native bulk import path (bulk API, batch, COPY-like tool)",
+        "group": "operations",
+        "status": "supported",
+        "detail": "insertMany / bulkWrite / mongoimport",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "large_document": {
+        "title": "Store and read back a 15 MB document / value",
+        "group": "limits",
+        "status": "supported",
+        "detail": "15 MB document ok (BSON limit 16 MB; GridFS beyond)",
+        "ms": 347.6
+      },
+      "many_fields": {
+        "title": "Document with 5000 top-level fields",
+        "group": "limits",
+        "status": "supported",
+        "detail": "5001 fields",
+        "ms": 27.0
+      },
+      "read_from_replica": {
+        "title": "Client can direct reads to a replica / secondary",
+        "group": "operations",
+        "status": "supported",
+        "detail": "readPreference=secondary/secondaryPreferred/nearest (+ readConcern)",
+        "ms": 8.7
+      },
+      "snapshot_backup": {
+        "title": "Online snapshot / backup command available",
+        "group": "operations",
+        "status": "supported",
+        "detail": "fsyncLock + filesystem snapshot; mongodump --oplog / mongorestore --oplogReplay (exercised in the backup phase)",
+        "ms": 994.3
+      },
+      "incremental_backup": {
+        "title": "Incremental / differential backup (file- or segment-level)",
+        "group": "operations",
+        "status": "unsupported",
+        "detail": "mongodump is always full; Percona PBM / Ops Manager / Atlas do physical + incremental",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "pitr": {
+        "title": "Point-in-time recovery from a continuous change log",
+        "group": "operations",
+        "status": "supported",
+        "detail": "oplog: mongodump --oplog captures it, PBM tails it continuously (replSetResizeOplog sets the window)",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "slow_query_log": {
+        "title": "Server-side slow-query log with a configurable threshold",
+        "group": "logging",
+        "status": "supported",
+        "detail": "profiler level 1 slowms=100 -> system.profile + JSON log 'Slow query' (getLog global)",
+        "ms": 1.0
+      },
+      "audit_log": {
+        "title": "Audit / full-query log of statements or auth events",
+        "group": "logging",
+        "status": "unsupported",
+        "detail": "auditLog is MongoDB Enterprise / Percona Server for MongoDB; Community has the JSON log + profiler only",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "structured_logs": {
+        "title": "JSON-structured server log out of the box",
+        "group": "logging",
+        "status": "supported",
+        "detail": "JSON log lines since 4.4 ({t, s, c, id, ctx, msg, attr}); getLog returns the in-memory ring",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "runtime_log_level": {
+        "title": "Change log verbosity at run time (no restart)",
+        "group": "logging",
+        "status": "supported",
+        "detail": "setParameter logLevel / logComponentVerbosity (current logLevel 0); db.setProfilingLevel per database",
+        "ms": 2.4
+      },
+      "_seconds": 1.6
+    },
+    "backup": {
+      "tag": "nslab-20260914-112456",
+      "strategy": {
+        "tool": "mongodump --oplog --gzip --archive (logical, cluster-consistent thanks to the oplog captured during the dump); physical alternative: fsyncLock + volume snapshot",
+        "consistency": "point-in-time at the end of the dump (--oplogReplay applies the oplog captured while dumping)",
+        "restore": "online: dropDatabase, then mongorestore --oplogReplay --drop --nsInclude 'lab.*' against the primary (secondaries replicate the restore)",
+        "incremental": "none in Community tooling; Percona PBM does physical + incremental + selective restores",
+        "pitr": "oplog-based \u2014 keep the oplog window (replSetResizeOplog) longer than the backup interval; PBM/Ops Manager tail it continuously",
+        "schedule": "cron / CronJob running mongodump on a secondary (readPreference=secondary) or PBM's scheduler",
+        "retention": "external: archives are self-contained files; PBM has retention policies"
+      },
+      "data_bytes": 778661979,
+      "fingerprint_before": {
+        "counts": {
+          "customers": 20000,
+          "categories": 200,
+          "products": 5000,
+          "inventory": 20000
+        },
+        "customers_present": 50,
+        "probe_count": 100,
+        "post_probe_present": false
+      },
+      "reads_baseline": {
+        "reads": 627,
+        "errors": 0,
+        "latency_ms": {
+          "n": 627,
+          "min": 0.5499089602380991,
+          "p50": 1.0425529908388853,
+          "p90": 1.3636247953400016,
+          "p95": 1.3907789776567367,
+          "p99": 1.5802410687319937,
+          "max": 24.109846039209515,
+          "mean": 1.0910479863771376,
+          "stdev": 0.9543069398499492
+        }
+      },
+      "backup": {
+        "method": "mongodump --oplog --gzip --archive",
+        "online": true,
+        "artifact": "/backups/nslab-20260914-112456.archive.gz",
+        "artifact_bytes": 50796608,
+        "collections_dumped": 10,
+        "dataSize": 267282990.0,
+        "storageSize": 114630656.0,
+        "oplog_captured": true,
+        "physical_alternative": {
+          "method": "fsyncLock + cp -a /data/db + fsyncUnlock (stand-in for a volume snapshot)",
+          "writes_blocked_ms": 1075.8,
+          "bytes": 883796939
+        },
+        "seconds": 12.18,
+        "status": "ok",
+        "reads_during": {
+          "reads": 3979,
+          "errors": 0,
+          "latency_ms": {
+            "n": 3979,
+            "min": 0.4941130173392594,
+            "p50": 0.9595470037311316,
+            "p90": 1.2937005725689232,
+            "p95": 1.349778420990333,
+            "p99": 1.525095212273299,
+            "max": 7.648069004062563,
+            "mean": 0.9748981633777378,
+            "stdev": 0.31428389768171827
+          }
+        },
+        "artifact_pct_of_data": 6.5
+      },
+      "fingerprint_after_mutation": {
+        "counts": {
+          "customers": 19950,
+          "categories": 200,
+          "products": 5000,
+          "inventory": 20000
+        },
+        "customers_present": 0,
+        "probe_count": 600,
+        "post_probe_present": true
+      },
+      "restore": {
+        "status": "error",
+        "error": "EngineError: mongorestore rc=1: 2026-09-14T08:25:11.486+0000 Failed: cannot use --oplogReplay with includes specified 2026-09-14T08:25:11.486+0000 0 document(s) restored successfully. 0 document(s) failed to restore.",
+        "seconds": 0.22,
+        "availability": {
+          "downtime_ms": 0.0,
+          "outages": 0
+        }
+      },
+      "_seconds": 15.7
+    },
+    "logging": {
+      "strategy": {
+        "server_log": "JSON lines on stdout ({t, s, c, id, ctx, msg, attr}); systemLog.path + logRotate for files; getLog reads the in-memory ring",
+        "slow_query": "operationProfiling: mode slowOp/all, slowOpThresholdMs, slowOpSampleRate -> capped system.profile per database + 'Slow query' log lines (durationMillis, planSummary, keysExamined/docsExamined)",
+        "audit": "auditLog is Enterprise / Percona PSMDB (destination file|syslog|console, filter) \u2014 not in Community",
+        "runtime": "setParameter logLevel / logComponentVerbosity, db.setProfilingLevel(level, {slowms, sampleRate}) \u2014 no restart"
+      },
+      "threshold_ms": 100,
+      "containers": {
+        "nslab-mongo1": {
+          "driver": "json-file",
+          "options": {
+            "compress": "true",
+            "max-file": "3",
+            "max-size": "50m"
+          },
+          "log_path": "/var/lib/docker/containers/2c5122c6c1540a8aeb6b169f889ce45fff1adfd6483d2cc7734d0c326d42b68e/2c5122c6c1540a8aeb6b169f889ce45fff1adfd6483d2cc7734d0c326d42b68e-json.log",
+          "user": "root",
+          "started": "2026-09-14T08:02:30.915385769Z",
+          "bytes": 3671696,
+          "lines": 9897,
+          "json_lines_pct": 100.0,
+          "format": "json",
+          "sample": [
+            "{\"t\":{\"$date\":\"2026-09-14T08:25:12.092+00:00\"},\"s\":\"I\",  \"c\":\"NETWORK\",  \"id\":22944,   \"ctx\":\"conn1974\",\"msg\":\"Connection ended\",\"attr\":{\"remote\":\"172.24.0.1:40992\",\"isLoadBalanced\":false,\"uuid\":{\"uuid\":{\"$uuid\":\"e2756382-9519-4e85-869a-313",
+            "{\"t\":{\"$date\":\"2026-09-14T08:25:12.147+00:00\"},\"s\":\"I\",  \"c\":\"-\",        \"id\":20883,   \"ctx\":\"conn1972\",\"msg\":\"Interrupted operation as its client disconnected\",\"attr\":{\"opId\":89658}}",
+            "{\"t\":{\"$date\":\"2026-09-14T08:25:12.148+00:00\"},\"s\":\"I\",  \"c\":\"NETWORK\",  \"id\":22944,   \"ctx\":\"conn1972\",\"msg\":\"Connection ended\",\"attr\":{\"remote\":\"172.24.0.1:40974\",\"isLoadBalanced\":false,\"uuid\":{\"uuid\":{\"$uuid\":\"2ab8364c-b79f-425e-b98b-530"
+          ]
+        },
+        "nslab-mongo2": {
+          "driver": "json-file",
+          "options": {
+            "compress": "true",
+            "max-file": "3",
+            "max-size": "50m"
+          },
+          "log_path": "/var/lib/docker/containers/e8996ea0e0ddb068c8b99dfd40c21e5552caba9b91484e4ab8e4d8405b7325ef/e8996ea0e0ddb068c8b99dfd40c21e5552caba9b91484e4ab8e4d8405b7325ef-json.log",
+          "user": "root",
+          "started": "2026-09-14T08:02:30.914325723Z",
+          "bytes": 3452980,
+          "lines": 9516,
+          "json_lines_pct": 100.0,
+          "format": "json",
+          "sample": [
+            "{\"t\":{\"$date\":\"2026-09-14T08:25:11.310+00:00\"},\"s\":\"I\",  \"c\":\"REPL\",     \"id\":7360110, \"ctx\":\"ReplWriterWorker-40\",\"msg\":\"Applying DDL command oplog entry\",\"attr\":{\"oplogEntry\":{\"oplogEntry\":{\"op\":\"c\",\"ns\":\"lab.$cmd\",\"o\":{\"dropDatabase\":1},",
+            "{\"t\":{\"$date\":\"2026-09-14T08:25:11.311+00:00\"},\"s\":\"I\",  \"c\":\"COMMAND\",  \"id\":20337,   \"ctx\":\"ReplWriterWorker-40\",\"msg\":\"dropDatabase - starting\",\"attr\":{\"db\":\"lab\"}}",
+            "{\"t\":{\"$date\":\"2026-09-14T08:25:11.311+00:00\"},\"s\":\"I\",  \"c\":\"COMMAND\",  \"id\":20336,   \"ctx\":\"ReplWriterWorker-40\",\"msg\":\"dropDatabase\",\"attr\":{\"db\":\"lab\",\"numCollectionsDropped\":0}}"
+          ]
+        },
+        "nslab-mongo3": {
+          "driver": "json-file",
+          "options": {
+            "compress": "true",
+            "max-file": "3",
+            "max-size": "50m"
+          },
+          "log_path": "/var/lib/docker/containers/925aa6e42d672a8f9b9bd9009e4d3983d827ecbafafc985c69cad09264787e1e/925aa6e42d672a8f9b9bd9009e4d3983d827ecbafafc985c69cad09264787e1e-json.log",
+          "user": "root",
+          "started": "2026-09-14T08:02:30.914812494Z",
+          "bytes": 3451921,
+          "lines": 9460,
+          "json_lines_pct": 100.0,
+          "format": "json",
+          "sample": [
+            "{\"t\":{\"$date\":\"2026-09-14T08:25:11.311+00:00\"},\"s\":\"I\",  \"c\":\"REPL\",     \"id\":7360110, \"ctx\":\"ReplWriterWorker-43\",\"msg\":\"Applying DDL command oplog entry\",\"attr\":{\"oplogEntry\":{\"oplogEntry\":{\"op\":\"c\",\"ns\":\"lab.$cmd\",\"o\":{\"dropDatabase\":1},",
+            "{\"t\":{\"$date\":\"2026-09-14T08:25:11.311+00:00\"},\"s\":\"I\",  \"c\":\"COMMAND\",  \"id\":20337,   \"ctx\":\"ReplWriterWorker-43\",\"msg\":\"dropDatabase - starting\",\"attr\":{\"db\":\"lab\"}}",
+            "{\"t\":{\"$date\":\"2026-09-14T08:25:11.311+00:00\"},\"s\":\"I\",  \"c\":\"COMMAND\",  \"id\":20336,   \"ctx\":\"ReplWriterWorker-43\",\"msg\":\"dropDatabase\",\"attr\":{\"db\":\"lab\",\"numCollectionsDropped\":0}}"
+          ]
+        }
+      },
+      "server_log": {
+        "status": "ok",
+        "value": {
+          "format": "json",
+          "where": "stdout (docker logs) \u2014 systemLog.path when set; getLog: global = last 1024 lines in memory",
+          "ring_lines": 9909,
+          "sample": [
+            "{\"t\":{\"$date\":\"2026-09-14T08:25:12.608+00:00\"},\"s\":\"I\",  \"c\":\"NETWORK\",  \"id\":51800,   \"ctx\":\"conn2017\",\"msg\":\"client metadata\",\"attr\":{\"remote\":\"172.24.0.1:36720\",\"client\":\"conn2017\",\"negotiatedCompr",
+            "{\"t\":{\"$date\":\"2026-09-14T08:25:12.609+00:00\"},\"s\":\"I\",  \"c\":\"ACCESS\",   \"id\":10483900,\"ctx\":\"conn2017\",\"msg\":\"Connection not authenticating\",\"attr\":{\"client\":\"172.24.0.1:36720\",\"doc\":{\"driver\":{\"name",
+            "{\"t\":{\"$date\":\"2026-09-14T08:25:12.609+00:00\"},\"s\":\"I\",  \"c\":\"NETWORK\",  \"id\":6788700, \"ctx\":\"conn2017\",\"msg\":\"Received first command on ingress connection since session start or auth handshake\",\"attr"
+          ]
+        },
+        "ms": 2.2
+      },
+      "slow_query": {
+        "setup": {
+          "status": "ok",
+          "value": "db.setProfilingLevel(1, {slowms: 100, sampleRate: 1.0}) on 'lab' (system.profile capped 1 MB + 'Slow query' JSON log lines)",
+          "ms": 6.3
+        },
+        "effective_threshold_ms": 100,
+        "fast_op": {
+          "desc": "find customers {_id: 1}",
+          "ms": 1.0,
+          "status": "ok",
+          "error": null
+        },
+        "slow_op": {
+          "desc": "aggregate events [$group by event_type] (1M-doc collection scan)",
+          "ms": 1.3,
+          "status": "ok",
+          "error": null
+        },
+        "entries": [
+          {
+            "ms": 126,
+            "text": "[JSON log] Slow query ns=lab.order_items planSummary=COLLSCAN (131 'Slow query' lines in getLog)",
+            "kind": "server-log"
+          }
+        ],
+        "entries_status": "ok",
+        "entries_error": null,
+        "slow_op_logged": false,
+        "logged_ms": null,
+        "fast_op_logged": false,
+        "verified": false
+      },
+      "audit": {
+        "setup": {
+          "status": "unsupported",
+          "detail": "pymongo: no audit log",
+          "ms": 0.0
+        }
+      },
+      "runtime_log_level": {
+        "status": "ok",
+        "value": "setParameter logComponentVerbosity.command -1 -> 1 -> -1 (no restart; every command logged at 1)",
+        "ms": 3.8
+      },
+      "log_volume_this_phase": {
+        "nslab-mongo1": {
+          "bytes": 10907,
+          "lines": 23
+        },
+        "nslab-mongo2": {
+          "bytes": 0,
+          "lines": 0
+        },
+        "nslab-mongo3": {
+          "bytes": 0,
+          "lines": 0
+        }
+      },
+      "_seconds": 1.5
+    }
+  },
+  "partial": false,
+  "server_version": "MongoDB 7.0.37",
+  "finished": "2026-09-14T08:25:13+00:00"
+}

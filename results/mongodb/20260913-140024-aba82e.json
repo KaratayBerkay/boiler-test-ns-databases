@@ -1,0 +1,336 @@
+{
+  "engine": "mongodb",
+  "display": "MongoDB 7.0",
+  "category": "document store (replica set)",
+  "family": "document",
+  "driver": "pymongo",
+  "image": "mongo:7",
+  "run_id": "20260913-140024-aba82e",
+  "started": "2026-09-13T11:00:24+00:00",
+  "scale": 1.0,
+  "notes": "Official mongo:7 image (7.0.x). mongo:8 (8.3.9) refuses to start on this host's Linux 7.0.0 kernel (SERVER-121912: TCMalloc rseq incompatibility with kernels 6.19-7.0.13, exits at startup, no bypass) so the lab pins 7.0. 3-member replica set rs0 (priorities 3/2/1) initiated by a one-shot mongosh container; no auth. Per-node targets use directConnection=true; writes w=1 unless an experiment says otherwise. $vectorSearch is Atlas / mongot-only, so vector_knn is unsupported on Community.",
+  "phases": {
+    "optimize": {
+      "opt01_secondary_index": {
+        "title": "Range scan on events(event_type, occurred_at): no index vs secondary index (both column orders)",
+        "what": "an access path that is not indexed is a full scan; composite order matters on B-tree-like engines",
+        "variants": [
+          {
+            "name": "no_index",
+            "note": "",
+            "ok": true,
+            "error": null,
+            "p50_ms": 593.826,
+            "p95_ms": 602.239,
+            "n": 8,
+            "rows": 100
+          },
+          {
+            "name": "index_(event_type,occurred_at)",
+            "setup": "createIndex(events, ['event_type', 'occurred_at']) as ix_events_type_ts",
+            "ok": true,
+            "error": null,
+            "p50_ms": 5.601,
+            "p95_ms": 7.08,
+            "n": 8,
+            "rows": 100
+          },
+          {
+            "name": "index_(occurred_at,event_type)",
+            "setup": "createIndex(events, ['occurred_at', 'event_type']) as ix_events_type_ts",
+            "ok": true,
+            "error": null,
+            "p50_ms": 16.288,
+            "p95_ms": 19.06,
+            "n": 8,
+            "rows": 100
+          }
+        ],
+        "best_variant": "index_(event_type,occurred_at)",
+        "speedup_vs_first": 106.02
+      },
+      "opt02_projection": {
+        "title": "Point read of an order: whole document (with embedded items) vs 3-field projection",
+        "what": "returning fewer fields saves serialisation and transfer; some engines still read the whole document",
+        "variants": [
+          {
+            "name": "full_document",
+            "ok": true,
+            "error": null,
+            "p50_ms": 1.311,
+            "p95_ms": 1.406,
+            "n": 30,
+            "rows": 1
+          },
+          {
+            "name": "projection_3_fields",
+            "ok": true,
+            "error": null,
+            "p50_ms": 1.409,
+            "p95_ms": 1.443,
+            "n": 30,
+            "rows": 1
+          }
+        ],
+        "best_variant": "full_document",
+        "speedup_vs_first": 1.0
+      },
+      "opt03_pagination": {
+        "title": "Deep pagination: offset/skip vs keyset (cursor) at depth 10k and 100k",
+        "what": "offset still walks and discards rows; a keyset cursor seeks directly into the sorted index",
+        "variants": [
+          {
+            "name": "offset_depth_10000",
+            "ok": true,
+            "error": null,
+            "p50_ms": 12.498,
+            "p95_ms": 14.76,
+            "n": 8,
+            "rows": 50
+          },
+          {
+            "name": "keyset_depth_10000",
+            "ok": true,
+            "error": null,
+            "p50_ms": 2.151,
+            "p95_ms": 2.27,
+            "n": 8,
+            "rows": 50
+          },
+          {
+            "name": "offset_depth_100000",
+            "ok": true,
+            "error": null,
+            "p50_ms": 61.368,
+            "p95_ms": 62.286,
+            "n": 8,
+            "rows": 50
+          },
+          {
+            "name": "keyset_depth_100000",
+            "ok": true,
+            "error": null,
+            "p50_ms": 1.976,
+            "p95_ms": 2.092,
+            "n": 8,
+            "rows": 50
+          }
+        ],
+        "best_variant": "keyset_depth_100000",
+        "speedup_vs_first": 6.32
+      },
+      "opt04_batching": {
+        "title": "Write batching: 2000 events one-by-one vs 2 bulk requests of 1000",
+        "what": "round trips dominate small writes; every engine has a bulk path (insert_many, pipeline, batch, _bulk)",
+        "variants": [
+          {
+            "name": "single_put_x2000",
+            "rows": 2000,
+            "seconds": 7.918,
+            "rows_per_s": 253,
+            "error": null,
+            "ok": true
+          },
+          {
+            "name": "bulk_put_1000_x2",
+            "rows": 2000,
+            "seconds": 0.092,
+            "rows_per_s": 21811,
+            "error": null,
+            "ok": true
+          }
+        ],
+        "speedup_vs_first": 86.21,
+        "best_variant": "bulk_put_1000_x2"
+      },
+      "opt05_multi_get": {
+        "title": "100 point reads: sequential round trips vs one multi-get request",
+        "what": "batched reads (MGET / $in / IN / mget / pipelining) amortise the network round trip",
+        "variants": [
+          {
+            "name": "sequential_100_gets",
+            "ok": true,
+            "error": null,
+            "p50_ms": 113.772,
+            "p95_ms": 134.093,
+            "n": 10,
+            "rows": 100
+          },
+          {
+            "name": "multi_get_100",
+            "ok": true,
+            "error": null,
+            "p50_ms": 2.919,
+            "p95_ms": 3.115,
+            "n": 10,
+            "rows": 100
+          }
+        ],
+        "best_variant": "multi_get_100",
+        "speedup_vs_first": 38.98
+      },
+      "opt06_embedding_vs_reference": {
+        "title": "Order with its items: embedded array (one document) vs referenced (order + items lookup)",
+        "what": "embedding what is read together avoids a second query / join; referencing keeps documents small and items independently addressable",
+        "variants": [
+          {
+            "name": "embedded_items",
+            "ok": true,
+            "error": null,
+            "p50_ms": 1.331,
+            "p95_ms": 1.385,
+            "n": 30,
+            "rows": 1
+          },
+          {
+            "name": "referenced_items",
+            "ok": true,
+            "error": null,
+            "p50_ms": 2.895,
+            "p95_ms": 3.141,
+            "n": 30,
+            "rows": 1
+          }
+        ],
+        "best_variant": "embedded_items",
+        "speedup_vs_first": 1.0
+      },
+      "opt07_write_durability": {
+        "title": "Single-document write at each durability / write-concern level the engine offers",
+        "what": "acknowledgement level (replica acks, fsync, refresh) is the biggest lever on write latency",
+        "variants": [
+          {
+            "name": "w0_unacknowledged",
+            "ok": true,
+            "error": null,
+            "p50_ms": 0.322,
+            "p95_ms": 0.414,
+            "n": 30,
+            "rows": null
+          },
+          {
+            "name": "w1",
+            "ok": true,
+            "error": null,
+            "p50_ms": 1.463,
+            "p95_ms": 1.721,
+            "n": 30,
+            "rows": null
+          },
+          {
+            "name": "w1_journal",
+            "ok": true,
+            "error": null,
+            "p50_ms": 2.183,
+            "p95_ms": 2.51,
+            "n": 30,
+            "rows": null
+          },
+          {
+            "name": "w_majority",
+            "ok": true,
+            "error": null,
+            "p50_ms": 4.545,
+            "p95_ms": 4.7,
+            "n": 30,
+            "rows": null
+          },
+          {
+            "name": "w_majority_journal",
+            "ok": true,
+            "error": null,
+            "p50_ms": 4.54,
+            "p95_ms": 4.925,
+            "n": 30,
+            "rows": null
+          }
+        ],
+        "best_variant": "w0_unacknowledged",
+        "speedup_vs_first": 1.0
+      },
+      "opt08_read_consistency": {
+        "title": "Point read at each read consistency level / read preference the engine offers",
+        "what": "linearizable / quorum reads cost extra round trips; replica reads trade freshness for offload",
+        "variants": [
+          {
+            "name": "primary",
+            "ok": true,
+            "error": null,
+            "p50_ms": 0.68,
+            "p95_ms": 0.857,
+            "n": 30,
+            "rows": 1
+          },
+          {
+            "name": "local",
+            "ok": true,
+            "error": null,
+            "p50_ms": 0.645,
+            "p95_ms": 0.773,
+            "n": 30,
+            "rows": 1
+          },
+          {
+            "name": "majority",
+            "ok": true,
+            "error": null,
+            "p50_ms": 0.709,
+            "p95_ms": 0.884,
+            "n": 30,
+            "rows": 1
+          },
+          {
+            "name": "secondaryPreferred@replica",
+            "ok": true,
+            "error": null,
+            "p50_ms": 0.495,
+            "p95_ms": 0.625,
+            "n": 30,
+            "rows": 1
+          },
+          {
+            "name": "linearizable",
+            "ok": true,
+            "error": null,
+            "p50_ms": 3.541,
+            "p95_ms": 3.91,
+            "n": 30,
+            "rows": 1
+          }
+        ],
+        "best_variant": "secondaryPreferred@replica",
+        "speedup_vs_first": 1.37
+      },
+      "opt09_connection_reuse": {
+        "title": "Point read with a new connection per operation vs one persistent client",
+        "what": "handshakes (TCP, TLS, auth, topology discovery) dwarf a point read; always pool",
+        "variants": [
+          {
+            "name": "connect_per_operation",
+            "ok": true,
+            "error": null,
+            "p50_ms": 5.098,
+            "p95_ms": 7.698,
+            "n": 20,
+            "rows": 1
+          },
+          {
+            "name": "persistent_client",
+            "ok": true,
+            "error": null,
+            "p50_ms": 0.521,
+            "p95_ms": 0.602,
+            "n": 30,
+            "rows": 1
+          }
+        ],
+        "best_variant": "persistent_client",
+        "speedup_vs_first": 9.79
+      },
+      "_seconds": 23.8
+    }
+  },
+  "partial": false,
+  "server_version": "MongoDB 7.0.37",
+  "finished": "2026-09-13T11:00:48+00:00"
+}

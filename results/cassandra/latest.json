@@ -1,0 +1,2899 @@
+{
+  "engine": "cassandra",
+  "display": "Cassandra 5.0",
+  "category": "wide-column (leaderless, tunable consistency)",
+  "family": "widecolumn",
+  "driver": "cql",
+  "image": "cassandra:5",
+  "run_id": "20260914-124513-2ac1a2",
+  "started": "2026-09-14T09:42:07+00:00",
+  "scale": 1.0,
+  "notes": "Official cassandra:5 image, 3 nodes RF=3, LOCAL_QUORUM by default. Query-first schema (one table per access path), SAI indexes for vector (ANN) and analyzed text search, LWT for compare-and-set, counter table for increments. Nodes are addressed by static container IPs (10.99.1.11-13); the client is pinned to one node per target.",
+  "phases": {
+    "load": {
+      "scale": 1.0,
+      "collections": {
+        "customers": {
+          "rows": 20000,
+          "counted": 20000,
+          "expected": 20000,
+          "seconds": 5.84,
+          "rows_per_s": 3425,
+          "method": "execute_concurrent (prepared, 256 in flight, CL=ONE)",
+          "ok": true
+        },
+        "categories": {
+          "rows": 200,
+          "counted": 200,
+          "expected": 200,
+          "seconds": 0.06,
+          "rows_per_s": 3296,
+          "method": "execute_concurrent (prepared, 256 in flight, CL=ONE)",
+          "ok": true
+        },
+        "products": {
+          "rows": 5000,
+          "counted": 5000,
+          "expected": 5000,
+          "seconds": 3.68,
+          "rows_per_s": 1358,
+          "method": "execute_concurrent (prepared, 256 in flight, CL=ONE)",
+          "ok": true
+        },
+        "orders": {
+          "rows": 200000,
+          "counted": 200000,
+          "expected": 200000,
+          "seconds": 27.28,
+          "rows_per_s": 7331,
+          "method": "execute_concurrent (prepared, 256 in flight, CL=ONE) x8 connections",
+          "ok": true
+        },
+        "order_items": {
+          "rows": 487606,
+          "counted": 487606,
+          "expected": 487606,
+          "seconds": 35.47,
+          "rows_per_s": 13747,
+          "method": "execute_concurrent (prepared, 256 in flight, CL=ONE) x8 connections",
+          "ok": true
+        },
+        "events": {
+          "rows": 1000000,
+          "counted": 1000000,
+          "expected": 1000000,
+          "seconds": 57.29,
+          "rows_per_s": 17454,
+          "method": "execute_concurrent (prepared, 256 in flight, CL=ONE) x8 connections",
+          "ok": true
+        },
+        "inventory": {
+          "rows": 20000,
+          "counted": 20000,
+          "expected": 20000,
+          "seconds": 9.7,
+          "rows_per_s": 2063,
+          "method": "execute_concurrent (prepared, 256 in flight, CL=ONE)",
+          "ok": true
+        }
+      },
+      "schema": [
+        "CREATE TABLE IF NOT EXISTS customers",
+        "CREATE TABLE IF NOT EXISTS categories",
+        "CREATE TABLE IF NOT EXISTS products",
+        "CREATE TABLE IF NOT EXISTS products_by_category",
+        "CREATE TABLE IF NOT EXISTS orders",
+        "CREATE TABLE IF NOT EXISTS orders_by_customer",
+        "CREATE TABLE IF NOT EXISTS orders_by_time",
+        "CREATE TABLE IF NOT EXISTS order_items",
+        "CREATE TABLE IF NOT EXISTS items_by_order",
+        "CREATE TABLE IF NOT EXISTS events",
+        "CREATE TABLE IF NOT EXISTS inventory",
+        "CREATE TABLE IF NOT EXISTS inventory_qty",
+        "CREATE TABLE IF NOT EXISTS repl_probe",
+        "CREATE TABLE IF NOT EXISTS scratch",
+        "SAI vector index products(embedding) cosine"
+      ],
+      "errors": [],
+      "schema_seconds": 16.36,
+      "load_seconds": 167.23,
+      "after_load": [
+        "(memtables flush on their own; no statistics step)"
+      ],
+      "post_seconds": 2.0,
+      "server_version": "Cassandra 5.0.9 (CQL 3.4.7)",
+      "_seconds": 185.6
+    },
+    "capabilities": {
+      "secondary_index": {
+        "title": "Create a secondary index on a non-key field and use it",
+        "group": "indexing",
+        "status": "supported",
+        "detail": "SAI index on orders(status): 1000 rows fetched via the index (global index; Scylla: materialized-view based)",
+        "ms": 4640.9
+      },
+      "compound_index": {
+        "title": "Compound / composite index over two fields",
+        "group": "indexing",
+        "status": "unsupported",
+        "detail": "no multi-column index; compound access paths are modelled as (partition key, clustering columns) of a query table",
+        "ms": 0.0
+      },
+      "unique_constraint": {
+        "title": "Unique constraint on a non-key field (duplicate rejected)",
+        "group": "indexing",
+        "status": "supported",
+        "detail": "INSERT ... IF NOT EXISTS (LWT) on the primary key only; no unique constraint on other columns",
+        "ms": 79.8
+      },
+      "ttl_expiry": {
+        "title": "Native per-document/key expiry",
+        "group": "indexing",
+        "status": "supported",
+        "detail": "USING TTL per write / default_time_to_live per table",
+        "ms": 1513.4
+      },
+      "text_index": {
+        "title": "Full-text index with tokenised search",
+        "group": "indexing",
+        "status": "unsupported",
+        "detail": "no analyzed text index (Cassandra 5 SAI has one; Scylla/YCQL do not)",
+        "ms": 0.0
+      },
+      "geo_index": {
+        "title": "Geospatial index and radius query",
+        "group": "indexing",
+        "status": "unsupported",
+        "detail": "no geospatial type / index",
+        "ms": 0.0
+      },
+      "vector_index": {
+        "title": "Vector (ANN) index and kNN query",
+        "group": "indexing",
+        "status": "supported",
+        "detail": "vector<float, 8> column + SAI index + ORDER BY ... ANN OF",
+        "ms": 41.8
+      },
+      "partial_update": {
+        "title": "Update a single field without rewriting the document",
+        "group": "model",
+        "status": "supported",
+        "detail": "UPDATE SET column = ? (cell-level upsert)",
+        "ms": 5.2
+      },
+      "atomic_increment": {
+        "title": "Server-side atomic numeric increment",
+        "group": "consistency",
+        "status": "supported",
+        "detail": "counter column: UPDATE ... SET qty = qty + 1 -> [(363,)]",
+        "ms": 13.0
+      },
+      "optimistic_concurrency": {
+        "title": "Compare-and-set / version or ETag-guarded write",
+        "group": "consistency",
+        "status": "supported",
+        "detail": "lightweight transaction (Paxos / Raft): UPDATE ... IF version = ? -> [(1, 2)]",
+        "ms": 18.2
+      },
+      "multi_doc_transaction": {
+        "title": "Multi-document / multi-key ACID transaction with rollback",
+        "group": "consistency",
+        "status": "supported",
+        "detail": "conditional BATCH within one partition (atomic, isolated); LOGGED BATCH across partitions is atomic but not isolated; no rollback API",
+        "ms": 17.6
+      },
+      "tunable_consistency": {
+        "title": "Per-request consistency / write concern / read preference",
+        "group": "consistency",
+        "status": "supported",
+        "detail": "per-statement consistency level: ANY/ONE/QUORUM/LOCAL_QUORUM/EACH_QUORUM/ALL (+ SERIAL for LWT)",
+        "ms": 6.3
+      },
+      "nested_query": {
+        "title": "Filter on a field inside a nested object",
+        "group": "model",
+        "status": "unsupported",
+        "detail": "no nested documents: UDTs/collections are opaque to WHERE except CONTAINS; flatten or use SAI on UDT fields",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "array_operators": {
+        "title": "Query and update array-valued fields (contains, push)",
+        "group": "model",
+        "status": "supported",
+        "detail": "set/list/map collections with += / -= updates, CONTAINS (index or ALLOW FILTERING) -> 1",
+        "ms": 83.0
+      },
+      "aggregation": {
+        "title": "Server-side group-by aggregation",
+        "group": "model",
+        "status": "unsupported",
+        "detail": "GROUP BY only on partition/clustering key prefix; COUNT/SUM/AVG over one partition or with ALLOW FILTERING (full scan)",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "server_side_join": {
+        "title": "Join / lookup between two collections inside the engine",
+        "group": "model",
+        "status": "unsupported",
+        "detail": "no joins: denormalise (one table per query) or join client-side / in Spark",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "graph_traversal": {
+        "title": "Variable-depth traversal over references",
+        "group": "model",
+        "status": "unsupported",
+        "detail": "client-side",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "schema_validation": {
+        "title": "Server-enforced document schema / constraints",
+        "group": "model",
+        "status": "supported",
+        "detail": "typed columns enforced by the schema (no constraints beyond types/keys)",
+        "ms": 1.1
+      },
+      "change_streams": {
+        "title": "Change feed / watch / keyspace notifications",
+        "group": "operations",
+        "status": "supported",
+        "detail": "CDC (Cassandra: commit-log segments read by an external agent; Scylla: CDC log table queryable with CQL)",
+        "ms": 2148.0
+      },
+      "server_side_scripting": {
+        "title": "Stored procedures / Lua / JS / UDF executed by the server",
+        "group": "operations",
+        "status": "unsupported",
+        "detail": "UDFs: Error from server: code=2200 [Invalid query] message=\"User-defined functions are disabled in cassand",
+        "ms": 5.4
+      },
+      "pubsub": {
+        "title": "Publish/subscribe messaging built into the engine",
+        "group": "operations",
+        "status": "unsupported",
+        "detail": "no pub/sub (CDC log tables for change capture)",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "explain_plan": {
+        "title": "Query plan / profile output for a query",
+        "group": "operations",
+        "status": "supported",
+        "detail": "no EXPLAIN; request tracing: 21 events (coordinator: 10.99.1.11)",
+        "ms": 21.7
+      },
+      "bulk_import": {
+        "title": "Native bulk import path (bulk API, batch, COPY-like tool)",
+        "group": "operations",
+        "status": "supported",
+        "detail": "COPY FROM (cqlsh), sstableloader, DSBulk / concurrent prepared statements (driver)",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "large_document": {
+        "title": "Store and read back a 15 MB document / value",
+        "group": "limits",
+        "status": "supported",
+        "detail": "15 MB text cell ok (max_mutation_size default 16 MB = half commitlog_segment_size)",
+        "ms": 552.4
+      },
+      "many_fields": {
+        "title": "Document with 5000 top-level fields",
+        "group": "limits",
+        "status": "unsupported",
+        "detail": "columns are schema-defined (5000 ALTER TABLE ADD is possible but pathological); use a map<text,text> for sparse attributes",
+        "ms": 0.0
+      },
+      "read_from_replica": {
+        "title": "Client can direct reads to a replica / secondary",
+        "group": "operations",
+        "status": "supported",
+        "detail": "leaderless: any replica serves reads (consistency level ONE); driver load balancing spreads requests",
+        "ms": 67.1
+      },
+      "snapshot_backup": {
+        "title": "Online snapshot / backup command available",
+        "group": "operations",
+        "status": "supported",
+        "detail": "nodetool snapshot (per-node hard links, --ttl expiry) + listsnapshots/clearsnapshot; online, instant (exercised in the backup phase)",
+        "ms": 1116.3
+      },
+      "incremental_backup": {
+        "title": "Incremental / differential backup (file- or segment-level)",
+        "group": "operations",
+        "status": "supported",
+        "detail": "incremental_backups / nodetool enablebackup: every flushed SSTable is hard-linked into <table>/backups/",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "pitr": {
+        "title": "Point-in-time recovery from a continuous change log",
+        "group": "operations",
+        "status": "supported",
+        "detail": "commitlog archiving (commitlog_archiving.properties: archive_command + restore_point_in_time) \u2014 not exercised here",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "slow_query_log": {
+        "title": "Server-side slow-query log with a configurable threshold",
+        "group": "logging",
+        "status": "supported",
+        "detail": "slow_query_log_timeout (500 ms default, cassandra.yaml) -> MonitoringTask aggregates slow reads into debug.log every 5 s",
+        "ms": 0.0
+      },
+      "audit_log": {
+        "title": "Audit / full-query log of statements or auth events",
+        "group": "logging",
+        "status": "supported",
+        "detail": "nodetool enableauditlog (BinAuditLogger -> logs/audit, auditlogviewer) / full query log (enablefullquerylog + fqltool)",
+        "ms": 1042.7
+      },
+      "structured_logs": {
+        "title": "JSON-structured server log out of the box",
+        "group": "logging",
+        "status": "unsupported",
+        "detail": "logback text (system.log / debug.log / gc.log); JSON needs a logback JSON encoder on the classpath",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "runtime_log_level": {
+        "title": "Change log verbosity at run time (no restart)",
+        "group": "logging",
+        "status": "supported",
+        "detail": "nodetool setlogginglevel <logger> <level> (logback, per node, no restart)",
+        "ms": 1007.1
+      },
+      "_seconds": 12.4
+    },
+    "bench": {
+      "ping": {
+        "title": "Round trip: cheapest server call",
+        "tags": [
+          "connection"
+        ],
+        "kind": "read",
+        "params_sample": "{}",
+        "status": "ok",
+        "timing": {
+          "n": 30,
+          "min": 0.961,
+          "p50": 1.153,
+          "p90": 1.417,
+          "p95": 1.512,
+          "p99": 1.58,
+          "max": 1.598,
+          "mean": 1.196,
+          "stdev": 0.173,
+          "first_ms": 1.414
+        },
+        "rows": null,
+        "checksum": null,
+        "error": null,
+        "error_code": null
+      },
+      "get_by_key": {
+        "title": "Point read: customer by primary key",
+        "tags": [
+          "kv",
+          "read"
+        ],
+        "kind": "read",
+        "params_sample": "{'id': 14824}",
+        "status": "ok",
+        "timing": {
+          "n": 30,
+          "min": 1.541,
+          "p50": 1.768,
+          "p90": 2.268,
+          "p95": 2.374,
+          "p99": 3.849,
+          "max": 4.443,
+          "mean": 1.938,
+          "stdev": 0.512,
+          "first_ms": 5.562
+        },
+        "rows": 1,
+        "checksum": "6fd6c2fc65d6b71d6b168c58",
+        "error": null,
+        "error_code": null
+      },
+      "multi_get": {
+        "title": "Batch point read: 100 customers by key in one request",
+        "tags": [
+          "kv",
+          "read",
+          "batch"
+        ],
+        "kind": "read",
+        "params_sample": "{'ids': [18, 151, 359, 492, 497, 554, 975, 986, 1169, 1373, 1715, 1952, 1963, 2070, 2190, 2302, 2394, 2727, 2785, 2856, 2972, 3085, 3312, 3533, 3537, 3818, 3867",
+        "status": "ok",
+        "timing": {
+          "n": 20,
+          "min": 19.315,
+          "p50": 21.896,
+          "p90": 25.526,
+          "p95": 27.626,
+          "p99": 32.195,
+          "max": 33.337,
+          "mean": 22.644,
+          "stdev": 3.21,
+          "first_ms": 29.379
+        },
+        "rows": 100,
+        "checksum": "655e0c701b1171ed48085c10",
+        "error": null,
+        "error_code": null
+      },
+      "insert_one": {
+        "title": "Single document insert (event)",
+        "tags": [
+          "write"
+        ],
+        "kind": "write",
+        "params_sample": "{'id': 50000000, 'customer_id': 14824, 'event_type': 'bench_insert', 'occurred_at': datetime.datetime(2026, 1, 1, 0, 0), 'payload': {'page': '/bench', 'ref': 'd",
+        "status": "ok",
+        "timing": {
+          "n": 30,
+          "min": 1.044,
+          "p50": 1.253,
+          "p90": 1.551,
+          "p95": 1.585,
+          "p99": 1.597,
+          "max": 1.599,
+          "mean": 1.273,
+          "stdev": 0.162,
+          "first_ms": 4.237
+        },
+        "rows": null,
+        "checksum": null,
+        "error": null,
+        "error_code": null
+      },
+      "update_field": {
+        "title": "Partial update: set one field of a customer",
+        "tags": [
+          "write",
+          "partial"
+        ],
+        "kind": "write",
+        "params_sample": "{'id': 14824, 'value': '2026-01-01T00:00:00Z'}",
+        "status": "ok",
+        "timing": {
+          "n": 30,
+          "min": 0.714,
+          "p50": 0.868,
+          "p90": 1.016,
+          "p95": 1.102,
+          "p99": 1.274,
+          "max": 1.34,
+          "mean": 0.886,
+          "stdev": 0.123,
+          "first_ms": 2.959
+        },
+        "rows": null,
+        "checksum": null,
+        "error": null,
+        "error_code": null
+      },
+      "upsert": {
+        "title": "Upsert inventory row by composite key",
+        "tags": [
+          "write"
+        ],
+        "kind": "write",
+        "params_sample": "{'product_id': 3706, 'warehouse_id': 4, 'qty': 331}",
+        "status": "ok",
+        "timing": {
+          "n": 30,
+          "min": 0.714,
+          "p50": 0.87,
+          "p90": 0.993,
+          "p95": 1.034,
+          "p99": 1.044,
+          "max": 1.044,
+          "mean": 0.878,
+          "stdev": 0.089,
+          "first_ms": 2.551
+        },
+        "rows": null,
+        "checksum": null,
+        "error": null,
+        "error_code": null
+      },
+      "delete_one": {
+        "title": "Delete one document by key",
+        "tags": [
+          "write"
+        ],
+        "kind": "write",
+        "params_sample": "{'id': 60000000, 'customer_id': 14824, 'event_type': 'bench_delete', 'occurred_at': datetime.datetime(2026, 1, 2, 0, 0), 'payload': None, 'value_num': 1.0}",
+        "status": "ok",
+        "timing": {
+          "n": 30,
+          "min": 0.704,
+          "p50": 0.811,
+          "p90": 0.893,
+          "p95": 0.939,
+          "p99": 1.07,
+          "max": 1.11,
+          "mean": 0.814,
+          "stdev": 0.081,
+          "first_ms": 0.943
+        },
+        "rows": null,
+        "checksum": null,
+        "error": null,
+        "error_code": null
+      },
+      "atomic_increment": {
+        "title": "Server-side atomic increment of a numeric field",
+        "tags": [
+          "write",
+          "atomic"
+        ],
+        "kind": "write",
+        "params_sample": "{'product_id': 3706, 'warehouse_id': 4, 'qty': 331}",
+        "status": "ok",
+        "timing": {
+          "n": 30,
+          "min": 2.623,
+          "p50": 3.378,
+          "p90": 4.21,
+          "p95": 4.506,
+          "p99": 4.75,
+          "max": 4.776,
+          "mean": 3.486,
+          "stdev": 0.552,
+          "first_ms": 9.825
+        },
+        "rows": 1,
+        "checksum": "82f56691c98b0d75639d1750",
+        "error": null,
+        "error_code": null
+      },
+      "conditional_update": {
+        "title": "Compare-and-set on a version field",
+        "tags": [
+          "write",
+          "atomic",
+          "cas"
+        ],
+        "kind": "write",
+        "params_sample": "{'product_id': 3706, 'warehouse_id': 4}",
+        "status": "ok",
+        "timing": {
+          "n": 30,
+          "min": 4.973,
+          "p50": 5.854,
+          "p90": 6.292,
+          "p95": 6.617,
+          "p99": 6.815,
+          "max": 6.826,
+          "mean": 5.879,
+          "stdev": 0.384,
+          "first_ms": 10.448
+        },
+        "rows": 1,
+        "checksum": "4a520767a593e2aaa486f609",
+        "error": null,
+        "error_code": null
+      },
+      "batch_insert_1000": {
+        "title": "Bulk write: 1000 events in one request",
+        "tags": [
+          "write",
+          "batch"
+        ],
+        "kind": "write",
+        "params_sample": "{'base': 70000000, 'docs': [{'id': 70000000, 'customer_id': 14824, 'event_type': 'bench_batch', 'occurred_at': datetime.datetime(2026, 1, 3, 0, 0), 'payload': N",
+        "status": "ok",
+        "timing": {
+          "n": 8,
+          "min": 209.766,
+          "p50": 246.386,
+          "p90": 263.273,
+          "p95": 263.485,
+          "p99": 263.654,
+          "max": 263.697,
+          "mean": 241.286,
+          "stdev": 20.479,
+          "first_ms": 294.291
+        },
+        "rows": null,
+        "checksum": null,
+        "error": null,
+        "error_code": null
+      },
+      "range_by_secondary": {
+        "title": "Secondary lookup: orders of one customer",
+        "tags": [
+          "read",
+          "index"
+        ],
+        "kind": "read",
+        "params_sample": "{'customer_id': 14824}",
+        "status": "ok",
+        "timing": {
+          "n": 20,
+          "min": 1.808,
+          "p50": 2.21,
+          "p90": 2.357,
+          "p95": 2.387,
+          "p99": 2.693,
+          "max": 2.769,
+          "mean": 2.182,
+          "stdev": 0.203,
+          "first_ms": 5.917
+        },
+        "rows": 7,
+        "checksum": "28011086de01faf9ceced703",
+        "error": null,
+        "error_code": null
+      },
+      "range_by_time": {
+        "title": "Range scan: events of one type in a 3-day window",
+        "tags": [
+          "read",
+          "range",
+          "time"
+        ],
+        "kind": "read",
+        "params_sample": "{'event_type': 'checkout', 'start': datetime.datetime(2025, 8, 28, 0, 0), 'end': datetime.datetime(2025, 8, 31, 0, 0), 'limit': 100}",
+        "status": "ok",
+        "timing": {
+          "n": 7,
+          "min": 4681.127,
+          "p50": 4760.433,
+          "p90": 4777.471,
+          "p95": 4777.684,
+          "p99": 4777.855,
+          "max": 4777.897,
+          "mean": 4750.132,
+          "stdev": 32.081,
+          "first_ms": 4966.488
+        },
+        "rows": 100,
+        "checksum": "706ac8b4bf31cce133e30d69",
+        "error": null,
+        "error_code": null
+      },
+      "filter_nested": {
+        "title": "Filter on a nested field + top-level field",
+        "tags": [
+          "read",
+          "nested"
+        ],
+        "kind": "read",
+        "params_sample": "{}",
+        "status": "ok",
+        "timing": {
+          "n": 10,
+          "min": 83.627,
+          "p50": 92.551,
+          "p90": 107.35,
+          "p95": 107.937,
+          "p99": 108.406,
+          "max": 108.524,
+          "mean": 94.254,
+          "stdev": 9.712,
+          "first_ms": 124.517
+        },
+        "rows": 1,
+        "checksum": "a37e4981ca422ff62b38fee7",
+        "error": null,
+        "error_code": null
+      },
+      "array_contains": {
+        "title": "Filter on array membership",
+        "tags": [
+          "read",
+          "array"
+        ],
+        "kind": "read",
+        "params_sample": "{}",
+        "status": "ok",
+        "timing": {
+          "n": 10,
+          "min": 53.818,
+          "p50": 78.206,
+          "p90": 84.611,
+          "p95": 85.442,
+          "p99": 86.107,
+          "max": 86.273,
+          "mean": 74.629,
+          "stdev": 9.786,
+          "first_ms": 67.283
+        },
+        "rows": 1,
+        "checksum": "855c097b08a3ac4fd8a9ee27",
+        "error": null,
+        "error_code": null
+      },
+      "top_n_sorted": {
+        "title": "Top-N with sort: 10 most expensive active products of a category",
+        "tags": [
+          "read",
+          "sort"
+        ],
+        "kind": "read",
+        "params_sample": "{'category_id': 116, 'n': 10}",
+        "status": "ok",
+        "timing": {
+          "n": 20,
+          "min": 1.921,
+          "p50": 2.179,
+          "p90": 2.482,
+          "p95": 2.57,
+          "p99": 2.804,
+          "max": 2.863,
+          "mean": 2.223,
+          "stdev": 0.213,
+          "first_ms": 5.583
+        },
+        "rows": 10,
+        "checksum": "a26dab79ede7f4d5249c5cb5",
+        "error": null,
+        "error_code": null
+      },
+      "pagination_offset": {
+        "title": "Deep page via offset (skip 10000)",
+        "tags": [
+          "read",
+          "pagination"
+        ],
+        "kind": "read",
+        "params_sample": "{'offset': 10000, 'page': 50}",
+        "status": "ok",
+        "timing": {
+          "n": 8,
+          "min": 55.574,
+          "p50": 76.779,
+          "p90": 91.024,
+          "p95": 93.787,
+          "p99": 95.996,
+          "max": 96.549,
+          "mean": 76.363,
+          "stdev": 12.727,
+          "first_ms": 143.116
+        },
+        "rows": 50,
+        "checksum": "e46e41f3a92752684bbeda77",
+        "error": null,
+        "error_code": null
+      },
+      "pagination_keyset": {
+        "title": "Deep page via keyset / cursor",
+        "tags": [
+          "read",
+          "pagination"
+        ],
+        "kind": "read",
+        "params_sample": "{'offset': 10000, 'page': 50}",
+        "status": "ok",
+        "timing": {
+          "n": 10,
+          "min": 2.626,
+          "p50": 2.729,
+          "p90": 2.824,
+          "p95": 2.826,
+          "p99": 2.828,
+          "max": 2.828,
+          "mean": 2.743,
+          "stdev": 0.067,
+          "first_ms": 74.178
+        },
+        "rows": 50,
+        "checksum": "e46e41f3a92752684bbeda77",
+        "error": null,
+        "error_code": null
+      },
+      "count_filtered": {
+        "title": "Count with equality filter",
+        "tags": [
+          "read",
+          "aggregate"
+        ],
+        "kind": "read",
+        "params_sample": "{}",
+        "status": "ok",
+        "timing": {
+          "n": 10,
+          "min": 750.494,
+          "p50": 792.657,
+          "p90": 836.876,
+          "p95": 843.142,
+          "p99": 848.155,
+          "max": 849.409,
+          "mean": 790.209,
+          "stdev": 32.615,
+          "first_ms": 1188.203
+        },
+        "rows": 1,
+        "checksum": "462747c4825a83f70293e696",
+        "error": null,
+        "error_code": null
+      },
+      "aggregate_group": {
+        "title": "Group-by aggregate over 200k orders",
+        "tags": [
+          "read",
+          "aggregate"
+        ],
+        "kind": "read",
+        "params_sample": "{}",
+        "status": "ok",
+        "timing": {
+          "n": 7,
+          "min": 4571.613,
+          "p50": 4878.123,
+          "p90": 5019.63,
+          "p95": 5053.449,
+          "p99": 5080.504,
+          "max": 5087.268,
+          "mean": 4851.602,
+          "stdev": 157.099,
+          "first_ms": 4611.343
+        },
+        "rows": 13,
+        "checksum": "82a653fa5048bcc6289cad3d",
+        "error": null,
+        "error_code": null
+      },
+      "aggregate_time_bucket": {
+        "title": "Time-bucketed aggregate over 1M events",
+        "tags": [
+          "read",
+          "aggregate",
+          "time"
+        ],
+        "kind": "read",
+        "params_sample": "{}",
+        "status": "ok",
+        "timing": {
+          "n": 5,
+          "min": 7010.441,
+          "p50": 7072.836,
+          "p90": 7168.372,
+          "p95": 7189.538,
+          "p99": 7206.47,
+          "max": 7210.703,
+          "mean": 7085.294,
+          "stdev": 70.988,
+          "first_ms": 6942.967
+        },
+        "rows": 24,
+        "checksum": "7c611891940b3812b8b36ca6",
+        "error": null,
+        "error_code": null
+      },
+      "join_lookup": {
+        "title": "Orders of a customer with the customer's name (server-side join if the engine has one)",
+        "tags": [
+          "read",
+          "join"
+        ],
+        "kind": "read",
+        "params_sample": "{'customer_id': 14824}",
+        "status": "ok",
+        "timing": {
+          "n": 20,
+          "min": 2.193,
+          "p50": 2.688,
+          "p90": 3.52,
+          "p95": 3.847,
+          "p99": 3.851,
+          "max": 3.853,
+          "mean": 2.853,
+          "stdev": 0.498,
+          "first_ms": 6.842
+        },
+        "rows": 7,
+        "checksum": "4c1b6f23a7e9d95af19b26c5",
+        "error": null,
+        "error_code": null
+      },
+      "graph_traversal": {
+        "title": "Category ancestor chain of a product (variable-depth traversal)",
+        "tags": [
+          "read",
+          "graph"
+        ],
+        "kind": "read",
+        "params_sample": "{'product_id': 3706}",
+        "status": "ok",
+        "timing": {
+          "n": 20,
+          "min": 2.167,
+          "p50": 4.548,
+          "p90": 6.637,
+          "p95": 7.067,
+          "p99": 7.671,
+          "max": 7.822,
+          "mean": 4.709,
+          "stdev": 1.434,
+          "first_ms": 9.952
+        },
+        "rows": 2,
+        "checksum": "f8df79f1ddf52e913fdd7bbf",
+        "error": null,
+        "error_code": null
+      },
+      "text_search": {
+        "title": "Full-text search on product descriptions",
+        "tags": [
+          "read",
+          "text"
+        ],
+        "kind": "read",
+        "params_sample": "{'words': ['wireless', 'charger'], 'limit': 20}",
+        "status": "ok",
+        "timing": {
+          "n": 10,
+          "min": 191.844,
+          "p50": 226.573,
+          "p90": 253.463,
+          "p95": 254.238,
+          "p99": 254.858,
+          "max": 255.013,
+          "mean": 225.015,
+          "stdev": 21.549,
+          "first_ms": 185.362
+        },
+        "rows": 20,
+        "checksum": "a235fed79befa7de480f1d5b",
+        "error": null,
+        "error_code": null
+      },
+      "geo_near": {
+        "title": "Geo radius query on customer locations",
+        "tags": [
+          "read",
+          "geo"
+        ],
+        "kind": "read",
+        "params_sample": "{'lat': 52.5, 'lon': 13.4, 'km': 200, 'limit': 20}",
+        "status": "ok",
+        "timing": {
+          "n": 10,
+          "min": 559.656,
+          "p50": 656.753,
+          "p90": 693.316,
+          "p95": 718.898,
+          "p99": 739.364,
+          "max": 744.48,
+          "mean": 643.229,
+          "stdev": 58.132,
+          "first_ms": 641.667
+        },
+        "rows": 20,
+        "checksum": "ef5985a217c590de050f108e",
+        "error": null,
+        "error_code": null
+      },
+      "vector_knn": {
+        "title": "k-nearest-neighbour search on 8-dim product embeddings",
+        "tags": [
+          "read",
+          "vector"
+        ],
+        "kind": "read",
+        "params_sample": "{'vector': [-0.16177, -0.22283, -0.59722, 0.1963, 0.07576, 0.45484, 0.05553, 0.5597], 'k': 10}",
+        "status": "ok",
+        "timing": {
+          "n": 20,
+          "min": 3.291,
+          "p50": 4.822,
+          "p90": 5.553,
+          "p95": 5.698,
+          "p99": 6.245,
+          "max": 6.381,
+          "mean": 4.714,
+          "stdev": 0.789,
+          "first_ms": 7.822
+        },
+        "rows": 10,
+        "checksum": "9dd41546cff4eeea5845f7c3",
+        "error": null,
+        "error_code": null
+      },
+      "transaction_transfer": {
+        "title": "Multi-document atomic transfer between two inventory rows",
+        "tags": [
+          "write",
+          "txn"
+        ],
+        "kind": "txn",
+        "params_sample": "{'product_id': 3706, 'from': 4, 'to': 2, 'amount': 1}",
+        "status": "ok",
+        "timing": {
+          "n": 20,
+          "min": 3.965,
+          "p50": 5.484,
+          "p90": 7.133,
+          "p95": 7.566,
+          "p99": 7.844,
+          "max": 7.914,
+          "mean": 5.569,
+          "stdev": 1.116,
+          "first_ms": 9.746
+        },
+        "rows": null,
+        "checksum": null,
+        "error": null,
+        "error_code": null
+      },
+      "ttl_set": {
+        "title": "Write with expiry",
+        "tags": [
+          "write",
+          "ttl"
+        ],
+        "kind": "write",
+        "params_sample": "{'key': 'ttl:0', 'seconds': 120, 'value': {'i': 0, 'note': 'bench'}}",
+        "status": "ok",
+        "timing": {
+          "n": 30,
+          "min": 1.024,
+          "p50": 1.272,
+          "p90": 1.379,
+          "p95": 1.417,
+          "p99": 1.768,
+          "max": 1.906,
+          "mean": 1.267,
+          "stdev": 0.16,
+          "first_ms": 3.145
+        },
+        "rows": null,
+        "checksum": null,
+        "error": null,
+        "error_code": null
+      },
+      "scan_full": {
+        "title": "Full scan: count all events",
+        "tags": [
+          "read",
+          "scan"
+        ],
+        "kind": "read",
+        "params_sample": "{}",
+        "status": "ok",
+        "timing": {
+          "n": 3,
+          "min": 17695.097,
+          "p50": 17787.364,
+          "p90": 17900.938,
+          "p95": 17915.135,
+          "p99": 17926.492,
+          "max": 17929.331,
+          "mean": 17803.931,
+          "stdev": 96.341,
+          "first_ms": 17171.773
+        },
+        "rows": 1,
+        "checksum": "3c61354c65cb9b97e3304b8e",
+        "error": null,
+        "error_code": null
+      },
+      "_seconds": 3.2
+    },
+    "optimize": {
+      "opt01_secondary_index": {
+        "title": "Range scan on events(event_type, occurred_at): no index vs secondary index (both column orders)",
+        "what": "an access path that is not indexed is a full scan; composite order matters on B-tree-like engines",
+        "variants": [
+          {
+            "name": "no_index_allow_filtering",
+            "note": "",
+            "ok": true,
+            "error": null,
+            "p50_ms": 4794.128,
+            "p95_ms": 4912.724,
+            "n": 8,
+            "rows": 100
+          },
+          {
+            "name": "sai_index_(event_type,occurred_at)",
+            "setup": "SAI indexes on events(event_type) and events(occurred_at) (query ANDs both, no ALLOW FILTERING)",
+            "ok": false,
+            "error": "ReadFailure: Error from server: code=1300 [Replica(s) failed to execute read] message=\"Operation failed - received 0 responses and 1 failures: UNKNOWN from /10.99.1.11:7000\" info={'consistency': 'ONE', 'required_responses': 1, 'received_responses': 0, 'failures': 1, 'error_code_map': {'10.99.1.11': "
+          },
+          {
+            "name": "query_table_((event_type,month),occurred_at)",
+            "setup": "denormalised query table events_by_type_month populated with 1000008 rows",
+            "ok": true,
+            "error": null,
+            "p50_ms": 6.473,
+            "p95_ms": 8.185,
+            "n": 8,
+            "rows": 100
+          }
+        ],
+        "best_variant": "query_table_((event_type,month),occurred_at)",
+        "speedup_vs_first": 740.63
+      },
+      "opt02_projection": {
+        "title": "Point read of an order: whole document (with embedded items) vs 3-field projection",
+        "what": "returning fewer fields saves serialisation and transfer; some engines still read the whole document",
+        "variants": [
+          {
+            "name": "full_document",
+            "ok": true,
+            "error": null,
+            "p50_ms": 1.777,
+            "p95_ms": 7.083,
+            "n": 30,
+            "rows": 1
+          },
+          {
+            "name": "projection_3_fields",
+            "ok": true,
+            "error": null,
+            "p50_ms": 1.049,
+            "p95_ms": 4.609,
+            "n": 30,
+            "rows": 1
+          }
+        ],
+        "best_variant": "projection_3_fields",
+        "speedup_vs_first": 1.69
+      },
+      "opt03_pagination": {
+        "title": "Deep pagination: offset/skip vs keyset (cursor) at depth 10k and 100k",
+        "what": "offset still walks and discards rows; a keyset cursor seeks directly into the sorted index",
+        "variants": [
+          {
+            "name": "offset_depth_10000",
+            "ok": true,
+            "error": null,
+            "p50_ms": 91.031,
+            "p95_ms": 165.049,
+            "n": 8,
+            "rows": 50
+          },
+          {
+            "name": "keyset_depth_10000",
+            "ok": true,
+            "error": null,
+            "p50_ms": 2.879,
+            "p95_ms": 3.178,
+            "n": 8,
+            "rows": 50
+          },
+          {
+            "name": "offset_depth_100000",
+            "ok": true,
+            "error": null,
+            "p50_ms": 661.511,
+            "p95_ms": 753.347,
+            "n": 8,
+            "rows": 50
+          },
+          {
+            "name": "keyset_depth_100000",
+            "ok": true,
+            "error": null,
+            "p50_ms": 3.367,
+            "p95_ms": 3.779,
+            "n": 8,
+            "rows": 50
+          }
+        ],
+        "best_variant": "keyset_depth_10000",
+        "speedup_vs_first": 31.62
+      },
+      "opt04_batching": {
+        "title": "Write batching: 2000 events one-by-one vs 2 bulk requests of 1000",
+        "what": "round trips dominate small writes; every engine has a bulk path (insert_many, pipeline, batch, _bulk)",
+        "variants": [
+          {
+            "name": "single_put_x2000",
+            "rows": 2000,
+            "seconds": 2.828,
+            "rows_per_s": 707,
+            "error": null,
+            "ok": true
+          },
+          {
+            "name": "bulk_put_1000_x2",
+            "rows": 2000,
+            "seconds": 0.525,
+            "rows_per_s": 3810,
+            "error": null,
+            "ok": true
+          }
+        ],
+        "speedup_vs_first": 5.39,
+        "best_variant": "bulk_put_1000_x2"
+      },
+      "opt05_multi_get": {
+        "title": "100 point reads: sequential round trips vs one multi-get request",
+        "what": "batched reads (MGET / $in / IN / mget / pipelining) amortise the network round trip",
+        "variants": [
+          {
+            "name": "sequential_100_gets",
+            "ok": true,
+            "error": null,
+            "p50_ms": 174.497,
+            "p95_ms": 198.089,
+            "n": 10,
+            "rows": 100
+          },
+          {
+            "name": "multi_get_100",
+            "ok": true,
+            "error": null,
+            "p50_ms": 23.546,
+            "p95_ms": 53.736,
+            "n": 10,
+            "rows": 100
+          }
+        ],
+        "best_variant": "multi_get_100",
+        "speedup_vs_first": 7.41
+      },
+      "opt06_embedding_vs_reference": {
+        "title": "Order with its items: embedded array (one document) vs referenced (order + items lookup)",
+        "what": "embedding what is read together avoids a second query / join; referencing keeps documents small and items independently addressable",
+        "variants": [
+          {
+            "name": "embedded_items",
+            "ok": true,
+            "error": null,
+            "p50_ms": 1.14,
+            "p95_ms": 1.468,
+            "n": 30,
+            "rows": 1
+          },
+          {
+            "name": "referenced_items",
+            "ok": true,
+            "error": null,
+            "p50_ms": 2.19,
+            "p95_ms": 2.919,
+            "n": 30,
+            "rows": 1
+          }
+        ],
+        "best_variant": "embedded_items",
+        "speedup_vs_first": 1.0
+      },
+      "opt07_write_durability": {
+        "title": "Single-document write at each durability / write-concern level the engine offers",
+        "what": "acknowledgement level (replica acks, fsync, refresh) is the biggest lever on write latency",
+        "variants": [
+          {
+            "name": "ONE",
+            "ok": true,
+            "error": null,
+            "p50_ms": 0.903,
+            "p95_ms": 1.107,
+            "n": 30,
+            "rows": null
+          },
+          {
+            "name": "LOCAL_QUORUM",
+            "ok": true,
+            "error": null,
+            "p50_ms": 1.348,
+            "p95_ms": 1.528,
+            "n": 30,
+            "rows": null
+          },
+          {
+            "name": "ALL",
+            "ok": true,
+            "error": null,
+            "p50_ms": 1.575,
+            "p95_ms": 1.722,
+            "n": 30,
+            "rows": null
+          }
+        ],
+        "best_variant": "ONE",
+        "speedup_vs_first": 1.0
+      },
+      "opt08_read_consistency": {
+        "title": "Point read at each read consistency level / read preference the engine offers",
+        "what": "linearizable / quorum reads cost extra round trips; replica reads trade freshness for offload",
+        "variants": [
+          {
+            "name": "ONE",
+            "ok": true,
+            "error": null,
+            "p50_ms": 1.217,
+            "p95_ms": 1.419,
+            "n": 30,
+            "rows": 1
+          },
+          {
+            "name": "LOCAL_QUORUM",
+            "ok": true,
+            "error": null,
+            "p50_ms": 1.843,
+            "p95_ms": 2.121,
+            "n": 30,
+            "rows": 1
+          },
+          {
+            "name": "ALL",
+            "ok": true,
+            "error": null,
+            "p50_ms": 1.554,
+            "p95_ms": 1.848,
+            "n": 30,
+            "rows": 1
+          }
+        ],
+        "best_variant": "ONE",
+        "speedup_vs_first": 1.0
+      },
+      "opt09_connection_reuse": {
+        "title": "Point read with a new connection per operation vs one persistent client",
+        "what": "handshakes (TCP, TLS, auth, topology discovery) dwarf a point read; always pool",
+        "variants": [
+          {
+            "name": "connect_per_operation",
+            "ok": true,
+            "error": null,
+            "p50_ms": 37.842,
+            "p95_ms": 44.468,
+            "n": 20,
+            "rows": 1
+          },
+          {
+            "name": "persistent_client",
+            "ok": true,
+            "error": null,
+            "p50_ms": 1.552,
+            "p95_ms": 1.732,
+            "n": 30,
+            "rows": 1
+          }
+        ],
+        "best_variant": "persistent_client",
+        "speedup_vs_first": 24.38
+      },
+      "_seconds": 353.8
+    },
+    "connections": {
+      "max_connections": null,
+      "connect_latency": {
+        "primary": {
+          "target": "primary",
+          "n": 30,
+          "ms": {
+            "n": 30,
+            "min": 18.143123,
+            "p50": 29.9187795,
+            "p90": 35.899385300000006,
+            "p95": 37.72478685,
+            "p99": 39.499906,
+            "max": 40.168037,
+            "mean": 29.31868473333333,
+            "stdev": 5.757886091875674
+          },
+          "errors": [],
+          "error_count": 0
+        }
+      },
+      "storm": {
+        "primary": [
+          {
+            "target": "primary",
+            "requested": 10,
+            "opened": 10,
+            "failed": 0,
+            "wall_ms_to_open_all": 261.1,
+            "connect_ms": {
+              "n": 10,
+              "min": 201.344871,
+              "p50": 208.3184265,
+              "p90": 209.9212699,
+              "p95": 210.09478945,
+              "p99": 210.23360509,
+              "max": 210.268309,
+              "mean": 206.78592469999998,
+              "stdev": 3.0758655982013265
+            },
+            "error_codes": {},
+            "sample_error": null
+          },
+          {
+            "target": "primary",
+            "requested": 50,
+            "opened": 50,
+            "failed": 0,
+            "wall_ms_to_open_all": 1026.3,
+            "connect_ms": {
+              "n": 50,
+              "min": 926.26041,
+              "p50": 984.8178359999999,
+              "p90": 993.6448723,
+              "p95": 994.35758635,
+              "p99": 996.5455167700001,
+              "max": 998.028172,
+              "mean": 978.29769548,
+              "stdev": 18.054106433766517
+            },
+            "error_codes": {},
+            "sample_error": null
+          },
+          {
+            "target": "primary",
+            "requested": 100,
+            "opened": 100,
+            "failed": 0,
+            "wall_ms_to_open_all": 2692.8,
+            "connect_ms": {
+              "n": 100,
+              "min": 2602.269501,
+              "p50": 2638.465719,
+              "p90": 2656.0238448,
+              "p95": 2659.4490127,
+              "p99": 2669.6654657699996,
+              "max": 2672.048967,
+              "mean": 2637.5740860299998,
+              "stdev": 14.931855199533281
+            },
+            "error_codes": {},
+            "sample_error": null
+          },
+          {
+            "target": "primary",
+            "requested": 200,
+            "opened": 200,
+            "failed": 0,
+            "wall_ms_to_open_all": 5388.1,
+            "connect_ms": {
+              "n": 200,
+              "min": 5209.83994,
+              "p50": 5304.374365,
+              "p90": 5343.5190181,
+              "p95": 5350.7093408,
+              "p99": 5356.51761424,
+              "max": 5362.36139,
+              "mean": 5298.5562563,
+              "stdev": 35.9053337074116
+            },
+            "error_codes": {},
+            "sample_error": null
+          },
+          {
+            "target": "primary",
+            "requested": 500,
+            "opened": 500,
+            "failed": 0,
+            "wall_ms_to_open_all": 13987.3,
+            "connect_ms": {
+              "n": 500,
+              "min": 13539.549998,
+              "p50": 13794.4271145,
+              "p90": 13884.741644,
+              "p95": 13913.4970791,
+              "p99": 13928.178307,
+              "max": 13940.085483,
+              "mean": 13781.562333381999,
+              "stdev": 84.80445046427654
+            },
+            "error_codes": {},
+            "sample_error": null
+          }
+        ]
+      },
+      "concurrency": {
+        "primary": [
+          {
+            "workers": 1,
+            "targets": [
+              "primary"
+            ],
+            "ops": 2501,
+            "errors": 0,
+            "seconds": 4.0,
+            "ops_per_s": 625,
+            "latency_ms": {
+              "n": 2501,
+              "min": 0.840224,
+              "p50": 1.611753,
+              "p90": 1.953776,
+              "p95": 2.023144,
+              "p99": 2.465767,
+              "max": 10.023806,
+              "mean": 1.5970195649740104,
+              "stdev": 0.3755815000065927
+            },
+            "first_error": null,
+            "workers_reported": 1
+          },
+          {
+            "workers": 4,
+            "targets": [
+              "primary"
+            ],
+            "ops": 13530,
+            "errors": 0,
+            "seconds": 4.0,
+            "ops_per_s": 3382,
+            "latency_ms": {
+              "n": 13530,
+              "min": 0.645386,
+              "p50": 1.075621,
+              "p90": 1.6250442999999999,
+              "p95": 1.7574816,
+              "p99": 1.9982534499999995,
+              "max": 18.370003,
+              "mean": 1.1805278777531412,
+              "stdev": 0.4260211406037643
+            },
+            "first_error": null,
+            "workers_reported": 4
+          },
+          {
+            "workers": 16,
+            "targets": [
+              "primary"
+            ],
+            "ops": 48229,
+            "errors": 0,
+            "seconds": 4.0,
+            "ops_per_s": 12057,
+            "latency_ms": {
+              "n": 48229,
+              "min": 0.803426,
+              "p50": 1.239585,
+              "p90": 1.6759870000000001,
+              "p95": 1.8717637999999999,
+              "p99": 2.4312106000000013,
+              "max": 17.409772,
+              "mean": 1.3250300727570548,
+              "stdev": 0.43439743857613655
+            },
+            "first_error": null,
+            "workers_reported": 16
+          },
+          {
+            "workers": 32,
+            "targets": [
+              "primary"
+            ],
+            "ops": 66124,
+            "errors": 0,
+            "seconds": 4.0,
+            "ops_per_s": 16531,
+            "latency_ms": {
+              "n": 66124,
+              "min": 0.894042,
+              "p50": 1.8189975,
+              "p90": 2.5842227,
+              "p95": 2.91187485,
+              "p99": 3.8103270899999995,
+              "max": 35.289001,
+              "mean": 1.9340852414403242,
+              "stdev": 0.6728837316454773
+            },
+            "first_error": null,
+            "workers_reported": 32
+          },
+          {
+            "workers": 64,
+            "targets": [
+              "primary"
+            ],
+            "ops": 62857,
+            "errors": 0,
+            "seconds": 4.0,
+            "ops_per_s": 15714,
+            "latency_ms": {
+              "n": 62857,
+              "min": 1.042254,
+              "p50": 3.599246,
+              "p90": 6.302112800000001,
+              "p95": 7.572988199999993,
+              "p99": 11.148704600000002,
+              "max": 89.242894,
+              "mean": 4.0730322815279125,
+              "stdev": 2.422987137370767
+            },
+            "first_error": null,
+            "workers_reported": 64
+          }
+        ]
+      },
+      "pool_saturation": {
+        "pool_size": 8,
+        "workers": 32,
+        "ops": 5920,
+        "ops_per_s": 1471,
+        "checkout_wait_ms": {
+          "n": 5920,
+          "min": 0.002046,
+          "p50": 0.005923,
+          "p90": 0.0091572,
+          "p95": 0.009700150000000001,
+          "p99": 0.01915806000000033,
+          "max": 4014.750533,
+          "mean": 16.216460898479728,
+          "stdev": 254.0785733011871
+        },
+        "exec_ms": {
+          "n": 5920,
+          "min": 1.090231,
+          "p50": 5.3075410000000005,
+          "p90": 8.024789,
+          "p95": 9.0032555,
+          "p99": 10.552851000000008,
+          "max": 14.153002,
+          "mean": 5.420974416891892,
+          "stdev": 1.9197124947261035
+        }
+      },
+      "write_contention": {
+        "threads": 4,
+        "iters_per_thread": 50,
+        "applied": 146,
+        "rejected": 54,
+        "errors": 0,
+        "version_before": 4,
+        "version_after": 150,
+        "version_delta": 146,
+        "atomic": true,
+        "seconds": 1.0,
+        "cas_ms": {
+          "n": 200,
+          "min": 2.840273,
+          "p50": 6.1181114999999995,
+          "p90": 44.4844526,
+          "p95": 94.60202269999992,
+          "p99": 163.10643026999992,
+          "max": 179.84881,
+          "mean": 15.9487796,
+          "stdev": 30.773024055352444
+        },
+        "first_error": null,
+        "interpretation": "every accepted CAS advanced the version exactly once: atomic compare-and-set"
+      },
+      "_seconds": 69.4
+    },
+    "loadtest": {
+      "batch_rows": 1000,
+      "seconds_per_run": 15.0,
+      "containers": [
+        "nslab-cassandra1",
+        "nslab-cassandra2",
+        "nslab-cassandra3"
+      ],
+      "runs": [
+        {
+          "workers": 4,
+          "target": "primary",
+          "rows": 228000,
+          "batches": 228,
+          "errors": 0,
+          "seconds": 15.0,
+          "rows_per_s": 15200,
+          "batch_ms": {
+            "n": 228,
+            "min": 220.088798,
+            "p50": 244.22989,
+            "p90": 316.8350617,
+            "p95": 335.08774609999995,
+            "p99": 353.09950825999994,
+            "max": 356.272727,
+            "mean": 261.3976045131579,
+            "stdev": 36.191855292728064
+          },
+          "first_error": null,
+          "workers_reported": 4,
+          "cleanup_s": 13.6,
+          "container_usage": {
+            "nslab-cassandra1": {
+              "cpu_cores_avg": 4.042,
+              "cpu_limit_cores": null,
+              "cpu_pct_of_limit": null,
+              "mem_peak_mb": 6457,
+              "mem_end_mb": 6005,
+              "mem_limit_mb": null,
+              "cpu_cores_avg_during_inserts": 8.183
+            },
+            "nslab-cassandra2": {
+              "cpu_cores_avg": 1.837,
+              "cpu_limit_cores": null,
+              "cpu_pct_of_limit": null,
+              "mem_peak_mb": 6254,
+              "mem_end_mb": 5886,
+              "mem_limit_mb": null,
+              "cpu_cores_avg_during_inserts": 3.719
+            },
+            "nslab-cassandra3": {
+              "cpu_cores_avg": 1.641,
+              "cpu_limit_cores": null,
+              "cpu_pct_of_limit": null,
+              "mem_peak_mb": 6333,
+              "mem_end_mb": 5914,
+              "mem_limit_mb": null,
+              "cpu_cores_avg_during_inserts": 3.322
+            }
+          }
+        },
+        {
+          "workers": 16,
+          "target": "primary",
+          "rows": 472000,
+          "batches": 472,
+          "errors": 0,
+          "seconds": 15.0,
+          "rows_per_s": 31467,
+          "batch_ms": {
+            "n": 472,
+            "min": 312.162738,
+            "p50": 496.0733285,
+            "p90": 629.8510996000001,
+            "p95": 694.17507975,
+            "p99": 785.3725350900006,
+            "max": 878.141895,
+            "mean": 508.8462409004237,
+            "stdev": 97.88271836178362
+          },
+          "first_error": null,
+          "workers_reported": 16,
+          "cleanup_s": 13.9,
+          "container_usage": {
+            "nslab-cassandra1": {
+              "cpu_cores_avg": 5.597,
+              "cpu_limit_cores": null,
+              "cpu_pct_of_limit": null,
+              "mem_peak_mb": 6457,
+              "mem_end_mb": 6156,
+              "mem_limit_mb": null,
+              "cpu_cores_avg_during_inserts": 11.735
+            },
+            "nslab-cassandra2": {
+              "cpu_cores_avg": 3.182,
+              "cpu_limit_cores": null,
+              "cpu_pct_of_limit": null,
+              "mem_peak_mb": 6254,
+              "mem_end_mb": 6040,
+              "mem_limit_mb": null,
+              "cpu_cores_avg_during_inserts": 6.671
+            },
+            "nslab-cassandra3": {
+              "cpu_cores_avg": 3.117,
+              "cpu_limit_cores": null,
+              "cpu_pct_of_limit": null,
+              "mem_peak_mb": 6333,
+              "mem_end_mb": 6137,
+              "mem_limit_mb": null,
+              "cpu_cores_avg_during_inserts": 6.535
+            }
+          }
+        },
+        {
+          "workers": 32,
+          "target": "primary",
+          "rows": 505000,
+          "batches": 505,
+          "errors": 0,
+          "seconds": 15.0,
+          "rows_per_s": 33667,
+          "batch_ms": {
+            "n": 505,
+            "min": 423.897581,
+            "p50": 938.06359,
+            "p90": 1250.2963492,
+            "p95": 1353.0423369999996,
+            "p99": 1492.1278863599996,
+            "max": 1797.943629,
+            "mean": 960.6554847881189,
+            "stdev": 216.56332140530932
+          },
+          "first_error": null,
+          "workers_reported": 32,
+          "cleanup_s": 13.0,
+          "container_usage": {
+            "nslab-cassandra1": {
+              "cpu_cores_avg": 5.831,
+              "cpu_limit_cores": null,
+              "cpu_pct_of_limit": null,
+              "mem_peak_mb": 6457,
+              "mem_end_mb": 6112,
+              "mem_limit_mb": null,
+              "cpu_cores_avg_during_inserts": 12.259
+            },
+            "nslab-cassandra2": {
+              "cpu_cores_avg": 2.964,
+              "cpu_limit_cores": null,
+              "cpu_pct_of_limit": null,
+              "mem_peak_mb": 6254,
+              "mem_end_mb": 5977,
+              "mem_limit_mb": null,
+              "cpu_cores_avg_during_inserts": 6.232
+            },
+            "nslab-cassandra3": {
+              "cpu_cores_avg": 2.873,
+              "cpu_limit_cores": null,
+              "cpu_pct_of_limit": null,
+              "mem_peak_mb": 6333,
+              "mem_end_mb": 6010,
+              "mem_limit_mb": null,
+              "cpu_cores_avg_during_inserts": 6.04
+            }
+          }
+        }
+      ],
+      "best": {
+        "target": "primary",
+        "workers": 32,
+        "rows_per_s": 33667
+      },
+      "_seconds": 93.6
+    },
+    "replication": {
+      "kind": "leaderless replication, RF=3, tunable consistency (LOCAL_QUORUM)",
+      "topology": {
+        "primary": {
+          "role_reported": "node",
+          "role_configured": "primary",
+          "version": "Cassandra 5.0.9 (CQL 3.4.7)",
+          "status": {
+            "local": "10.99.1.11",
+            "peers": [
+              "10.99.1.13",
+              "10.99.1.12"
+            ],
+            "tokens": 16
+          }
+        },
+        "node2": {
+          "role_reported": "node",
+          "role_configured": "node",
+          "version": "Cassandra 5.0.9 (CQL 3.4.7)",
+          "status": {
+            "local": "10.99.1.12",
+            "peers": [
+              "10.99.1.13",
+              "10.99.1.11"
+            ],
+            "tokens": 16
+          }
+        },
+        "node3": {
+          "role_reported": "node",
+          "role_configured": "node",
+          "version": "Cassandra 5.0.9 (CQL 3.4.7)",
+          "status": {
+            "local": "10.99.1.13",
+            "peers": [
+              "10.99.1.11",
+              "10.99.1.12"
+            ],
+            "tokens": 16
+          }
+        }
+      },
+      "visibility_lag": {
+        "node2": {
+          "error": "AttributeError: 'tuple' object has no attribute '_asdict'"
+        },
+        "node3": {
+          "error": "AttributeError: 'tuple' object has no attribute '_asdict'"
+        }
+      },
+      "write_rejection": {
+        "node2": {
+          "replica": "node2",
+          "writes_rejected": false,
+          "note": "replica accepted a write (multi-master / leaderless / coordinator forwards)"
+        },
+        "node3": {
+          "replica": "node3",
+          "writes_rejected": false,
+          "note": "replica accepted a write (multi-master / leaderless / coordinator forwards)"
+        }
+      },
+      "lag_under_load": {
+        "rows": 20000,
+        "batch": 500,
+        "write_seconds": 4.33,
+        "rows_per_s": 4615,
+        "catchup_ms_after_last_write": {
+          "node2": 489.0,
+          "node3": 447.1
+        },
+        "samples": [
+          {
+            "t": 253348.298,
+            "primary": {
+              "local": "10.99.1.11",
+              "peers": [
+                "10.99.1.13",
+                "10.99.1.12"
+              ],
+              "tokens": 16
+            },
+            "node2": {
+              "local": "10.99.1.12",
+              "peers": [
+                "10.99.1.13",
+                "10.99.1.11"
+              ],
+              "tokens": 16
+            },
+            "node3": {
+              "local": "10.99.1.13",
+              "peers": [
+                "10.99.1.11",
+                "10.99.1.12"
+              ],
+              "tokens": 16
+            }
+          },
+          {
+            "t": 253348.709,
+            "primary": {
+              "local": "10.99.1.11",
+              "peers": [
+                "10.99.1.13",
+                "10.99.1.12"
+              ],
+              "tokens": 16
+            },
+            "node2": {
+              "local": "10.99.1.12",
+              "peers": [
+                "10.99.1.13",
+                "10.99.1.11"
+              ],
+              "tokens": 16
+            },
+            "node3": {
+              "local": "10.99.1.13",
+              "peers": [
+                "10.99.1.11",
+                "10.99.1.12"
+              ],
+              "tokens": 16
+            }
+          },
+          {
+            "t": 253349.187,
+            "primary": {
+              "local": "10.99.1.11",
+              "peers": [
+                "10.99.1.13",
+                "10.99.1.12"
+              ],
+              "tokens": 16
+            },
+            "node2": {
+              "local": "10.99.1.12",
+              "peers": [
+                "10.99.1.13",
+                "10.99.1.11"
+              ],
+              "tokens": 16
+            },
+            "node3": {
+              "local": "10.99.1.13",
+              "peers": [
+                "10.99.1.11",
+                "10.99.1.12"
+              ],
+              "tokens": 16
+            }
+          },
+          {
+            "t": 253349.635,
+            "primary": {
+              "local": "10.99.1.11",
+              "peers": [
+                "10.99.1.13",
+                "10.99.1.12"
+              ],
+              "tokens": 16
+            },
+            "node2": {
+              "local": "10.99.1.12",
+              "peers": [
+                "10.99.1.13",
+                "10.99.1.11"
+              ],
+              "tokens": 16
+            },
+            "node3": {
+              "local": "10.99.1.13",
+              "peers": [
+                "10.99.1.11",
+                "10.99.1.12"
+              ],
+              "tokens": 16
+            }
+          },
+          {
+            "t": 253350.041,
+            "primary": {
+              "local": "10.99.1.11",
+              "peers": [
+                "10.99.1.13",
+                "10.99.1.12"
+              ],
+              "tokens": 16
+            },
+            "node2": {
+              "local": "10.99.1.12",
+              "peers": [
+                "10.99.1.13",
+                "10.99.1.11"
+              ],
+              "tokens": 16
+            },
+            "node3": {
+              "local": "10.99.1.13",
+              "peers": [
+                "10.99.1.11",
+                "10.99.1.12"
+              ],
+              "tokens": 16
+            }
+          },
+          {
+            "t": 253350.476,
+            "primary": {
+              "local": "10.99.1.11",
+              "peers": [
+                "10.99.1.13",
+                "10.99.1.12"
+              ],
+              "tokens": 16
+            },
+            "node2": {
+              "local": "10.99.1.12",
+              "peers": [
+                "10.99.1.13",
+                "10.99.1.11"
+              ],
+              "tokens": 16
+            },
+            "node3": {
+              "local": "10.99.1.13",
+              "peers": [
+                "10.99.1.11",
+                "10.99.1.12"
+              ],
+              "tokens": 16
+            }
+          },
+          {
+            "t": 253350.879,
+            "primary": {
+              "local": "10.99.1.11",
+              "peers": [
+                "10.99.1.13",
+                "10.99.1.12"
+              ],
+              "tokens": 16
+            },
+            "node2": {
+              "local": "10.99.1.12",
+              "peers": [
+                "10.99.1.13",
+                "10.99.1.11"
+              ],
+              "tokens": 16
+            },
+            "node3": {
+              "local": "10.99.1.13",
+              "peers": [
+                "10.99.1.11",
+                "10.99.1.12"
+              ],
+              "tokens": 16
+            }
+          },
+          {
+            "t": 253351.258,
+            "primary": {
+              "local": "10.99.1.11",
+              "peers": [
+                "10.99.1.13",
+                "10.99.1.12"
+              ],
+              "tokens": 16
+            },
+            "node2": {
+              "local": "10.99.1.12",
+              "peers": [
+                "10.99.1.13",
+                "10.99.1.11"
+              ],
+              "tokens": 16
+            },
+            "node3": {
+              "local": "10.99.1.13",
+              "peers": [
+                "10.99.1.11",
+                "10.99.1.12"
+              ],
+              "tokens": 16
+            }
+          },
+          {
+            "t": 253351.646,
+            "primary": {
+              "local": "10.99.1.11",
+              "peers": [
+                "10.99.1.13",
+                "10.99.1.12"
+              ],
+              "tokens": 16
+            },
+            "node2": {
+              "local": "10.99.1.12",
+              "peers": [
+                "10.99.1.13",
+                "10.99.1.11"
+              ],
+              "tokens": 16
+            },
+            "node3": {
+              "local": "10.99.1.13",
+              "peers": [
+                "10.99.1.11",
+                "10.99.1.12"
+              ],
+              "tokens": 16
+            }
+          },
+          {
+            "t": 253352.069,
+            "primary": {
+              "local": "10.99.1.11",
+              "peers": [
+                "10.99.1.13",
+                "10.99.1.12"
+              ],
+              "tokens": 16
+            },
+            "node2": {
+              "local": "10.99.1.12",
+              "peers": [
+                "10.99.1.13",
+                "10.99.1.11"
+              ],
+              "tokens": 16
+            },
+            "node3": {
+              "local": "10.99.1.13",
+              "peers": [
+                "10.99.1.11",
+                "10.99.1.12"
+              ],
+              "tokens": 16
+            }
+          },
+          {
+            "t": 253352.458,
+            "primary": {
+              "local": "10.99.1.11",
+              "peers": [
+                "10.99.1.13",
+                "10.99.1.12"
+              ],
+              "tokens": 16
+            },
+            "node2": {
+              "local": "10.99.1.12",
+              "peers": [
+                "10.99.1.13",
+                "10.99.1.11"
+              ],
+              "tokens": 16
+            },
+            "node3": {
+              "local": "10.99.1.13",
+              "peers": [
+                "10.99.1.11",
+                "10.99.1.12"
+              ],
+              "tokens": 16
+            }
+          },
+          {
+            "t": 253352.885,
+            "primary": {
+              "local": "10.99.1.11",
+              "peers": [
+                "10.99.1.13",
+                "10.99.1.12"
+              ],
+              "tokens": 16
+            },
+            "node2": {
+              "local": "10.99.1.12",
+              "peers": [
+                "10.99.1.13",
+                "10.99.1.11"
+              ],
+              "tokens": 16
+            },
+            "node3": {
+              "local": "10.99.1.13",
+              "peers": [
+                "10.99.1.11",
+                "10.99.1.12"
+              ],
+              "tokens": 16
+            }
+          },
+          {
+            "t": 253353.149,
+            "primary": {
+              "local": "10.99.1.11",
+              "peers": [
+                "10.99.1.13",
+                "10.99.1.12"
+              ],
+              "tokens": 16
+            },
+            "node2": {
+              "local": "10.99.1.12",
+              "peers": [
+                "10.99.1.13",
+                "10.99.1.11"
+              ],
+              "tokens": 16
+            },
+            "node3": {
+              "local": "10.99.1.13",
+              "peers": [
+                "10.99.1.11",
+                "10.99.1.12"
+              ],
+              "tokens": 16
+            }
+          },
+          {
+            "t": 253353.411,
+            "primary": {
+              "local": "10.99.1.11",
+              "peers": [
+                "10.99.1.13",
+                "10.99.1.12"
+              ],
+              "tokens": 16
+            },
+            "node2": {
+              "local": "10.99.1.12",
+              "peers": [
+                "10.99.1.13",
+                "10.99.1.11"
+              ],
+              "tokens": 16
+            },
+            "node3": {
+              "local": "10.99.1.13",
+              "peers": [
+                "10.99.1.11",
+                "10.99.1.12"
+              ],
+              "tokens": 16
+            }
+          },
+          {
+            "t": 253353.678,
+            "primary": {
+              "local": "10.99.1.11",
+              "peers": [
+                "10.99.1.13",
+                "10.99.1.12"
+              ],
+              "tokens": 16
+            },
+            "node2": {
+              "local": "10.99.1.12",
+              "peers": [
+                "10.99.1.13",
+                "10.99.1.11"
+              ],
+              "tokens": 16
+            },
+            "node3": {
+              "local": "10.99.1.13",
+              "peers": [
+                "10.99.1.11",
+                "10.99.1.12"
+              ],
+              "tokens": 16
+            }
+          }
+        ]
+      },
+      "read_scaling": {
+        "primary_only": {
+          "targets": [
+            "primary"
+          ],
+          "workers": 32,
+          "ops": 61229,
+          "ops_per_s": 15307,
+          "errors": 0,
+          "latency_ms": {
+            "n": 61229,
+            "min": 0.902474,
+            "p50": 1.90633,
+            "p90": 2.779673400000001,
+            "p95": 3.1805475999999997,
+            "p99": 4.854679200000001,
+            "max": 63.5675,
+            "mean": 2.088718492854693,
+            "stdev": 1.3227854994181683
+          }
+        },
+        "primary_plus_replicas": {
+          "targets": [
+            "primary",
+            "node2",
+            "node3"
+          ],
+          "workers": 32,
+          "ops": 44492,
+          "ops_per_s": 11123,
+          "errors": 0,
+          "latency_ms": {
+            "n": 44492,
+            "min": 0.898783,
+            "p50": 2.5168869999999997,
+            "p90": 4.412827400000001,
+            "p95": 5.310376949999999,
+            "p99": 7.917779699999996,
+            "max": 65.902936,
+            "mean": 2.8747203610087206,
+            "stdev": 1.6103714214187592
+          }
+        },
+        "gain": 0.73
+      },
+      "failover": {
+        "kind": "leaderless replication, RF=3, tunable consistency (LOCAL_QUORUM)",
+        "killed": "primary",
+        "writes_still_succeed_after_kill": true,
+        "write_attempts_until_success": 1,
+        "last_error_before_success": null,
+        "downtime_ms": 900.5,
+        "new_primary": "node2",
+        "verified_via": "node2",
+        "new_primary_role": "node",
+        "new_primary_status": {
+          "local": "10.99.1.12",
+          "peers": [
+            "10.99.1.13",
+            "10.99.1.11"
+          ],
+          "tokens": 16
+        },
+        "old_primary_restarted": true,
+        "note": "old primary restarted; whether it rejoins depends on the engine (stack should be recreated for reuse)"
+      },
+      "_seconds": 22.6
+    },
+    "backup": {
+      "tag": "nslab-20260914-115513",
+      "strategy": {
+        "tool": "nodetool flush + nodetool snapshot -t <tag> --ttl 3h (hard-linked SSTables, instant, per node) then export the snapshot dirs to /backups/<tag>/<node>/lab/<table>/",
+        "consistency": "per-node crash-consistent after the flush; cluster-wide consistency comes from repair after restore (or a coordinated snapshot)",
+        "restore": "online: TRUNCATE every table, then each node runs nodetool import --copy-data on its own exported snapshot (server-side, SAI components included; without --copy-data the export is moved, i.e. consumed); sstableloader streams to the owning replicas but its driver cannot parse vector<float, 8> on 5.0.x",
+        "incremental": "incremental_backups (nodetool enablebackup): each flushed SSTable is hard-linked into <table>/backups/ \u2014 ship those as they appear",
+        "pitr": "commitlog archiving (archive_command + restore_point_in_time) \u2014 configured in commitlog_archiving.properties",
+        "schedule": "cron on every node (nodetool snapshot) or Medusa / Scylla Manager; --ttl makes snapshots self-expiring",
+        "retention": "nodetool clearsnapshot / snapshot --ttl; hard links cost nothing until compaction rewrites the SSTables"
+      },
+      "data_bytes": 379454357,
+      "fingerprint_before": {
+        "counts": {
+          "customers": 20000,
+          "categories": 200,
+          "products": 5000,
+          "inventory": 20000
+        },
+        "customers_present": 50,
+        "probe_count": 100,
+        "post_probe_present": false
+      },
+      "reads_baseline": {
+        "reads": 538,
+        "errors": 0,
+        "latency_ms": {
+          "n": 538,
+          "min": 0.9098369628190994,
+          "p50": 1.6343430324923247,
+          "p90": 1.9906168745364994,
+          "p95": 2.0675644336733963,
+          "p99": 2.4403575994074345,
+          "max": 3.688005032017827,
+          "mean": 1.5814755560715985,
+          "stdev": 0.3649482844381975
+        }
+      },
+      "backup": {
+        "method": "nodetool flush + snapshot --ttl 3h on every node, export to /backups (sstableloader layout)",
+        "online": true,
+        "artifact": "/backups/nslab-20260914-115513/<node>/lab/<table>/",
+        "artifact_bytes": 379543589,
+        "per_node": {
+          "primary": {
+            "snapshot_ms": 2399.7,
+            "export_ms": 242.9,
+            "bytes": 126565117
+          },
+          "node2": {
+            "snapshot_ms": 2123.5,
+            "export_ms": 240.8,
+            "bytes": 126483339
+          },
+          "node3": {
+            "snapshot_ms": 2086.6,
+            "export_ms": 234.9,
+            "bytes": 126495133
+          }
+        },
+        "listsnapshots_sample": [
+          "nslab-20260914-115513                        lab           repl_probe           1.09 KiB   8.27 KiB     2026-09-14T08:55:19.702Z 2026-09-14T11:55:19.702Z",
+          "nslab-20260914-115513                        lab           events               1.27 KiB   55.73 MiB    2026-09-14T08:55:19.702Z 2026-09-14T11:55:19.702Z",
+          "nslab-20260914-115513                        lab           inventory_qty        1.2 KiB    461.29 KiB   2026-09-14T08:55:19.702Z 2026-09-14T11:55:19.702Z"
+        ],
+        "note": "RF=3 on 3 nodes: each node's export is a full copy of the keyspace; every node re-imports its own",
+        "seconds": 8.56,
+        "status": "ok",
+        "reads_during": {
+          "reads": 2401,
+          "errors": 0,
+          "latency_ms": {
+            "n": 2401,
+            "min": 0.8407790446653962,
+            "p50": 1.4183670282363892,
+            "p90": 1.9184220000170171,
+            "p95": 2.0213319803588092,
+            "p99": 2.3577999672852457,
+            "max": 20.625926030334085,
+            "mean": 1.4824424779643055,
+            "stdev": 0.5104592034786568
+          }
+        },
+        "artifact_pct_of_data": 100.0
+      },
+      "fingerprint_after_mutation": {
+        "counts": {
+          "customers": 19950,
+          "categories": 200,
+          "products": 5000,
+          "inventory": 20000
+        },
+        "customers_present": 0,
+        "probe_count": 600,
+        "post_probe_present": true
+      },
+      "restore": {
+        "method": "TRUNCATE tables + nodetool import --copy-data of each node's own snapshot export (parallel per node)",
+        "online": true,
+        "truncate_ms": 800.6,
+        "tables": 14,
+        "per_node": {
+          "node3": {
+            "ms": 20101.1,
+            "per_table_ms": {
+              "categories": 1118.9,
+              "customers": 1219.4,
+              "events": 1766.6,
+              "inventory": 1092.3,
+              "inventory_qty": 1204.6,
+              "items_by_order": 1470.8,
+              "order_items": 1228.0,
+              "orders": 1296.8,
+              "orders_by_customer": 1183.8,
+              "orders_by_time": 1101.8,
+              "products": 4176.0,
+              "products_by_category": 1063.0,
+              "repl_probe": 1108.5,
+              "scratch": 1070.4
+            }
+          },
+          "primary": {
+            "ms": 20474.5,
+            "per_table_ms": {
+              "categories": 1114.9,
+              "customers": 1247.7,
+              "events": 1704.7,
+              "inventory": 1136.7,
+              "inventory_qty": 1230.1,
+              "items_by_order": 1384.6,
+              "order_items": 1410.5,
+              "orders": 1193.4,
+              "orders_by_customer": 1133.2,
+              "orders_by_time": 1164.0,
+              "products": 4431.9,
+              "products_by_category": 1129.4,
+              "repl_probe": 1065.9,
+              "scratch": 1127.5
+            }
+          },
+          "node2": {
+            "ms": 20571.5,
+            "per_table_ms": {
+              "categories": 1104.6,
+              "customers": 1108.4,
+              "events": 2346.3,
+              "inventory": 1130.9,
+              "inventory_qty": 1133.3,
+              "items_by_order": 1376.9,
+              "order_items": 1399.9,
+              "orders": 1309.5,
+              "orders_by_customer": 1150.7,
+              "orders_by_time": 1126.4,
+              "products": 4168.4,
+              "products_by_category": 1134.1,
+              "repl_probe": 1011.7,
+              "scratch": 1070.2
+            }
+          }
+        },
+        "nodetool_invocations": 42,
+        "note": "sstableloader (client-side streaming) fails on the vector<float, 8> column in 5.0.x: 'Could not parse type name'",
+        "seconds": 21.38,
+        "status": "ok",
+        "availability": {
+          "downtime_ms": 0.0,
+          "outages": 0
+        },
+        "checks": {
+          "counts_match": true,
+          "deleted_customers_back": true,
+          "probe_count_back_to_pre": true,
+          "post_backup_writes_gone": true
+        },
+        "verified": true
+      },
+      "fingerprint_after_restore": {
+        "counts": {
+          "customers": 20000,
+          "categories": 200,
+          "products": 5000,
+          "inventory": 20000
+        },
+        "customers_present": 50,
+        "probe_count": 100,
+        "post_probe_present": false
+      },
+      "incremental": {
+        "method": "nodetool enablebackup (incremental_backups) + flush: new SSTables hard-linked into <table>/backups/",
+        "files": 16,
+        "artifact_bytes_delta": 10546,
+        "node": "primary",
+        "seconds": 3.15,
+        "status": "ok"
+      },
+      "_seconds": 39.4,
+      "dr": {
+        "tag": "nslab-dr-20260914-124513",
+        "fingerprint_before": {
+          "counts": {
+            "customers": 20000,
+            "categories": 200,
+            "products": 5000,
+            "inventory": 20000
+          },
+          "customers_present": 50,
+          "probe_count": 100,
+          "post_probe_present": false
+        },
+        "backup": {
+          "method": "nodetool flush + snapshot --ttl 3h on every node, export to /backups (sstableloader layout)",
+          "online": true,
+          "artifact": "/backups/nslab-dr-20260914-124513/<node>/lab/<table>/",
+          "artifact_bytes": 378554712,
+          "per_node": {
+            "primary": {
+              "snapshot_ms": 3804.9,
+              "export_ms": 222.7,
+              "bytes": 126208816
+            },
+            "node2": {
+              "snapshot_ms": 3934.0,
+              "export_ms": 218.6,
+              "bytes": 126173742
+            },
+            "node3": {
+              "snapshot_ms": 3844.8,
+              "export_ms": 222.4,
+              "bytes": 126172154
+            }
+          },
+          "listsnapshots_sample": [
+            "nslab-dr-20260914-124513           lab           inventory            1.23 KiB  485.8 KiB    2026-09-14T09:45:18.333Z 2026-09-14T12:45:18.333Z",
+            "nslab-dr-20260914-124513           lab           orders               1.22 KiB  21.13 MiB    2026-09-14T09:45:18.333Z 2026-09-14T12:45:18.333Z",
+            "nslab-dr-20260914-124513           lab           orders_by_time       1.2 KiB   2.91 MiB     2026-09-14T09:45:18.333Z 2026-09-14T12:45:18.333Z"
+          ],
+          "note": "RF=3 on 3 nodes: each node's export is a full copy of the keyspace; every node re-imports its own",
+          "seconds": 13.42
+        },
+        "export": {
+          "dir": "/home/berkay-server/repos/boilers/raw-codes/databases/ns-databases/data/backups/cassandra/nslab-dr-20260914-124513",
+          "files": [
+            "/home/berkay-server/repos/boilers/raw-codes/databases/ns-databases/data/backups/cassandra/nslab-dr-20260914-124513/nslab-dr-20260914-124513"
+          ],
+          "bytes": 378554712,
+          "seconds": 1.05
+        },
+        "destroy": {
+          "method": "docker compose down -v (data + backups volumes removed)",
+          "seconds": 34.2
+        },
+        "fresh_up": {
+          "seconds": 55.5,
+          "services": [
+            "cassandra1",
+            "cassandra2",
+            "cassandra3"
+          ]
+        },
+        "after_destroy": {
+          "customers": "error: InvalidRequest: Error from server: code=2200 [Invalid query] message=\"No keyspac",
+          "repl_probe": "error: InvalidRequest: Error from server: code=2200 [Invalid query] message=\"No keyspac"
+        },
+        "import": {
+          "placed": [
+            "nslab-cassandra1:/backups/nslab-dr-20260914-124513"
+          ],
+          "seconds": 1.08
+        },
+        "restore": {
+          "method": "TRUNCATE tables + nodetool import --copy-data of each node's own snapshot export (parallel per node)",
+          "online": true,
+          "schema_created": true,
+          "truncate_ms": 419.9,
+          "tables": 14,
+          "per_node": {
+            "node2": {
+              "ms": 22111.4,
+              "per_table_ms": {
+                "categories": 1214.1,
+                "customers": 1301.0,
+                "events": 2111.3,
+                "inventory": 1248.4,
+                "inventory_qty": 1169.6,
+                "items_by_order": 1384.5,
+                "order_items": 1457.4,
+                "orders": 1443.0,
+                "orders_by_customer": 1200.1,
+                "orders_by_time": 1181.9,
+                "products": 4879.1,
+                "products_by_category": 1150.1,
+                "repl_probe": 1181.1,
+                "scratch": 1189.6
+              }
+            },
+            "node3": {
+              "ms": 22502.6,
+              "per_table_ms": {
+                "categories": 1202.9,
+                "customers": 1290.4,
+                "events": 2600.0,
+                "inventory": 1235.1,
+                "inventory_qty": 1116.0,
+                "items_by_order": 1365.1,
+                "order_items": 1584.7,
+                "orders": 1375.2,
+                "orders_by_customer": 1174.8,
+                "orders_by_time": 1186.4,
+                "products": 4901.9,
+                "products_by_category": 1150.0,
+                "repl_probe": 1130.8,
+                "scratch": 1189.5
+              }
+            },
+            "primary": {
+              "ms": 22781.5,
+              "per_table_ms": {
+                "categories": 1218.2,
+                "customers": 1263.0,
+                "events": 2619.2,
+                "inventory": 1133.3,
+                "inventory_qty": 1152.9,
+                "items_by_order": 1413.1,
+                "order_items": 1557.3,
+                "orders": 1532.4,
+                "orders_by_customer": 1224.6,
+                "orders_by_time": 1213.7,
+                "products": 5022.1,
+                "products_by_category": 1127.2,
+                "repl_probe": 1154.2,
+                "scratch": 1150.0
+              }
+            }
+          },
+          "nodetool_invocations": 42,
+          "note": "sstableloader (client-side streaming) fails on the vector<float, 8> column in 5.0.x: 'Could not parse type name'",
+          "seconds": 39.3,
+          "checks": {
+            "counts_match": true,
+            "customers_present": true,
+            "probe_count_match": true
+          },
+          "verified": true
+        },
+        "fingerprint_after_restore": {
+          "counts": {
+            "customers": 20000,
+            "categories": 200,
+            "products": 5000,
+            "inventory": 20000
+          },
+          "customers_present": 50,
+          "probe_count": 100,
+          "post_probe_present": false
+        },
+        "_seconds": 152.9
+      }
+    },
+    "logging": {
+      "strategy": {
+        "server_log": "logback text: system.log (INFO), debug.log (DEBUG, rolling 20 MB) and gc.log under /opt/cassandra/logs, mirrored to stdout",
+        "slow_query": "slow_query_log_timeout (500 ms, cassandra.yaml \u2014 not mutable at run time in 5.0.x): MonitoringTask aggregates slow reads every 5 s into debug.log ('<query>, time N msec - slow timeout 500 msec')",
+        "audit": "nodetool enableauditlog (BinAuditLogger under logs/audit, read with auditlogviewer; FileAuditLogger via logback) + full query log (enablefullquerylog / fqltool)",
+        "runtime": "nodetool setlogginglevel <logger> <level> per node (logback), getlogginglevels; audit/FQL/incremental backups toggled with nodetool too"
+      },
+      "threshold_ms": 100,
+      "containers": {
+        "nslab-cassandra1": {
+          "driver": "json-file",
+          "options": {
+            "compress": "true",
+            "max-file": "3",
+            "max-size": "50m"
+          },
+          "log_path": "/var/lib/docker/containers/ca3abed6c60e56388c2045e12b84e2a2f8b32fd50d3bf3650b42077237140b0a/ca3abed6c60e56388c2045e12b84e2a2f8b32fd50d3bf3650b42077237140b0a-json.log",
+          "user": "root",
+          "started": "2026-09-14T08:03:51.544019782Z",
+          "bytes": 1014725,
+          "lines": 6113,
+          "json_lines_pct": 0.0,
+          "format": "text",
+          "sample": [
+            "WARNING: System::setSecurityManager will be removed in a future release",
+            "Sep 14, 2026 8:28:18 AM io.github.jbellis.jvector.vector.VectorizationProvider lookup",
+            "WARNING: You are running with Java 19 or earlier, which do not support the required incubating Vector API. Falling back to slower defaults."
+          ]
+        },
+        "nslab-cassandra2": {
+          "driver": "json-file",
+          "options": {
+            "compress": "true",
+            "max-file": "3",
+            "max-size": "50m"
+          },
+          "log_path": "/var/lib/docker/containers/b17510b345819cc4a3582d097ee904bd29ced8dd03a312a4a812c2e99d43aa5f/b17510b345819cc4a3582d097ee904bd29ced8dd03a312a4a812c2e99d43aa5f-json.log",
+          "user": "root",
+          "started": "2026-09-14T08:04:58.185659734Z",
+          "bytes": 979590,
+          "lines": 4996,
+          "json_lines_pct": 0.0,
+          "format": "text",
+          "sample": [
+            "WARNING: System::setSecurityManager will be removed in a future release",
+            "Sep 14, 2026 8:28:18 AM io.github.jbellis.jvector.vector.VectorizationProvider lookup",
+            "WARNING: You are running with Java 19 or earlier, which do not support the required incubating Vector API. Falling back to slower defaults."
+          ]
+        },
+        "nslab-cassandra3": {
+          "driver": "json-file",
+          "options": {
+            "compress": "true",
+            "max-file": "3",
+            "max-size": "50m"
+          },
+          "log_path": "/var/lib/docker/containers/b876bc3005338782ce26833209b79003350220bf8d1d6ada840cb5e804b952d1/b876bc3005338782ce26833209b79003350220bf8d1d6ada840cb5e804b952d1-json.log",
+          "user": "root",
+          "started": "2026-09-14T08:05:51.833409551Z",
+          "bytes": 2332276,
+          "lines": 20468,
+          "json_lines_pct": 0.0,
+          "format": "text",
+          "sample": [
+            "WARNING: System::setSecurityManager will be removed in a future release",
+            "Sep 14, 2026 8:28:18 AM io.github.jbellis.jvector.vector.VectorizationProvider lookup",
+            "WARNING: You are running with Java 19 or earlier, which do not support the required incubating Vector API. Falling back to slower defaults."
+          ]
+        }
+      },
+      "server_log": {
+        "status": "ok",
+        "value": {
+          "format": "text",
+          "where": "/opt/cassandra/logs/{system,debug,gc}.log + stdout",
+          "files": [],
+          "sample": [
+            "INFO  [PerDiskMemtableFlushWriter_0:5] 2026-09-14T08:38:59,134 Flushing.java:179 - Completed flushing /var/lib/cassandra/data/system/local-7ad54392bcdd35a684174e047860b377/nb-76-big-Data.db (64B) for ",
+            "INFO  [MutationStage-2] 2026-09-14T08:38:59,187 ColumnFamilyStore.java:2829 - Truncate of lab.repl_probe is complete"
+          ]
+        },
+        "ms": 80.2
+      },
+      "slow_query": {
+        "setup": {
+          "status": "ok",
+          "value": "slow_query_log_timeout=500ms from cassandra.yaml (settings vtable is read-only: InvalidRequest: Error from server: code=2200 [Invalid query]) -> debug.log via MonitoringTask (5 s report interval)",
+          "ms": 76.7
+        },
+        "effective_threshold_ms": 500,
+        "fast_op": {
+          "desc": "SELECT id FROM customers WHERE id = 1",
+          "ms": 2.4,
+          "status": "ok",
+          "error": null
+        },
+        "slow_op": {
+          "desc": "SELECT COUNT(*) FROM orders (200k-partition cluster-wide read)",
+          "ms": 4155.7,
+          "status": "ok",
+          "error": null
+        },
+        "entries": [
+          {
+            "ms": 1736,
+            "text": "SELECT * FROM lab.orders ALLOW FILTERING",
+            "threshold_ms": 500
+          }
+        ],
+        "entries_status": "ok",
+        "entries_error": null,
+        "slow_op_logged": true,
+        "logged_ms": 1736,
+        "fast_op_logged": false,
+        "verified": true
+      },
+      "audit": {
+        "setup": {
+          "status": "ok",
+          "value": "nodetool enableauditlog --included-keyspaces lab (BinAuditLogger -> /opt/cassandra/logs/audit, Chronicle queue)",
+          "ms": 1113.1
+        },
+        "exercise": [
+          "SELECT id FROM customers WHERE id = 42",
+          "INSERT INTO scratch (k, v) VALUES ('audit-probe', 'x')",
+          "DELETE FROM scratch WHERE k = 'audit-probe'"
+        ],
+        "entries": [
+          "user:anonymous|host:/10.99.1.11:7000|source:/10.99.1.1|port:54752|timestamp:1789375145601|type:SELECT|category:QUERY|ks:lab|scope:customers|operation:SELECT id FROM customers WHERE id = 42",
+          "user:anonymous|host:/10.99.1.11:7000|source:/10.99.1.1|port:54752|timestamp:1789375145602|type:UPDATE|category:DML|ks:lab|scope:scratch|operation:INSERT INTO scratch (k, v) VALUES ('audit-probe', 'x')",
+          "user:anonymous|host:/10.99.1.11:7000|source:/10.99.1.1|port:54752|timestamp:1789375145604|type:DELETE|category:DML|ks:lab|scope:scratch|operation:DELETE FROM scratch WHERE k = 'audit-probe'"
+        ],
+        "entries_count": 3,
+        "entries_status": "ok",
+        "entries_error": null,
+        "verified": true
+      },
+      "runtime_log_level": {
+        "status": "ok",
+        "value": "nodetool setlogginglevel org.apache.cassandra.db.Keyspace TRACE -> verified -> DEBUG (per node, no restart)",
+        "ms": 3036.6
+      },
+      "log_volume_this_phase": {
+        "nslab-cassandra1": {
+          "bytes": 2098,
+          "lines": 10
+        },
+        "nslab-cassandra2": {
+          "bytes": 0,
+          "lines": 0
+        },
+        "nslab-cassandra3": {
+          "bytes": 0,
+          "lines": 0
+        }
+      },
+      "_seconds": 13.8
+    }
+  },
+  "server_version": "Cassandra 5.0.9 (CQL 3.4.7)",
+  "finished": "2026-09-14T09:45:12+00:00"
+}

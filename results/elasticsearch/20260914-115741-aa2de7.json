@@ -1,0 +1,155 @@
+{
+  "engine": "elasticsearch",
+  "display": "Elasticsearch 9",
+  "category": "search / analytics engine (Lucene, inverted index)",
+  "family": "search",
+  "driver": "es",
+  "image": "elasticsearch:9.5.3",
+  "run_id": "20260914-115741-aa2de7",
+  "started": "2026-09-14T08:57:41+00:00",
+  "scale": 1.0,
+  "notes": "Elasticsearch 9 single node, security disabled. One index per collection, every field indexed at mapping time (inverted index for keyword/text, BKD tree for numeric/geo, HNSW for dense_vector). Eventually consistent for search (30 s refresh; the harness refreshes after load). No multi-document transactions, no server-side joins across indices, no per-document TTL.",
+  "phases": {
+    "backup": {
+      "tag": "nslab-20260914-115741",
+      "strategy": {
+        "tool": "snapshot API into a registered repository (type fs under path.repo; S3/GCS/Azure repositories in production) \u2014 segment-level incremental",
+        "consistency": "per-index point-in-time at snapshot start (immutable Lucene segments; the translog is not included)",
+        "restore": "online: delete (or close) the indices, POST _snapshot/<repo>/<snap>/_restore (rename_pattern to restore beside the live index)",
+        "incremental": "built in \u2014 a repository stores each segment once, the 2nd snapshot uploads only new segments (snapshot.stats.incremental)",
+        "pitr": "no; the SLM schedule is the RPO (searchable snapshots / CCR for other goals)",
+        "schedule": "SLM policy (cron schedule + retention) executed by the cluster itself \u2014 created by the backup phase",
+        "retention": "SLM retention (expire_after, min_count, max_count) + DELETE _snapshot/<repo>/<snap>"
+      },
+      "data_bytes": 166054297,
+      "fingerprint_before": {
+        "counts": {
+          "customers": 20000,
+          "categories": 200,
+          "products": 5000,
+          "inventory": 20000
+        },
+        "customers_present": 50,
+        "probe_count": 100,
+        "post_probe_present": false
+      },
+      "reads_baseline": {
+        "reads": 446,
+        "errors": 0,
+        "latency_ms": {
+          "n": 446,
+          "min": 1.3348190113902092,
+          "p50": 2.4965150223579258,
+          "p90": 3.0999814916867763,
+          "p95": 3.2419180060969666,
+          "p99": 3.5376315092435107,
+          "max": 4.069209971930832,
+          "mean": 2.39215625986152,
+          "stdev": 0.5973226363539238
+        }
+      },
+      "backup": {
+        "method": "PUT _snapshot/nslab/<tag> (fs repository, compress)",
+        "online": true,
+        "artifact": "/backups/nslab (repository) snapshot nslab-20260914-115741",
+        "artifact_bytes": 166060820,
+        "repository_bytes": 166151039,
+        "files": 80,
+        "data_dir_bytes": 166505639,
+        "indices": 8,
+        "shards": {
+          "total": 8,
+          "failed": 0,
+          "successful": 8
+        },
+        "server_ms": 4402,
+        "slm": "SLM policy nslab-nightly: daily 01:30, keep 3-30 snapshots / 7 days",
+        "seconds": 4.49,
+        "status": "ok",
+        "reads_during": {
+          "reads": 999,
+          "errors": 0,
+          "latency_ms": {
+            "n": 999,
+            "min": 1.2828930048272014,
+            "p50": 2.5308780022896826,
+            "p90": 3.036132617853582,
+            "p95": 3.2035550684668124,
+            "p99": 3.596418889937922,
+            "max": 21.570552024058998,
+            "mean": 2.409121507974071,
+            "stdev": 0.8354770816134992
+          }
+        },
+        "artifact_pct_of_data": 100.0
+      },
+      "fingerprint_after_mutation": {
+        "counts": {
+          "customers": 19950,
+          "categories": 200,
+          "products": 5000,
+          "inventory": 20000
+        },
+        "customers_present": 0,
+        "probe_count": 600,
+        "post_probe_present": true
+      },
+      "restore": {
+        "method": "DELETE the 8 lab_* indices (by name) + POST _snapshot/nslab/<tag>/_restore",
+        "online": true,
+        "shards": {
+          "total": 8,
+          "failed": 0,
+          "successful": 8
+        },
+        "indices": [
+          "lab_products",
+          "lab_customers",
+          "lab_order_items",
+          "lab_categories",
+          "lab_inventory",
+          "lab_repl_probe",
+          "lab_orders",
+          "lab_events"
+        ],
+        "seconds": 4.38,
+        "status": "ok",
+        "availability": {
+          "downtime_ms": 0.0,
+          "outages": 0
+        },
+        "checks": {
+          "counts_match": true,
+          "deleted_customers_back": true,
+          "probe_count_back_to_pre": true,
+          "post_backup_writes_gone": true
+        },
+        "verified": true
+      },
+      "fingerprint_after_restore": {
+        "counts": {
+          "customers": 20000,
+          "categories": 200,
+          "products": 5000,
+          "inventory": 20000
+        },
+        "customers_present": 50,
+        "probe_count": 100,
+        "post_probe_present": false
+      },
+      "incremental": {
+        "method": "second snapshot into the same repository (only new segments are copied)",
+        "artifact_bytes_delta": 8562,
+        "files_delta": 11,
+        "total_bytes": 166065430,
+        "server_ms": 0,
+        "seconds": 0.09,
+        "status": "ok"
+      },
+      "_seconds": 12.5
+    }
+  },
+  "partial": false,
+  "server_version": "elasticsearch 9.5.3",
+  "finished": "2026-09-14T08:57:54+00:00"
+}

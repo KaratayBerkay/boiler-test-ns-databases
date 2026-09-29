@@ -1,0 +1,106 @@
+# Neo4j 5 Enterprise (evaluation licence: NEO4J_ACCEPT_LICENSE_AGREEMENT=eval) — 3 primaries in one Raft cluster.
+# Community cannot replicate at all (see stacks/neo4j); this stack is the replicated counterpart: writes go to the
+# elected leader, followers serve reads and reject direct writes, the remaining quorum elects a new leader when a
+# member dies. Clients use a routing URI (neo4j://) whose routing table advertises the host-mapped Bolt ports.
+# 2 GB heap + 1 GB page cache per member; APOC core; online backup endpoint (6362) enabled on every member.
+name: nslab-neo4j-cluster
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "50m"
+    max-file: "3"
+    compress: "true"
+x-neo: &neo
+  image: neo4j:5-enterprise
+  logging: *logging
+  environment: &neoenv
+    NEO4J_ACCEPT_LICENSE_AGREEMENT: "eval"
+    NEO4J_AUTH: neo4j/labpass123
+    NEO4J_PLUGINS: '["apoc"]'
+    NEO4J_dbms_security_procedures_unrestricted: apoc.*
+    NEO4J_server_memory_heap_initial__size: 2G
+    NEO4J_server_memory_heap_max__size: 2G
+    NEO4J_server_memory_pagecache_size: 1G
+    NEO4J_server_bolt_thread__pool__max__size: "800"
+    # clustering (Neo4j 5): every member is a primary; discovery over 5000, cluster transactions 6000, Raft 7000
+    NEO4J_server_cluster_system__database__mode: PRIMARY
+    NEO4J_initial_server_mode__constraint: PRIMARY
+    NEO4J_dbms_cluster_discovery_endpoints: neo4j1:5000,neo4j2:5000,neo4j3:5000
+    NEO4J_initial_dbms_default__primaries__count: "3"
+    NEO4J_initial_dbms_default__secondaries__count: "0"
+    NEO4J_server_discovery_listen__address: 0.0.0.0:5000
+    NEO4J_server_cluster_listen__address: 0.0.0.0:6000
+    NEO4J_server_cluster_raft_listen__address: 0.0.0.0:7000
+    NEO4J_server_bolt_listen__address: 0.0.0.0:7687
+    NEO4J_server_backup_enabled: "true"
+    NEO4J_server_backup_listen__address: 0.0.0.0:6362
+    # restore strategy: CREATE DATABASE ... OPTIONS {seedURI: 'file:///backups/...'} needs the file: seed provider (default is S3/cloud only)
+    NEO4J_dbms_databases_seed__from__uri__providers: FileSeedProvider,URLConnectionSeedProvider,S3SeedProvider,CloudSeedProvider
+    # logging strategy: query log with a threshold (works in Enterprise), parameters included
+    NEO4J_db_logs_query_enabled: INFO
+    NEO4J_db_logs_query_threshold: 100ms
+    NEO4J_db_logs_query_parameter__logging__enabled: "true"
+  healthcheck:
+    test: ["CMD-SHELL", "cypher-shell -u neo4j -p labpass123 -d system 'SHOW DATABASE system YIELD currentStatus RETURN currentStatus' | grep -q online || exit 1"]
+    interval: 5s
+    timeout: 10s
+    retries: 60
+    start_period: 30s
+services:
+  neo4j1:
+    <<: *neo
+    container_name: nslab-neo4j1
+    x-k8s: {env: {NEO4J_server_bolt_advertised__address: "127.0.0.1:$${NODEPORT:17687}"}}   # routing table must name host-reachable ports
+    environment:
+      <<: *neoenv
+      NEO4J_server_discovery_advertised__address: neo4j1:5000
+      NEO4J_server_cluster_advertised__address: neo4j1:6000
+      NEO4J_server_cluster_raft_advertised__address: neo4j1:7000
+      NEO4J_server_bolt_advertised__address: 127.0.0.1:17687
+    ports:
+      - "17687:7687"
+      - "17474:7474"
+    volumes:
+      - neo4j1:/data
+      - neo4j1-logs:/logs
+      - backups:/backups
+  neo4j2:
+    <<: *neo
+    container_name: nslab-neo4j2
+    x-k8s: {env: {NEO4J_server_bolt_advertised__address: "127.0.0.1:$${NODEPORT:17688}"}}   # routing table must name host-reachable ports
+    environment:
+      <<: *neoenv
+      NEO4J_server_discovery_advertised__address: neo4j2:5000
+      NEO4J_server_cluster_advertised__address: neo4j2:6000
+      NEO4J_server_cluster_raft_advertised__address: neo4j2:7000
+      NEO4J_server_bolt_advertised__address: 127.0.0.1:17688
+    ports:
+      - "17688:7687"
+    volumes:
+      - neo4j2:/data
+      - neo4j2-logs:/logs
+      - backups:/backups
+  neo4j3:
+    <<: *neo
+    container_name: nslab-neo4j3
+    x-k8s: {env: {NEO4J_server_bolt_advertised__address: "127.0.0.1:$${NODEPORT:17689}"}}   # routing table must name host-reachable ports
+    environment:
+      <<: *neoenv
+      NEO4J_server_discovery_advertised__address: neo4j3:5000
+      NEO4J_server_cluster_advertised__address: neo4j3:6000
+      NEO4J_server_cluster_raft_advertised__address: neo4j3:7000
+      NEO4J_server_bolt_advertised__address: 127.0.0.1:17689
+    ports:
+      - "17689:7687"
+    volumes:
+      - neo4j3:/data
+      - neo4j3-logs:/logs
+      - backups:/backups
+volumes:
+  neo4j1:
+  neo4j2:
+  neo4j3:
+  neo4j1-logs:
+  neo4j2-logs:
+  neo4j3-logs:
+  backups:          # online backups (neo4j-admin database backup) — one shared volume so seedURI restores see the file on every member

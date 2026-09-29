@@ -1,0 +1,93 @@
+{
+  "engine": "rocksdb",
+  "run_id": "20260914-122649-b104f8",
+  "partial": true,
+  "phases": {
+    "backup": {
+      "dr": {
+        "tag": "nslab-dr-20260914-122649",
+        "fingerprint_before": {
+          "counts": {
+            "customers": 20000,
+            "categories": 200,
+            "products": 5000,
+            "inventory": 20000
+          },
+          "customers_present": 50,
+          "probe_count": 100,
+          "post_probe_present": false
+        },
+        "backup": {
+          "method": "rocksdict Checkpoint.create_checkpoint (hard links) after flush",
+          "online": true,
+          "artifact": "/home/berkay-server/repos/boilers/raw-codes/databases/ns-databases/data/rocksdb-backups/nslab-dr-20260914-122649/lab.rocks",
+          "artifact_bytes": 170780216,
+          "live_files": 6,
+          "log_facts": {
+            "info_log_files": [
+              "LOG",
+              "LOG.old.1789376032658492",
+              "LOG.old.1789378009726326"
+            ],
+            "info_log_bytes": 92817,
+            "rotation": "max_log_file_size 50 MB, keep_log_file_num 3, stats dump every 60 s",
+            "sample": [
+              "2026/09/14-12:26:49.878538 138309005381760 [utilities/checkpoint/checkpoint_impl.cc:160] Copying 000298.log",
+              "2026/09/14-12:26:49.878611 138309005381760 [db/db_impl/db_impl_files.cc:97] File Deletions Enabled"
+            ]
+          },
+          "seconds": 0.01
+        },
+        "export": {
+          "dir": "/home/berkay-server/repos/boilers/raw-codes/databases/ns-databases/data/backups/rocksdb/nslab-dr-20260914-122649",
+          "files": [
+            "/home/berkay-server/repos/boilers/raw-codes/databases/ns-databases/data/backups/rocksdb/nslab-dr-20260914-122649/nslab-dr-20260914-122649"
+          ],
+          "bytes": 170780216,
+          "seconds": 0.08
+        },
+        "destroy": {
+          "method": "embedded: data files deleted",
+          "seconds": 0.01
+        },
+        "fresh_up": {
+          "seconds": 0.0
+        },
+        "after_destroy": {
+          "customers": 0,
+          "repl_probe": 0
+        },
+        "import": {
+          "placed": [
+            "host:/home/berkay-server/repos/boilers/raw-codes/databases/ns-databases/data/rocksdb-backups/nslab-dr-20260914-122649"
+          ],
+          "seconds": 0.09
+        },
+        "restore": {
+          "method": "close; replace lab.rocks with the checkpoint dir; reopen",
+          "online": false,
+          "downtime_ms": 87.2,
+          "seconds": 0.09,
+          "checks": {
+            "counts_match": true,
+            "customers_present": true,
+            "probe_count_match": true
+          },
+          "verified": true
+        },
+        "fingerprint_after_restore": {
+          "counts": {
+            "customers": 20000,
+            "categories": 200,
+            "products": 5000,
+            "inventory": 20000
+          },
+          "customers_present": 50,
+          "probe_count": 100,
+          "post_probe_present": false
+        },
+        "_seconds": 0.5
+      }
+    }
+  }
+}

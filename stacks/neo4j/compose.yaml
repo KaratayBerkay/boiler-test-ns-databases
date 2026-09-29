@@ -1,0 +1,46 @@
+# Neo4j 5 Community — single instance (causal clustering is Enterprise-only). APOC core plugin, 4 GB heap / 2 GB page cache,
+# vector + full-text indexes built in. Bolt on 7687, HTTP browser on 7474.
+name: nslab-neo4j
+# Logging strategy (shared by every stack): the json-file driver with rotation so a chatty engine cannot fill the
+# host disk, `compress` for rotated files. `docker logs <container>` still works; a shipper (promtail/fluent-bit/otel
+# collector) tails the same files. Engine-side slow-query / audit settings live in the service `command`/`environment`.
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "50m"
+    max-file: "3"
+    compress: "true"
+services:
+  neo4j:
+    image: neo4j:5-community
+    container_name: nslab-neo4j
+    environment:
+      NEO4J_AUTH: neo4j/labpass123
+      NEO4J_PLUGINS: '["apoc"]'
+      NEO4J_server_memory_heap_initial__size: 4G
+      NEO4J_server_memory_heap_max__size: 4G
+      NEO4J_server_memory_pagecache_size: 2G
+      NEO4J_dbms_security_procedures_unrestricted: apoc.*
+      NEO4J_server_bolt_thread__pool__max__size: "800"
+      # logging strategy: query log with a threshold (slow queries land in /logs/query.log with parameters)
+      NEO4J_db_logs_query_enabled: INFO
+      NEO4J_db_logs_query_threshold: 100ms
+      NEO4J_db_logs_query_parameter__logging__enabled: "true"
+    logging: *logging
+    ports:
+      - "7687:7687"
+      - "7474:7474"
+    volumes:
+      - neo4j-data:/data
+      - neo4j-logs:/logs
+      - backups:/backups
+    healthcheck:
+      test: ["CMD-SHELL", "cypher-shell -u neo4j -p labpass123 'RETURN 1' || exit 1"]
+      interval: 5s
+      timeout: 10s
+      retries: 40
+      start_period: 20s
+volumes:
+  neo4j-data:
+  neo4j-logs:       # /logs (neo4j.log, debug.log, query.log) — readable with `docker exec nslab-neo4j cat /logs/query.log`
+  backups:          # neo4j-admin database dump artifacts (backup phase) — removed with `down -v`

@@ -1,0 +1,564 @@
+{
+  "engine": "cassandra",
+  "display": "Cassandra 5.0",
+  "category": "wide-column (leaderless, tunable consistency)",
+  "family": "widecolumn",
+  "driver": "cql",
+  "image": "cassandra:5",
+  "run_id": "20260913-143350-e165bb",
+  "started": "2026-09-13T11:33:50+00:00",
+  "scale": 1.0,
+  "notes": "Official cassandra:5 image, 3 nodes RF=3, LOCAL_QUORUM by default. Query-first schema (one table per access path), SAI indexes for vector (ANN) and analyzed text search, LWT for compare-and-set, counter table for increments. Nodes are addressed by static container IPs (10.99.1.11-13); the client is pinned to one node per target.",
+  "phases": {
+    "replication": {
+      "kind": "leaderless replication, RF=3, tunable consistency (LOCAL_QUORUM)",
+      "topology": {
+        "primary": {
+          "role_reported": "node",
+          "role_configured": "primary",
+          "version": "Cassandra 5.0.9 (CQL 3.4.7)",
+          "status": {
+            "local": "10.99.1.11",
+            "peers": [
+              "10.99.1.13",
+              "10.99.1.12"
+            ],
+            "tokens": 16
+          }
+        },
+        "node2": {
+          "role_reported": "node",
+          "role_configured": "node",
+          "version": "Cassandra 5.0.9 (CQL 3.4.7)",
+          "status": {
+            "local": "10.99.1.12",
+            "peers": [
+              "10.99.1.13",
+              "10.99.1.11"
+            ],
+            "tokens": 16
+          }
+        },
+        "node3": {
+          "role_reported": "node",
+          "role_configured": "node",
+          "version": "Cassandra 5.0.9 (CQL 3.4.7)",
+          "status": {
+            "local": "10.99.1.13",
+            "peers": [
+              "10.99.1.11",
+              "10.99.1.12"
+            ],
+            "tokens": 16
+          }
+        }
+      },
+      "visibility_lag": {
+        "node2": {
+          "error": "AttributeError: 'tuple' object has no attribute '_asdict'"
+        },
+        "node3": {
+          "error": "AttributeError: 'tuple' object has no attribute '_asdict'"
+        }
+      },
+      "write_rejection": {
+        "node2": {
+          "replica": "node2",
+          "writes_rejected": false,
+          "note": "replica accepted a write (multi-master / leaderless / coordinator forwards)"
+        },
+        "node3": {
+          "replica": "node3",
+          "writes_rejected": false,
+          "note": "replica accepted a write (multi-master / leaderless / coordinator forwards)"
+        }
+      },
+      "lag_under_load": {
+        "rows": 20000,
+        "batch": 500,
+        "write_seconds": 4.33,
+        "rows_per_s": 4615,
+        "catchup_ms_after_last_write": {
+          "node2": 489.0,
+          "node3": 447.1
+        },
+        "samples": [
+          {
+            "t": 253348.298,
+            "primary": {
+              "local": "10.99.1.11",
+              "peers": [
+                "10.99.1.13",
+                "10.99.1.12"
+              ],
+              "tokens": 16
+            },
+            "node2": {
+              "local": "10.99.1.12",
+              "peers": [
+                "10.99.1.13",
+                "10.99.1.11"
+              ],
+              "tokens": 16
+            },
+            "node3": {
+              "local": "10.99.1.13",
+              "peers": [
+                "10.99.1.11",
+                "10.99.1.12"
+              ],
+              "tokens": 16
+            }
+          },
+          {
+            "t": 253348.709,
+            "primary": {
+              "local": "10.99.1.11",
+              "peers": [
+                "10.99.1.13",
+                "10.99.1.12"
+              ],
+              "tokens": 16
+            },
+            "node2": {
+              "local": "10.99.1.12",
+              "peers": [
+                "10.99.1.13",
+                "10.99.1.11"
+              ],
+              "tokens": 16
+            },
+            "node3": {
+              "local": "10.99.1.13",
+              "peers": [
+                "10.99.1.11",
+                "10.99.1.12"
+              ],
+              "tokens": 16
+            }
+          },
+          {
+            "t": 253349.187,
+            "primary": {
+              "local": "10.99.1.11",
+              "peers": [
+                "10.99.1.13",
+                "10.99.1.12"
+              ],
+              "tokens": 16
+            },
+            "node2": {
+              "local": "10.99.1.12",
+              "peers": [
+                "10.99.1.13",
+                "10.99.1.11"
+              ],
+              "tokens": 16
+            },
+            "node3": {
+              "local": "10.99.1.13",
+              "peers": [
+                "10.99.1.11",
+                "10.99.1.12"
+              ],
+              "tokens": 16
+            }
+          },
+          {
+            "t": 253349.635,
+            "primary": {
+              "local": "10.99.1.11",
+              "peers": [
+                "10.99.1.13",
+                "10.99.1.12"
+              ],
+              "tokens": 16
+            },
+            "node2": {
+              "local": "10.99.1.12",
+              "peers": [
+                "10.99.1.13",
+                "10.99.1.11"
+              ],
+              "tokens": 16
+            },
+            "node3": {
+              "local": "10.99.1.13",
+              "peers": [
+                "10.99.1.11",
+                "10.99.1.12"
+              ],
+              "tokens": 16
+            }
+          },
+          {
+            "t": 253350.041,
+            "primary": {
+              "local": "10.99.1.11",
+              "peers": [
+                "10.99.1.13",
+                "10.99.1.12"
+              ],
+              "tokens": 16
+            },
+            "node2": {
+              "local": "10.99.1.12",
+              "peers": [
+                "10.99.1.13",
+                "10.99.1.11"
+              ],
+              "tokens": 16
+            },
+            "node3": {
+              "local": "10.99.1.13",
+              "peers": [
+                "10.99.1.11",
+                "10.99.1.12"
+              ],
+              "tokens": 16
+            }
+          },
+          {
+            "t": 253350.476,
+            "primary": {
+              "local": "10.99.1.11",
+              "peers": [
+                "10.99.1.13",
+                "10.99.1.12"
+              ],
+              "tokens": 16
+            },
+            "node2": {
+              "local": "10.99.1.12",
+              "peers": [
+                "10.99.1.13",
+                "10.99.1.11"
+              ],
+              "tokens": 16
+            },
+            "node3": {
+              "local": "10.99.1.13",
+              "peers": [
+                "10.99.1.11",
+                "10.99.1.12"
+              ],
+              "tokens": 16
+            }
+          },
+          {
+            "t": 253350.879,
+            "primary": {
+              "local": "10.99.1.11",
+              "peers": [
+                "10.99.1.13",
+                "10.99.1.12"
+              ],
+              "tokens": 16
+            },
+            "node2": {
+              "local": "10.99.1.12",
+              "peers": [
+                "10.99.1.13",
+                "10.99.1.11"
+              ],
+              "tokens": 16
+            },
+            "node3": {
+              "local": "10.99.1.13",
+              "peers": [
+                "10.99.1.11",
+                "10.99.1.12"
+              ],
+              "tokens": 16
+            }
+          },
+          {
+            "t": 253351.258,
+            "primary": {
+              "local": "10.99.1.11",
+              "peers": [
+                "10.99.1.13",
+                "10.99.1.12"
+              ],
+              "tokens": 16
+            },
+            "node2": {
+              "local": "10.99.1.12",
+              "peers": [
+                "10.99.1.13",
+                "10.99.1.11"
+              ],
+              "tokens": 16
+            },
+            "node3": {
+              "local": "10.99.1.13",
+              "peers": [
+                "10.99.1.11",
+                "10.99.1.12"
+              ],
+              "tokens": 16
+            }
+          },
+          {
+            "t": 253351.646,
+            "primary": {
+              "local": "10.99.1.11",
+              "peers": [
+                "10.99.1.13",
+                "10.99.1.12"
+              ],
+              "tokens": 16
+            },
+            "node2": {
+              "local": "10.99.1.12",
+              "peers": [
+                "10.99.1.13",
+                "10.99.1.11"
+              ],
+              "tokens": 16
+            },
+            "node3": {
+              "local": "10.99.1.13",
+              "peers": [
+                "10.99.1.11",
+                "10.99.1.12"
+              ],
+              "tokens": 16
+            }
+          },
+          {
+            "t": 253352.069,
+            "primary": {
+              "local": "10.99.1.11",
+              "peers": [
+                "10.99.1.13",
+                "10.99.1.12"
+              ],
+              "tokens": 16
+            },
+            "node2": {
+              "local": "10.99.1.12",
+              "peers": [
+                "10.99.1.13",
+                "10.99.1.11"
+              ],
+              "tokens": 16
+            },
+            "node3": {
+              "local": "10.99.1.13",
+              "peers": [
+                "10.99.1.11",
+                "10.99.1.12"
+              ],
+              "tokens": 16
+            }
+          },
+          {
+            "t": 253352.458,
+            "primary": {
+              "local": "10.99.1.11",
+              "peers": [
+                "10.99.1.13",
+                "10.99.1.12"
+              ],
+              "tokens": 16
+            },
+            "node2": {
+              "local": "10.99.1.12",
+              "peers": [
+                "10.99.1.13",
+                "10.99.1.11"
+              ],
+              "tokens": 16
+            },
+            "node3": {
+              "local": "10.99.1.13",
+              "peers": [
+                "10.99.1.11",
+                "10.99.1.12"
+              ],
+              "tokens": 16
+            }
+          },
+          {
+            "t": 253352.885,
+            "primary": {
+              "local": "10.99.1.11",
+              "peers": [
+                "10.99.1.13",
+                "10.99.1.12"
+              ],
+              "tokens": 16
+            },
+            "node2": {
+              "local": "10.99.1.12",
+              "peers": [
+                "10.99.1.13",
+                "10.99.1.11"
+              ],
+              "tokens": 16
+            },
+            "node3": {
+              "local": "10.99.1.13",
+              "peers": [
+                "10.99.1.11",
+                "10.99.1.12"
+              ],
+              "tokens": 16
+            }
+          },
+          {
+            "t": 253353.149,
+            "primary": {
+              "local": "10.99.1.11",
+              "peers": [
+                "10.99.1.13",
+                "10.99.1.12"
+              ],
+              "tokens": 16
+            },
+            "node2": {
+              "local": "10.99.1.12",
+              "peers": [
+                "10.99.1.13",
+                "10.99.1.11"
+              ],
+              "tokens": 16
+            },
+            "node3": {
+              "local": "10.99.1.13",
+              "peers": [
+                "10.99.1.11",
+                "10.99.1.12"
+              ],
+              "tokens": 16
+            }
+          },
+          {
+            "t": 253353.411,
+            "primary": {
+              "local": "10.99.1.11",
+              "peers": [
+                "10.99.1.13",
+                "10.99.1.12"
+              ],
+              "tokens": 16
+            },
+            "node2": {
+              "local": "10.99.1.12",
+              "peers": [
+                "10.99.1.13",
+                "10.99.1.11"
+              ],
+              "tokens": 16
+            },
+            "node3": {
+              "local": "10.99.1.13",
+              "peers": [
+                "10.99.1.11",
+                "10.99.1.12"
+              ],
+              "tokens": 16
+            }
+          },
+          {
+            "t": 253353.678,
+            "primary": {
+              "local": "10.99.1.11",
+              "peers": [
+                "10.99.1.13",
+                "10.99.1.12"
+              ],
+              "tokens": 16
+            },
+            "node2": {
+              "local": "10.99.1.12",
+              "peers": [
+                "10.99.1.13",
+                "10.99.1.11"
+              ],
+              "tokens": 16
+            },
+            "node3": {
+              "local": "10.99.1.13",
+              "peers": [
+                "10.99.1.11",
+                "10.99.1.12"
+              ],
+              "tokens": 16
+            }
+          }
+        ]
+      },
+      "read_scaling": {
+        "primary_only": {
+          "targets": [
+            "primary"
+          ],
+          "workers": 32,
+          "ops": 61229,
+          "ops_per_s": 15307,
+          "errors": 0,
+          "latency_ms": {
+            "n": 61229,
+            "min": 0.902474,
+            "p50": 1.90633,
+            "p90": 2.779673400000001,
+            "p95": 3.1805475999999997,
+            "p99": 4.854679200000001,
+            "max": 63.5675,
+            "mean": 2.088718492854693,
+            "stdev": 1.3227854994181683
+          }
+        },
+        "primary_plus_replicas": {
+          "targets": [
+            "primary",
+            "node2",
+            "node3"
+          ],
+          "workers": 32,
+          "ops": 44492,
+          "ops_per_s": 11123,
+          "errors": 0,
+          "latency_ms": {
+            "n": 44492,
+            "min": 0.898783,
+            "p50": 2.5168869999999997,
+            "p90": 4.412827400000001,
+            "p95": 5.310376949999999,
+            "p99": 7.917779699999996,
+            "max": 65.902936,
+            "mean": 2.8747203610087206,
+            "stdev": 1.6103714214187592
+          }
+        },
+        "gain": 0.73
+      },
+      "failover": {
+        "kind": "leaderless replication, RF=3, tunable consistency (LOCAL_QUORUM)",
+        "killed": "primary",
+        "writes_still_succeed_after_kill": true,
+        "write_attempts_until_success": 1,
+        "last_error_before_success": null,
+        "downtime_ms": 900.5,
+        "new_primary": "node2",
+        "verified_via": "node2",
+        "new_primary_role": "node",
+        "new_primary_status": {
+          "local": "10.99.1.12",
+          "peers": [
+            "10.99.1.13",
+            "10.99.1.11"
+          ],
+          "tokens": 16
+        },
+        "old_primary_restarted": true,
+        "note": "old primary restarted; whether it rejoins depends on the engine (stack should be recreated for reuse)"
+      },
+      "_seconds": 22.6
+    }
+  },
+  "partial": false,
+  "finished": "2026-09-13T11:34:13+00:00"
+}

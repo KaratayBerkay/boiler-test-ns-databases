@@ -1,0 +1,9 @@
+# generated dataset (regenerate with `nslab gen`; deterministic)
+data/
+# harness virtualenv + caches
+harness/.venv/
+**/__pycache__/
+*.pyc
+# per-run logs (results/*/latest.json are the deliverables, keep them)
+results/logs/
+# timestamped run snapshots are kept; drop only if noisy: results/*/[0-9]*.json

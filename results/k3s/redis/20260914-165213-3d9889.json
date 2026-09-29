@@ -1,0 +1,99 @@
+{
+  "engine": "redis",
+  "display": "Redis 8",
+  "category": "in-memory key-value (data structures, Query Engine, JSON)",
+  "family": "keyvalue",
+  "driver": "resp",
+  "image": "redis:8",
+  "run_id": "20260914-165213-3d9889",
+  "started": "2026-09-14T13:52:13+00:00",
+  "scale": 1.0,
+  "notes": "Redis Open Source 8 (RediSearch/JSON/TimeSeries/probabilistic modules built in). Async primary->replica replication with diskless sync, AOF everysec on both; 3 Sentinels (quorum 2, down-after 2 s) elect a new primary; HAProxy round-robins reads over primary+replica. Documents are hashes with application-maintained index sets/zsets; FT.CREATE on products for text + vector.",
+  "phases": {
+    "load": {
+      "scale": 1.0,
+      "collections": {
+        "customers": {
+          "rows": 20000,
+          "counted": 20000,
+          "expected": 20000,
+          "seconds": 1.67,
+          "rows_per_s": 11980,
+          "method": "pipeline HSET (2000/batch) + index sets",
+          "ok": true
+        },
+        "categories": {
+          "rows": 200,
+          "counted": 200,
+          "expected": 200,
+          "seconds": 0.01,
+          "rows_per_s": 25963,
+          "method": "pipeline HSET (2000/batch) + index sets",
+          "ok": true
+        },
+        "products": {
+          "rows": 5000,
+          "counted": 5000,
+          "expected": 5000,
+          "seconds": 0.87,
+          "rows_per_s": 5757,
+          "method": "pipeline HSET (2000/batch) + index sets",
+          "ok": true
+        },
+        "orders": {
+          "rows": 200000,
+          "counted": 200000,
+          "expected": 200000,
+          "seconds": 7.12,
+          "rows_per_s": 28108,
+          "method": "pipeline HSET (2000/batch) + index sets x4 connections",
+          "ok": true
+        },
+        "order_items": {
+          "rows": 487606,
+          "counted": 487606,
+          "expected": 487606,
+          "seconds": 8.39,
+          "rows_per_s": 58111,
+          "method": "pipeline HSET (2000/batch) + index sets x4 connections",
+          "ok": true
+        },
+        "events": {
+          "rows": 1000000,
+          "counted": 1000000,
+          "expected": 1000000,
+          "seconds": 23.38,
+          "rows_per_s": 42774,
+          "method": "pipeline HSET (2000/batch) + index sets x4 connections",
+          "ok": true
+        },
+        "inventory": {
+          "rows": 20000,
+          "counted": 20000,
+          "expected": 20000,
+          "seconds": 0.63,
+          "rows_per_s": 31833,
+          "method": "pipeline HSET (2000/batch) + index sets",
+          "ok": true
+        }
+      },
+      "schema": [
+        "hash per document, keys:<coll> sets, application-maintained index sets/zsets, GEOADD geo:customers",
+        "FT.CREATE ft:products ON HASH PREFIX products: (description TEXT, embedding VECTOR HNSW cosine)"
+      ],
+      "errors": [],
+      "schema_seconds": 0.01,
+      "load_seconds": 42.07,
+      "after_load": [
+        "ft:products indexed 5000 docs"
+      ],
+      "post_seconds": 0.0,
+      "server_version": "redis 8.10.1",
+      "_seconds": 42.1
+    }
+  },
+  "partial": false,
+  "platform": "k3s",
+  "server_version": "redis 8.10.1",
+  "finished": "2026-09-14T13:52:55+00:00"
+}

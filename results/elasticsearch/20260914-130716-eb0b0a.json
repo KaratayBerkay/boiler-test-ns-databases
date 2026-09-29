@@ -1,0 +1,13 @@
+{
+  "engine": "elasticsearch",
+  "run_id": "20260914-130716-eb0b0a",
+  "partial": true,
+  "phases": {
+    "backup": {
+      "dr": {
+        "_error": "RemoteProtocolError: Server disconnected without sending a response.",
+        "_seconds": 0.3
+      }
+    }
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "engine": "elasticsearch",
+  "display": "Elasticsearch 9",
+  "category": "search / analytics engine (Lucene, inverted index)",
+  "family": "search",
+  "driver": "es",
+  "image": "elasticsearch:9.5.3",
+  "run_id": "20260913-144200-952450",
+  "started": "2026-09-13T11:42:00+00:00",
+  "scale": 1.0,
+  "notes": "Elasticsearch 9 single node, security disabled. One index per collection, every field indexed at mapping time (inverted index for keyword/text, BKD tree for numeric/geo, HNSW for dense_vector). Eventually consistent for search (30 s refresh; the harness refreshes after load). No multi-document transactions, no server-side joins across indices, no per-document TTL.",
+  "phases": {
+    "replication": {
+      "kind": "none (single node; primary/replica shards need a multi-node cluster)",
+      "topology": {
+        "primary": {
+          "role_reported": "primary",
+          "role_configured": "primary",
+          "version": "elasticsearch 9.5.3",
+          "status": {
+            "status": "green",
+            "nodes": 1,
+            "active_shards": 9,
+            "unassigned": 0
+          }
+        }
+      },
+      "status": "single-node",
+      "_seconds": 0.0
+    }
+  },
+  "partial": false,
+  "server_version": "elasticsearch 9.5.3",
+  "finished": "2026-09-13T11:42:00+00:00"
+}

@@ -1,0 +1,14 @@
+{
+  "engine": "neo4j",
+  "run_id": "20260914-152010-efb2cc",
+  "partial": true,
+  "phases": {
+    "backup": {
+      "dr": {
+        "_error": "TimeoutError: timed out after 300s waiting for primary reachable",
+        "_seconds": 300.7
+      }
+    }
+  },
+  "platform": "k3s"
+}

@@ -1,0 +1,510 @@
+{
+  "engine": "redis",
+  "display": "Redis 8",
+  "category": "in-memory key-value (data structures, Query Engine, JSON)",
+  "family": "keyvalue",
+  "driver": "resp",
+  "image": "redis:8",
+  "run_id": "20260913-135016-5fa2c2",
+  "started": "2026-09-13T10:50:16+00:00",
+  "scale": 1.0,
+  "notes": "Redis Open Source 8 (RediSearch/JSON/TimeSeries/probabilistic modules built in). Async primary->replica replication with diskless sync, AOF everysec on both; 3 Sentinels (quorum 2, down-after 2 s) elect a new primary; HAProxy round-robins reads over primary+replica. Documents are hashes with application-maintained index sets/zsets; FT.CREATE on products for text + vector.",
+  "phases": {
+    "loadtest": {
+      "batch_rows": 1000,
+      "seconds_per_run": 15.0,
+      "containers": [
+        "nslab-redis-haproxy",
+        "nslab-redis-primary",
+        "nslab-redis-replica",
+        "nslab-redis-sentinel1",
+        "nslab-redis-sentinel2",
+        "nslab-redis-sentinel3"
+      ],
+      "runs": [
+        {
+          "workers": 4,
+          "target": "primary",
+          "rows": 927000,
+          "batches": 927,
+          "errors": 0,
+          "seconds": 15.0,
+          "rows_per_s": 61800,
+          "batch_ms": {
+            "n": 927,
+            "min": 36.632382,
+            "p50": 58.766848,
+            "p90": 83.6605958,
+            "p95": 89.70707229999998,
+            "p99": 103.56659220000002,
+            "max": 142.488079,
+            "mean": 61.533686454153184,
+            "stdev": 16.308761884451354
+          },
+          "first_error": null,
+          "workers_reported": 4,
+          "cleanup_s": 7.0,
+          "container_usage": {
+            "nslab-redis-haproxy": {
+              "cpu_cores_avg": 0.015,
+              "cpu_limit_cores": null,
+              "cpu_pct_of_limit": null,
+              "mem_peak_mb": 52,
+              "mem_end_mb": 37,
+              "mem_limit_mb": null,
+              "cpu_cores_avg_during_inserts": 0.024
+            },
+            "nslab-redis-primary": {
+              "cpu_cores_avg": 2.152,
+              "cpu_limit_cores": null,
+              "cpu_pct_of_limit": null,
+              "mem_peak_mb": 994,
+              "mem_end_mb": 981,
+              "mem_limit_mb": null,
+              "cpu_cores_avg_during_inserts": 3.407
+            },
+            "nslab-redis-replica": {
+              "cpu_cores_avg": 1.368,
+              "cpu_limit_cores": null,
+              "cpu_pct_of_limit": null,
+              "mem_peak_mb": 896,
+              "mem_end_mb": 815,
+              "mem_limit_mb": null,
+              "cpu_cores_avg_during_inserts": 2.166
+            },
+            "nslab-redis-sentinel1": {
+              "cpu_cores_avg": 0.027,
+              "cpu_limit_cores": null,
+              "cpu_pct_of_limit": null,
+              "mem_peak_mb": 14,
+              "mem_end_mb": 7,
+              "mem_limit_mb": null,
+              "cpu_cores_avg_during_inserts": 0.043
+            },
+            "nslab-redis-sentinel2": {
+              "cpu_cores_avg": 0.026,
+              "cpu_limit_cores": null,
+              "cpu_pct_of_limit": null,
+              "mem_peak_mb": 14,
+              "mem_end_mb": 5,
+              "mem_limit_mb": null,
+              "cpu_cores_avg_during_inserts": 0.041
+            },
+            "nslab-redis-sentinel3": {
+              "cpu_cores_avg": 0.026,
+              "cpu_limit_cores": null,
+              "cpu_pct_of_limit": null,
+              "mem_peak_mb": 14,
+              "mem_end_mb": 6,
+              "mem_limit_mb": null,
+              "cpu_cores_avg_during_inserts": 0.041
+            }
+          }
+        },
+        {
+          "workers": 16,
+          "target": "primary",
+          "rows": 1346000,
+          "batches": 1346,
+          "errors": 0,
+          "seconds": 15.0,
+          "rows_per_s": 89733,
+          "batch_ms": {
+            "n": 1346,
+            "min": 50.452911,
+            "p50": 177.0930625,
+            "p90": 218.37073049999998,
+            "p95": 228.0223495,
+            "p99": 266.3413897499999,
+            "max": 281.474784,
+            "mean": 173.54032791753343,
+            "stdev": 37.6631047020375
+          },
+          "first_error": null,
+          "workers_reported": 16,
+          "cleanup_s": 8.0,
+          "container_usage": {
+            "nslab-redis-haproxy": {
+              "cpu_cores_avg": 0.019,
+              "cpu_limit_cores": null,
+              "cpu_pct_of_limit": null,
+              "mem_peak_mb": 52,
+              "mem_end_mb": 37,
+              "mem_limit_mb": null,
+              "cpu_cores_avg_during_inserts": 0.032
+            },
+            "nslab-redis-primary": {
+              "cpu_cores_avg": 3.797,
+              "cpu_limit_cores": null,
+              "cpu_pct_of_limit": null,
+              "mem_peak_mb": 1291,
+              "mem_end_mb": 1262,
+              "mem_limit_mb": null,
+              "cpu_cores_avg_during_inserts": 6.425
+            },
+            "nslab-redis-replica": {
+              "cpu_cores_avg": 1.797,
+              "cpu_limit_cores": null,
+              "cpu_pct_of_limit": null,
+              "mem_peak_mb": 1211,
+              "mem_end_mb": 981,
+              "mem_limit_mb": null,
+              "cpu_cores_avg_during_inserts": 3.041
+            },
+            "nslab-redis-sentinel1": {
+              "cpu_cores_avg": 0.026,
+              "cpu_limit_cores": null,
+              "cpu_pct_of_limit": null,
+              "mem_peak_mb": 14,
+              "mem_end_mb": 6,
+              "mem_limit_mb": null,
+              "cpu_cores_avg_during_inserts": 0.044
+            },
+            "nslab-redis-sentinel2": {
+              "cpu_cores_avg": 0.025,
+              "cpu_limit_cores": null,
+              "cpu_pct_of_limit": null,
+              "mem_peak_mb": 14,
+              "mem_end_mb": 6,
+              "mem_limit_mb": null,
+              "cpu_cores_avg_during_inserts": 0.042
+            },
+            "nslab-redis-sentinel3": {
+              "cpu_cores_avg": 0.025,
+              "cpu_limit_cores": null,
+              "cpu_pct_of_limit": null,
+              "mem_peak_mb": 14,
+              "mem_end_mb": 6,
+              "mem_limit_mb": null,
+              "cpu_cores_avg_during_inserts": 0.042
+            }
+          }
+        },
+        {
+          "workers": 32,
+          "target": "primary",
+          "rows": 1348000,
+          "batches": 1348,
+          "errors": 0,
+          "seconds": 15.0,
+          "rows_per_s": 89867,
+          "batch_ms": {
+            "n": 1348,
+            "min": 222.388015,
+            "p50": 351.677634,
+            "p90": 398.1767282,
+            "p95": 415.40701169999994,
+            "p99": 449.800982,
+            "max": 495.540824,
+            "mean": 351.7964858568249,
+            "stdev": 37.04862561589832
+          },
+          "first_error": null,
+          "workers_reported": 32,
+          "cleanup_s": 7.2,
+          "container_usage": {
+            "nslab-redis-haproxy": {
+              "cpu_cores_avg": 0.019,
+              "cpu_limit_cores": null,
+              "cpu_pct_of_limit": null,
+              "mem_peak_mb": 52,
+              "mem_end_mb": 37,
+              "mem_limit_mb": null,
+              "cpu_cores_avg_during_inserts": 0.032
+            },
+            "nslab-redis-primary": {
+              "cpu_cores_avg": 3.593,
+              "cpu_limit_cores": null,
+              "cpu_pct_of_limit": null,
+              "mem_peak_mb": 1291,
+              "mem_end_mb": 1111,
+              "mem_limit_mb": null,
+              "cpu_cores_avg_during_inserts": 6.07
+            },
+            "nslab-redis-replica": {
+              "cpu_cores_avg": 1.576,
+              "cpu_limit_cores": null,
+              "cpu_pct_of_limit": null,
+              "mem_peak_mb": 1211,
+              "mem_end_mb": 1108,
+              "mem_limit_mb": null,
+              "cpu_cores_avg_during_inserts": 2.663
+            },
+            "nslab-redis-sentinel1": {
+              "cpu_cores_avg": 0.027,
+              "cpu_limit_cores": null,
+              "cpu_pct_of_limit": null,
+              "mem_peak_mb": 14,
+              "mem_end_mb": 6,
+              "mem_limit_mb": null,
+              "cpu_cores_avg_during_inserts": 0.046
+            },
+            "nslab-redis-sentinel2": {
+              "cpu_cores_avg": 0.027,
+              "cpu_limit_cores": null,
+              "cpu_pct_of_limit": null,
+              "mem_peak_mb": 14,
+              "mem_end_mb": 6,
+              "mem_limit_mb": null,
+              "cpu_cores_avg_during_inserts": 0.046
+            },
+            "nslab-redis-sentinel3": {
+              "cpu_cores_avg": 0.027,
+              "cpu_limit_cores": null,
+              "cpu_pct_of_limit": null,
+              "mem_peak_mb": 14,
+              "mem_end_mb": 6,
+              "mem_limit_mb": null,
+              "cpu_cores_avg_during_inserts": 0.046
+            }
+          }
+        },
+        {
+          "workers": 4,
+          "target": "haproxy-ro",
+          "rows": 671000,
+          "batches": 671,
+          "errors": 21,
+          "seconds": 15.0,
+          "rows_per_s": 44733,
+          "batch_ms": {
+            "n": 671,
+            "min": 38.374153,
+            "p50": 60.221307,
+            "p90": 86.357559,
+            "p95": 94.3169215,
+            "p99": 119.57099909999972,
+            "max": 154.020383,
+            "mean": 64.06232876602087,
+            "stdev": 17.750871112577578
+          },
+          "first_error": "Command # 1 (HSET events:660010000000 id 660010000000 customer_id 4403 event_type loadtest occurred_at...) of pipeline caused error: You can't write against a read only replica.",
+          "workers_reported": 4,
+          "cleanup_s": 5.6,
+          "container_usage": {
+            "nslab-redis-haproxy": {
+              "cpu_cores_avg": 0.127,
+              "cpu_limit_cores": null,
+              "cpu_pct_of_limit": null,
+              "mem_peak_mb": 52,
+              "mem_end_mb": 38,
+              "mem_limit_mb": null,
+              "cpu_cores_avg_during_inserts": 0.19
+            },
+            "nslab-redis-primary": {
+              "cpu_cores_avg": 2.081,
+              "cpu_limit_cores": null,
+              "cpu_pct_of_limit": null,
+              "mem_peak_mb": 1291,
+              "mem_end_mb": 1127,
+              "mem_limit_mb": null,
+              "cpu_cores_avg_during_inserts": 3.116
+            },
+            "nslab-redis-replica": {
+              "cpu_cores_avg": 1.287,
+              "cpu_limit_cores": null,
+              "cpu_pct_of_limit": null,
+              "mem_peak_mb": 1231,
+              "mem_end_mb": 1161,
+              "mem_limit_mb": null,
+              "cpu_cores_avg_during_inserts": 1.927
+            },
+            "nslab-redis-sentinel1": {
+              "cpu_cores_avg": 0.025,
+              "cpu_limit_cores": null,
+              "cpu_pct_of_limit": null,
+              "mem_peak_mb": 14,
+              "mem_end_mb": 6,
+              "mem_limit_mb": null,
+              "cpu_cores_avg_during_inserts": 0.037
+            },
+            "nslab-redis-sentinel2": {
+              "cpu_cores_avg": 0.026,
+              "cpu_limit_cores": null,
+              "cpu_pct_of_limit": null,
+              "mem_peak_mb": 14,
+              "mem_end_mb": 6,
+              "mem_limit_mb": null,
+              "cpu_cores_avg_during_inserts": 0.039
+            },
+            "nslab-redis-sentinel3": {
+              "cpu_cores_avg": 0.025,
+              "cpu_limit_cores": null,
+              "cpu_pct_of_limit": null,
+              "mem_peak_mb": 14,
+              "mem_end_mb": 6,
+              "mem_limit_mb": null,
+              "cpu_cores_avg_during_inserts": 0.037
+            }
+          }
+        },
+        {
+          "workers": 16,
+          "target": "haproxy-ro",
+          "rows": 1227000,
+          "batches": 1227,
+          "errors": 168,
+          "seconds": 15.0,
+          "rows_per_s": 81800,
+          "batch_ms": {
+            "n": 1227,
+            "min": 37.935542,
+            "p50": 94.273114,
+            "p90": 121.5479372,
+            "p95": 132.2508257,
+            "p99": 187.13963918000002,
+            "max": 222.811829,
+            "mean": 93.71420069600653,
+            "stdev": 26.65357070818666
+          },
+          "first_error": "Command # 1 (HSET events:661070000000 id 661070000000 customer_id 10612 event_type loadtest occurred_at...) of pipeline caused error: You can't write against a read only replica.",
+          "workers_reported": 16,
+          "cleanup_s": 7.0,
+          "container_usage": {
+            "nslab-redis-haproxy": {
+              "cpu_cores_avg": 0.189,
+              "cpu_limit_cores": null,
+              "cpu_pct_of_limit": null,
+              "mem_peak_mb": 52,
+              "mem_end_mb": 39,
+              "mem_limit_mb": null,
+              "cpu_cores_avg_during_inserts": 0.306
+            },
+            "nslab-redis-primary": {
+              "cpu_cores_avg": 2.862,
+              "cpu_limit_cores": null,
+              "cpu_pct_of_limit": null,
+              "mem_peak_mb": 1303,
+              "mem_end_mb": 1258,
+              "mem_limit_mb": null,
+              "cpu_cores_avg_during_inserts": 4.64
+            },
+            "nslab-redis-replica": {
+              "cpu_cores_avg": 1.56,
+              "cpu_limit_cores": null,
+              "cpu_pct_of_limit": null,
+              "mem_peak_mb": 1417,
+              "mem_end_mb": 1413,
+              "mem_limit_mb": null,
+              "cpu_cores_avg_during_inserts": 2.529
+            },
+            "nslab-redis-sentinel1": {
+              "cpu_cores_avg": 0.026,
+              "cpu_limit_cores": null,
+              "cpu_pct_of_limit": null,
+              "mem_peak_mb": 14,
+              "mem_end_mb": 7,
+              "mem_limit_mb": null,
+              "cpu_cores_avg_during_inserts": 0.042
+            },
+            "nslab-redis-sentinel2": {
+              "cpu_cores_avg": 0.026,
+              "cpu_limit_cores": null,
+              "cpu_pct_of_limit": null,
+              "mem_peak_mb": 14,
+              "mem_end_mb": 7,
+              "mem_limit_mb": null,
+              "cpu_cores_avg_during_inserts": 0.042
+            },
+            "nslab-redis-sentinel3": {
+              "cpu_cores_avg": 0.025,
+              "cpu_limit_cores": null,
+              "cpu_pct_of_limit": null,
+              "mem_peak_mb": 14,
+              "mem_end_mb": 7,
+              "mem_limit_mb": null,
+              "cpu_cores_avg_during_inserts": 0.041
+            }
+          }
+        },
+        {
+          "workers": 32,
+          "target": "haproxy-ro",
+          "rows": 1173000,
+          "batches": 1173,
+          "errors": 336,
+          "seconds": 15.0,
+          "rows_per_s": 78200,
+          "batch_ms": {
+            "n": 1173,
+            "min": 51.106373,
+            "p50": 191.754697,
+            "p90": 269.45205119999997,
+            "p95": 344.03595279999985,
+            "p99": 518.901821919999,
+            "max": 634.065107,
+            "mean": 200.46473957459506,
+            "stdev": 71.1946310280383
+          },
+          "first_error": "Command # 1 (HSET events:662130000000 id 662130000000 customer_id 8488 event_type loadtest occurred_at...) of pipeline caused error: You can't write against a read only replica.",
+          "workers_reported": 32,
+          "cleanup_s": 6.3,
+          "container_usage": {
+            "nslab-redis-haproxy": {
+              "cpu_cores_avg": 0.196,
+              "cpu_limit_cores": null,
+              "cpu_pct_of_limit": null,
+              "mem_peak_mb": 53,
+              "mem_end_mb": 40,
+              "mem_limit_mb": null,
+              "cpu_cores_avg_during_inserts": 0.321
+            },
+            "nslab-redis-primary": {
+              "cpu_cores_avg": 3.62,
+              "cpu_limit_cores": null,
+              "cpu_pct_of_limit": null,
+              "mem_peak_mb": 1498,
+              "mem_end_mb": 1327,
+              "mem_limit_mb": null,
+              "cpu_cores_avg_during_inserts": 5.922
+            },
+            "nslab-redis-replica": {
+              "cpu_cores_avg": 1.968,
+              "cpu_limit_cores": null,
+              "cpu_pct_of_limit": null,
+              "mem_peak_mb": 1428,
+              "mem_end_mb": 1319,
+              "mem_limit_mb": null,
+              "cpu_cores_avg_during_inserts": 3.22
+            },
+            "nslab-redis-sentinel1": {
+              "cpu_cores_avg": 0.026,
+              "cpu_limit_cores": null,
+              "cpu_pct_of_limit": null,
+              "mem_peak_mb": 14,
+              "mem_end_mb": 7,
+              "mem_limit_mb": null,
+              "cpu_cores_avg_during_inserts": 0.043
+            },
+            "nslab-redis-sentinel2": {
+              "cpu_cores_avg": 0.027,
+              "cpu_limit_cores": null,
+              "cpu_pct_of_limit": null,
+              "mem_peak_mb": 14,
+              "mem_end_mb": 7,
+              "mem_limit_mb": null,
+              "cpu_cores_avg_during_inserts": 0.044
+            },
+            "nslab-redis-sentinel3": {
+              "cpu_cores_avg": 0.025,
+              "cpu_limit_cores": null,
+              "cpu_pct_of_limit": null,
+              "mem_peak_mb": 14,
+              "mem_end_mb": 6,
+              "mem_limit_mb": null,
+              "cpu_cores_avg_during_inserts": 0.041
+            }
+          }
+        }
+      ],
+      "best": {
+        "target": "primary",
+        "workers": 32,
+        "rows_per_s": 89867
+      },
+      "_seconds": 146.7
+    }
+  },
+  "server_version": "redis 8.10.1",
+  "finished": "2026-09-13T10:52:43+00:00"
+}

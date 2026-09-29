@@ -1,0 +1,748 @@
+{
+  "engine": "neo4j",
+  "display": "Neo4j 5",
+  "category": "property graph (native, index-free adjacency)",
+  "family": "graph",
+  "driver": "bolt",
+  "image": "neo4j:5-community",
+  "run_id": "20260913-143431-303a4e",
+  "started": "2026-09-13T11:34:31+00:00",
+  "scale": 1.0,
+  "notes": "Neo4j 5 Community, single instance (causal clustering, CDC, online backup and read routing are Enterprise-only). Order items are CONTAINS relationships, categories a CHILD_OF tree, so graph_traversal and join_lookup are native. Built-in full-text (Lucene) and HNSW vector indexes; no native TTL or pub/sub.",
+  "phases": {
+    "bench": {
+      "ping": {
+        "title": "Round trip: cheapest server call",
+        "tags": [
+          "connection"
+        ],
+        "kind": "read",
+        "params_sample": "{}",
+        "status": "ok",
+        "timing": {
+          "n": 30,
+          "min": 1.608,
+          "p50": 2.092,
+          "p90": 3.093,
+          "p95": 3.495,
+          "p99": 4.231,
+          "max": 4.511,
+          "mean": 2.275,
+          "stdev": 0.625,
+          "first_ms": 3.288
+        },
+        "rows": null,
+        "checksum": null,
+        "error": null,
+        "error_code": null
+      },
+      "get_by_key": {
+        "title": "Point read: customer by primary key",
+        "tags": [
+          "kv",
+          "read"
+        ],
+        "kind": "read",
+        "params_sample": "{'id': 14824}",
+        "status": "ok",
+        "timing": {
+          "n": 30,
+          "min": 2.056,
+          "p50": 2.646,
+          "p90": 3.246,
+          "p95": 3.694,
+          "p99": 6.757,
+          "max": 7.984,
+          "mean": 2.834,
+          "stdev": 1.027,
+          "first_ms": 43.08
+        },
+        "rows": 1,
+        "checksum": "6fd6c2fc65d6b71d6b168c58",
+        "error": null,
+        "error_code": null
+      },
+      "multi_get": {
+        "title": "Batch point read: 100 customers by key in one request",
+        "tags": [
+          "kv",
+          "read",
+          "batch"
+        ],
+        "kind": "read",
+        "params_sample": "{'ids': [18, 151, 359, 492, 497, 554, 975, 986, 1169, 1373, 1715, 1952, 1963, 2070, 2190, 2302, 2394, 2727, 2785, 2856, 2972, 3085, 3312, 3533, 3537, 3818, 3867",
+        "status": "ok",
+        "timing": {
+          "n": 20,
+          "min": 10.43,
+          "p50": 13.934,
+          "p90": 17.187,
+          "p95": 17.918,
+          "p99": 18.569,
+          "max": 18.732,
+          "mean": 14.238,
+          "stdev": 2.15,
+          "first_ms": 72.862
+        },
+        "rows": 100,
+        "checksum": "655e0c701b1171ed48085c10",
+        "error": null,
+        "error_code": null
+      },
+      "insert_one": {
+        "title": "Single document insert (event)",
+        "tags": [
+          "write"
+        ],
+        "kind": "write",
+        "params_sample": "{'id': 50000000, 'customer_id': 14824, 'event_type': 'bench_insert', 'occurred_at': datetime.datetime(2026, 1, 1, 0, 0), 'payload': {'page': '/bench', 'ref': 'd",
+        "status": "ok",
+        "timing": {
+          "n": 30,
+          "min": 4.267,
+          "p50": 5.924,
+          "p90": 6.873,
+          "p95": 7.303,
+          "p99": 12.203,
+          "max": 14.169,
+          "mean": 6.154,
+          "stdev": 1.66,
+          "first_ms": 95.077
+        },
+        "rows": null,
+        "checksum": null,
+        "error": null,
+        "error_code": null
+      },
+      "update_field": {
+        "title": "Partial update: set one field of a customer",
+        "tags": [
+          "write",
+          "partial"
+        ],
+        "kind": "write",
+        "params_sample": "{'id': 14824, 'value': '2026-01-01T00:00:00Z'}",
+        "status": "ok",
+        "timing": {
+          "n": 30,
+          "min": 2.97,
+          "p50": 4.465,
+          "p90": 4.894,
+          "p95": 5.237,
+          "p99": 6.567,
+          "max": 7.005,
+          "mean": 4.297,
+          "stdev": 0.759,
+          "first_ms": 36.212
+        },
+        "rows": null,
+        "checksum": null,
+        "error": null,
+        "error_code": null
+      },
+      "upsert": {
+        "title": "Upsert inventory row by composite key",
+        "tags": [
+          "write"
+        ],
+        "kind": "write",
+        "params_sample": "{'product_id': 3706, 'warehouse_id': 4, 'qty': 331}",
+        "status": "ok",
+        "timing": {
+          "n": 30,
+          "min": 3.65,
+          "p50": 4.697,
+          "p90": 5.277,
+          "p95": 5.372,
+          "p99": 8.436,
+          "max": 9.683,
+          "mean": 4.792,
+          "stdev": 1.025,
+          "first_ms": 44.166
+        },
+        "rows": null,
+        "checksum": null,
+        "error": null,
+        "error_code": null
+      },
+      "delete_one": {
+        "title": "Delete one document by key",
+        "tags": [
+          "write"
+        ],
+        "kind": "write",
+        "params_sample": "{'id': 60000000, 'customer_id': 14824, 'event_type': 'bench_delete', 'occurred_at': datetime.datetime(2026, 1, 2, 0, 0), 'payload': None, 'value_num': 1.0}",
+        "status": "ok",
+        "timing": {
+          "n": 30,
+          "min": 4.351,
+          "p50": 5.512,
+          "p90": 6.114,
+          "p95": 6.675,
+          "p99": 7.923,
+          "max": 8.25,
+          "mean": 5.588,
+          "stdev": 0.71,
+          "first_ms": 38.282
+        },
+        "rows": null,
+        "checksum": null,
+        "error": null,
+        "error_code": null
+      },
+      "atomic_increment": {
+        "title": "Server-side atomic increment of a numeric field",
+        "tags": [
+          "write",
+          "atomic"
+        ],
+        "kind": "write",
+        "params_sample": "{'product_id': 3706, 'warehouse_id': 4, 'qty': 331}",
+        "status": "ok",
+        "timing": {
+          "n": 30,
+          "min": 2.736,
+          "p50": 3.786,
+          "p90": 4.41,
+          "p95": 4.832,
+          "p99": 6.201,
+          "max": 6.627,
+          "mean": 3.877,
+          "stdev": 0.704,
+          "first_ms": 4.69
+        },
+        "rows": 1,
+        "checksum": "198dac8425ff655c276be095",
+        "error": null,
+        "error_code": null
+      },
+      "conditional_update": {
+        "title": "Compare-and-set on a version field",
+        "tags": [
+          "write",
+          "atomic",
+          "cas"
+        ],
+        "kind": "write",
+        "params_sample": "{'product_id': 3706, 'warehouse_id': 4}",
+        "status": "ok",
+        "timing": {
+          "n": 30,
+          "min": 3.777,
+          "p50": 5.149,
+          "p90": 5.824,
+          "p95": 6.284,
+          "p99": 10.551,
+          "max": 12.176,
+          "mean": 5.268,
+          "stdev": 1.399,
+          "first_ms": 4.897
+        },
+        "rows": 1,
+        "checksum": "4a520767a593e2aaa486f609",
+        "error": null,
+        "error_code": null
+      },
+      "batch_insert_1000": {
+        "title": "Bulk write: 1000 events in one request",
+        "tags": [
+          "write",
+          "batch"
+        ],
+        "kind": "write",
+        "params_sample": "{'base': 70000000, 'docs': [{'id': 70000000, 'customer_id': 14824, 'event_type': 'bench_batch', 'occurred_at': datetime.datetime(2026, 1, 3, 0, 0), 'payload': N",
+        "status": "ok",
+        "timing": {
+          "n": 8,
+          "min": 100.713,
+          "p50": 130.663,
+          "p90": 158.648,
+          "p95": 160.4,
+          "p99": 161.802,
+          "max": 162.152,
+          "mean": 133.952,
+          "stdev": 17.897,
+          "first_ms": 279.082
+        },
+        "rows": null,
+        "checksum": null,
+        "error": null,
+        "error_code": null
+      },
+      "range_by_secondary": {
+        "title": "Secondary lookup: orders of one customer",
+        "tags": [
+          "read",
+          "index"
+        ],
+        "kind": "read",
+        "params_sample": "{'customer_id': 14824}",
+        "status": "ok",
+        "timing": {
+          "n": 20,
+          "min": 2.48,
+          "p50": 2.832,
+          "p90": 3.565,
+          "p95": 5.238,
+          "p99": 7.987,
+          "max": 8.674,
+          "mean": 3.248,
+          "stdev": 1.353,
+          "first_ms": 53.906
+        },
+        "rows": 7,
+        "checksum": "28011086de01faf9ceced703",
+        "error": null,
+        "error_code": null
+      },
+      "range_by_time": {
+        "title": "Range scan: events of one type in a 3-day window",
+        "tags": [
+          "read",
+          "range",
+          "time"
+        ],
+        "kind": "read",
+        "params_sample": "{'event_type': 'checkout', 'start': datetime.datetime(2025, 8, 28, 0, 0), 'end': datetime.datetime(2025, 8, 31, 0, 0), 'limit': 100}",
+        "status": "ok",
+        "timing": {
+          "n": 10,
+          "min": 71.213,
+          "p50": 73.617,
+          "p90": 76.196,
+          "p95": 78.788,
+          "p99": 80.861,
+          "max": 81.38,
+          "mean": 74.251,
+          "stdev": 2.615,
+          "first_ms": 181.385
+        },
+        "rows": 100,
+        "checksum": "706ac8b4bf31cce133e30d69",
+        "error": null,
+        "error_code": null
+      },
+      "filter_nested": {
+        "title": "Filter on a nested field + top-level field",
+        "tags": [
+          "read",
+          "nested"
+        ],
+        "kind": "read",
+        "params_sample": "{}",
+        "status": "ok",
+        "timing": {
+          "n": 10,
+          "min": 15.242,
+          "p50": 15.583,
+          "p90": 18.173,
+          "p95": 18.36,
+          "p99": 18.51,
+          "max": 18.548,
+          "mean": 16.098,
+          "stdev": 1.13,
+          "first_ms": 58.073
+        },
+        "rows": 1,
+        "checksum": "a37e4981ca422ff62b38fee7",
+        "error": null,
+        "error_code": null
+      },
+      "array_contains": {
+        "title": "Filter on array membership",
+        "tags": [
+          "read",
+          "array"
+        ],
+        "kind": "read",
+        "params_sample": "{}",
+        "status": "ok",
+        "timing": {
+          "n": 10,
+          "min": 6.642,
+          "p50": 7.506,
+          "p90": 9.153,
+          "p95": 9.406,
+          "p99": 9.609,
+          "max": 9.659,
+          "mean": 7.802,
+          "stdev": 1.08,
+          "first_ms": 40.402
+        },
+        "rows": 1,
+        "checksum": "855c097b08a3ac4fd8a9ee27",
+        "error": null,
+        "error_code": null
+      },
+      "top_n_sorted": {
+        "title": "Top-N with sort: 10 most expensive active products of a category",
+        "tags": [
+          "read",
+          "sort"
+        ],
+        "kind": "read",
+        "params_sample": "{'category_id': 116, 'n': 10}",
+        "status": "ok",
+        "timing": {
+          "n": 20,
+          "min": 2.165,
+          "p50": 3.08,
+          "p90": 3.384,
+          "p95": 3.899,
+          "p99": 6.608,
+          "max": 7.285,
+          "mean": 3.155,
+          "stdev": 1.022,
+          "first_ms": 44.994
+        },
+        "rows": 10,
+        "checksum": "a26dab79ede7f4d5249c5cb5",
+        "error": null,
+        "error_code": null
+      },
+      "pagination_offset": {
+        "title": "Deep page via offset (skip 10000)",
+        "tags": [
+          "read",
+          "pagination"
+        ],
+        "kind": "read",
+        "params_sample": "{'offset': 10000, 'page': 50}",
+        "status": "ok",
+        "timing": {
+          "n": 8,
+          "min": 258.297,
+          "p50": 261.199,
+          "p90": 263.583,
+          "p95": 264.314,
+          "p99": 264.899,
+          "max": 265.045,
+          "mean": 261.132,
+          "stdev": 2.198,
+          "first_ms": 328.783
+        },
+        "rows": 50,
+        "checksum": "e46e41f3a92752684bbeda77",
+        "error": null,
+        "error_code": null
+      },
+      "pagination_keyset": {
+        "title": "Deep page via keyset / cursor",
+        "tags": [
+          "read",
+          "pagination"
+        ],
+        "kind": "read",
+        "params_sample": "{'offset': 10000, 'page': 50}",
+        "status": "ok",
+        "timing": {
+          "n": 10,
+          "min": 227.801,
+          "p50": 236.29,
+          "p90": 240.668,
+          "p95": 245.096,
+          "p99": 248.638,
+          "max": 249.524,
+          "mean": 236.334,
+          "stdev": 5.868,
+          "first_ms": 666.136
+        },
+        "rows": 50,
+        "checksum": "e46e41f3a92752684bbeda77",
+        "error": null,
+        "error_code": null
+      },
+      "count_filtered": {
+        "title": "Count with equality filter",
+        "tags": [
+          "read",
+          "aggregate"
+        ],
+        "kind": "read",
+        "params_sample": "{}",
+        "status": "ok",
+        "timing": {
+          "n": 10,
+          "min": 124.007,
+          "p50": 126.794,
+          "p90": 127.716,
+          "p95": 128.478,
+          "p99": 129.088,
+          "max": 129.24,
+          "mean": 126.608,
+          "stdev": 1.447,
+          "first_ms": 151.103
+        },
+        "rows": 1,
+        "checksum": "462747c4825a83f70293e696",
+        "error": null,
+        "error_code": null
+      },
+      "aggregate_group": {
+        "title": "Group-by aggregate over 200k orders",
+        "tags": [
+          "read",
+          "aggregate"
+        ],
+        "kind": "read",
+        "params_sample": "{}",
+        "status": "ok",
+        "timing": {
+          "n": 8,
+          "min": 195.163,
+          "p50": 202.207,
+          "p90": 234.777,
+          "p95": 241.122,
+          "p99": 246.198,
+          "max": 247.467,
+          "mean": 209.905,
+          "stdev": 17.309,
+          "first_ms": 257.559
+        },
+        "rows": 13,
+        "checksum": "82a653fa5048bcc6289cad3d",
+        "error": null,
+        "error_code": null
+      },
+      "aggregate_time_bucket": {
+        "title": "Time-bucketed aggregate over 1M events",
+        "tags": [
+          "read",
+          "aggregate",
+          "time"
+        ],
+        "kind": "read",
+        "params_sample": "{}",
+        "status": "ok",
+        "timing": {
+          "n": 5,
+          "min": 99.609,
+          "p50": 100.598,
+          "p90": 113.461,
+          "p95": 113.558,
+          "p99": 113.636,
+          "max": 113.656,
+          "mean": 105.334,
+          "stdev": 6.607,
+          "first_ms": 157.055
+        },
+        "rows": 24,
+        "checksum": "7c611891940b3812b8b36ca6",
+        "error": null,
+        "error_code": null
+      },
+      "join_lookup": {
+        "title": "Orders of a customer with the customer's name (server-side join if the engine has one)",
+        "tags": [
+          "read",
+          "join"
+        ],
+        "kind": "read",
+        "params_sample": "{'customer_id': 14824}",
+        "status": "ok",
+        "timing": {
+          "n": 20,
+          "min": 1.621,
+          "p50": 1.778,
+          "p90": 1.951,
+          "p95": 2.153,
+          "p99": 4.758,
+          "max": 5.409,
+          "mean": 1.954,
+          "stdev": 0.8,
+          "first_ms": 49.286
+        },
+        "rows": 7,
+        "checksum": "4c1b6f23a7e9d95af19b26c5",
+        "error": null,
+        "error_code": null
+      },
+      "graph_traversal": {
+        "title": "Category ancestor chain of a product (variable-depth traversal)",
+        "tags": [
+          "read",
+          "graph"
+        ],
+        "kind": "read",
+        "params_sample": "{'product_id': 3706}",
+        "status": "ok",
+        "timing": {
+          "n": 20,
+          "min": 1.774,
+          "p50": 1.961,
+          "p90": 2.259,
+          "p95": 2.752,
+          "p99": 7.937,
+          "max": 9.233,
+          "mean": 2.333,
+          "stdev": 1.59,
+          "first_ms": 201.84
+        },
+        "rows": 2,
+        "checksum": "f8df79f1ddf52e913fdd7bbf",
+        "error": null,
+        "error_code": null
+      },
+      "text_search": {
+        "title": "Full-text search on product descriptions",
+        "tags": [
+          "read",
+          "text"
+        ],
+        "kind": "read",
+        "params_sample": "{'words': ['wireless', 'charger'], 'limit': 20}",
+        "status": "ok",
+        "timing": {
+          "n": 10,
+          "min": 14.115,
+          "p50": 17.209,
+          "p90": 22.969,
+          "p95": 22.991,
+          "p99": 23.009,
+          "max": 23.013,
+          "mean": 17.888,
+          "stdev": 2.874,
+          "first_ms": 45.082
+        },
+        "rows": 20,
+        "checksum": "a235fed79befa7de480f1d5b",
+        "error": null,
+        "error_code": null
+      },
+      "geo_near": {
+        "title": "Geo radius query on customer locations",
+        "tags": [
+          "read",
+          "geo"
+        ],
+        "kind": "read",
+        "params_sample": "{'lat': 52.5, 'lon': 13.4, 'km': 200, 'limit': 20}",
+        "status": "ok",
+        "timing": {
+          "n": 10,
+          "min": 16.664,
+          "p50": 17.876,
+          "p90": 21.8,
+          "p95": 22.695,
+          "p99": 23.411,
+          "max": 23.59,
+          "mean": 18.677,
+          "stdev": 2.088,
+          "first_ms": 98.505
+        },
+        "rows": 20,
+        "checksum": "ef5985a217c590de050f108e",
+        "error": null,
+        "error_code": null
+      },
+      "vector_knn": {
+        "title": "k-nearest-neighbour search on 8-dim product embeddings",
+        "tags": [
+          "read",
+          "vector"
+        ],
+        "kind": "read",
+        "params_sample": "{'vector': [-0.16177, -0.22283, -0.59722, 0.1963, 0.07576, 0.45484, 0.05553, 0.5597], 'k': 10}",
+        "status": "ok",
+        "timing": {
+          "n": 20,
+          "min": 2.482,
+          "p50": 3.23,
+          "p90": 3.761,
+          "p95": 4.446,
+          "p99": 6.01,
+          "max": 6.401,
+          "mean": 3.334,
+          "stdev": 0.824,
+          "first_ms": 4.267
+        },
+        "rows": 10,
+        "checksum": "f5f21757fad74237354d1682",
+        "error": null,
+        "error_code": null
+      },
+      "transaction_transfer": {
+        "title": "Multi-document atomic transfer between two inventory rows",
+        "tags": [
+          "write",
+          "txn"
+        ],
+        "kind": "txn",
+        "params_sample": "{'product_id': 3706, 'from': 4, 'to': 2, 'amount': 1}",
+        "status": "ok",
+        "timing": {
+          "n": 20,
+          "min": 3.288,
+          "p50": 4.144,
+          "p90": 5.567,
+          "p95": 6.46,
+          "p99": 8.622,
+          "max": 9.163,
+          "mean": 4.623,
+          "stdev": 1.281,
+          "first_ms": 70.187
+        },
+        "rows": null,
+        "checksum": null,
+        "error": null,
+        "error_code": null
+      },
+      "ttl_set": {
+        "title": "Write with expiry",
+        "tags": [
+          "write",
+          "ttl"
+        ],
+        "kind": "write",
+        "params_sample": "{'key': 'ttl:0', 'seconds': 120, 'value': {'i': 0, 'note': 'bench'}}",
+        "status": "ok",
+        "timing": {
+          "n": 30,
+          "min": 3.287,
+          "p50": 4.868,
+          "p90": 5.491,
+          "p95": 5.573,
+          "p99": 8.266,
+          "max": 9.339,
+          "mean": 4.827,
+          "stdev": 1.069,
+          "first_ms": 49.936
+        },
+        "rows": null,
+        "checksum": null,
+        "error": null,
+        "error_code": null
+      },
+      "scan_full": {
+        "title": "Full scan: count all events",
+        "tags": [
+          "read",
+          "scan"
+        ],
+        "kind": "read",
+        "params_sample": "{}",
+        "status": "ok",
+        "timing": {
+          "n": 5,
+          "min": 2.784,
+          "p50": 2.911,
+          "p90": 2.947,
+          "p95": 2.954,
+          "p99": 2.96,
+          "max": 2.961,
+          "mean": 2.886,
+          "stdev": 0.063,
+          "first_ms": 28.021
+        },
+        "rows": 1,
+        "checksum": "3c61354c65cb9b97e3304b8e",
+        "error": null,
+        "error_code": null
+      },
+      "_seconds": 17.4
+    }
+  },
+  "partial": false,
+  "server_version": "Neo4j Kernel 5.26.30 (community)",
+  "finished": "2026-09-13T11:34:49+00:00"
+}

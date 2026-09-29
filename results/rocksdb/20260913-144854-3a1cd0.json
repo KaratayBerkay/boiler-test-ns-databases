@@ -1,0 +1,209 @@
+{
+  "engine": "rocksdb",
+  "display": "RocksDB",
+  "category": "embedded ordered key-value (LSM tree)",
+  "family": "embedded",
+  "driver": "rocksdb",
+  "image": "(embedded, python rocksdict/RocksDB)",
+  "run_id": "20260913-144854-3a1cd0",
+  "started": "2026-09-13T11:48:54+00:00",
+  "scale": 1.0,
+  "notes": "RocksDB (Facebook LSM-tree) via rocksdict, in-process, thread-safe. Same modelling as LMDB (ordered key-value + hand-maintained index keyspaces, WriteBatch for atomic multi-key writes). Write-optimised (LSM) vs LMDB's read-optimised B+tree. No server, no network, no replication.",
+  "phases": {
+    "optimize": {
+      "opt01_secondary_index": {
+        "title": "Range scan on events(event_type, occurred_at): no index vs secondary index (both column orders)",
+        "what": "an access path that is not indexed is a full scan; composite order matters on B-tree-like engines",
+        "variants": [
+          {
+            "name": "no_index_scan",
+            "note": "",
+            "ok": true,
+            "error": null,
+            "p50_ms": 626.03,
+            "p95_ms": 634.115,
+            "n": 8,
+            "rows": 0
+          },
+          {
+            "name": "ordered_index_(type,ts,id)",
+            "setup": "built i/e_type/* ordered index over 1000008 events",
+            "ok": true,
+            "error": null,
+            "p50_ms": 1236.917,
+            "p95_ms": 1318.184,
+            "n": 8,
+            "rows": 100
+          }
+        ],
+        "best_variant": "no_index_scan",
+        "speedup_vs_first": 1.0
+      },
+      "opt02_projection": {
+        "title": "Point read of an order: whole document (with embedded items) vs 3-field projection",
+        "what": "returning fewer fields saves serialisation and transfer; some engines still read the whole document",
+        "variants": [
+          {
+            "name": "full_document",
+            "ok": true,
+            "error": null,
+            "p50_ms": 0.022,
+            "p95_ms": 0.036,
+            "n": 30,
+            "rows": 1
+          },
+          {
+            "name": "projection_3_fields",
+            "ok": true,
+            "error": null,
+            "p50_ms": 0.026,
+            "p95_ms": 0.035,
+            "n": 30,
+            "rows": 1
+          }
+        ],
+        "best_variant": "full_document",
+        "speedup_vs_first": 1.0
+      },
+      "opt03_pagination": {
+        "title": "Deep pagination: offset/skip vs keyset (cursor) at depth 10k and 100k",
+        "what": "offset still walks and discards rows; a keyset cursor seeks directly into the sorted index",
+        "variants": [
+          {
+            "name": "offset_depth_10000",
+            "ok": true,
+            "error": null,
+            "p50_ms": 8.354,
+            "p95_ms": 8.377,
+            "n": 8,
+            "rows": 50
+          },
+          {
+            "name": "keyset_depth_10000",
+            "ok": true,
+            "error": null,
+            "p50_ms": 0.801,
+            "p95_ms": 0.833,
+            "n": 8,
+            "rows": 50
+          },
+          {
+            "name": "offset_depth_100000",
+            "ok": true,
+            "error": null,
+            "p50_ms": 76.606,
+            "p95_ms": 95.601,
+            "n": 8,
+            "rows": 50
+          },
+          {
+            "name": "keyset_depth_100000",
+            "ok": true,
+            "error": null,
+            "p50_ms": 0.763,
+            "p95_ms": 0.779,
+            "n": 8,
+            "rows": 50
+          }
+        ],
+        "best_variant": "keyset_depth_100000",
+        "speedup_vs_first": 10.95
+      },
+      "opt04_batching": {
+        "title": "Write batching: 2000 events one-by-one vs 2 bulk requests of 1000",
+        "what": "round trips dominate small writes; every engine has a bulk path (insert_many, pipeline, batch, _bulk)",
+        "variants": [
+          {
+            "name": "single_put_x2000",
+            "rows": 2000,
+            "seconds": 0.093,
+            "rows_per_s": 21550,
+            "error": null,
+            "ok": true
+          },
+          {
+            "name": "bulk_put_1000_x2",
+            "rows": 2000,
+            "seconds": 0.048,
+            "rows_per_s": 41374,
+            "error": null,
+            "ok": true
+          }
+        ],
+        "speedup_vs_first": 1.92,
+        "best_variant": "bulk_put_1000_x2"
+      },
+      "opt05_multi_get": {
+        "title": "100 point reads: sequential round trips vs one multi-get request",
+        "what": "batched reads (MGET / $in / IN / mget / pipelining) amortise the network round trip",
+        "variants": [
+          {
+            "name": "sequential_100_gets",
+            "ok": true,
+            "error": null,
+            "p50_ms": 1.704,
+            "p95_ms": 3.22,
+            "n": 10,
+            "rows": 100
+          },
+          {
+            "name": "multi_get_100",
+            "ok": true,
+            "error": null,
+            "p50_ms": 1.105,
+            "p95_ms": 1.123,
+            "n": 10,
+            "rows": 100
+          }
+        ],
+        "best_variant": "multi_get_100",
+        "speedup_vs_first": 1.54
+      },
+      "opt06_embedding_vs_reference": {
+        "title": "Order with its items: embedded array (one document) vs referenced (order + items lookup)",
+        "what": "embedding what is read together avoids a second query / join; referencing keeps documents small and items independently addressable",
+        "variants": [
+          {
+            "name": "embedded_items",
+            "ok": true,
+            "error": null,
+            "p50_ms": 0.024,
+            "p95_ms": 0.03,
+            "n": 30,
+            "rows": 1
+          },
+          {
+            "name": "referenced_items",
+            "ok": true,
+            "error": null,
+            "p50_ms": 0.043,
+            "p95_ms": 0.057,
+            "n": 30,
+            "rows": 1
+          }
+        ],
+        "best_variant": "embedded_items",
+        "speedup_vs_first": 1.0
+      },
+      "opt07_write_durability": {
+        "title": "Single-document write at each durability / write-concern level the engine offers",
+        "what": "acknowledgement level (replica acks, fsync, refresh) is the biggest lever on write latency",
+        "variants": [],
+        "status": "n/a"
+      },
+      "opt08_read_consistency": {
+        "title": "Point read at each read consistency level / read preference the engine offers",
+        "what": "linearizable / quorum reads cost extra round trips; replica reads trade freshness for offload",
+        "variants": [],
+        "status": "n/a"
+      },
+      "opt09_connection_reuse": {
+        "error": "Exception: IO error: lock hold by current process, acquire time 1789300134 acquiring thread 127938007036032: /home/berkay-server/repos/boilers/raw-codes/databases/ns-databases/data/rocksdb/lab.rocks/LOCK: No locks available"
+      },
+      "_seconds": 105.4
+    }
+  },
+  "partial": false,
+  "server_version": "unknown",
+  "finished": "2026-09-13T11:50:39+00:00"
+}

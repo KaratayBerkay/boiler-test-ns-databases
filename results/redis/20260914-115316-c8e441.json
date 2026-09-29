@@ -1,0 +1,253 @@
+{
+  "engine": "redis",
+  "display": "Redis 8",
+  "category": "in-memory key-value (data structures, Query Engine, JSON)",
+  "family": "keyvalue",
+  "driver": "resp",
+  "image": "redis:8",
+  "run_id": "20260914-115316-c8e441",
+  "started": "2026-09-14T08:53:16+00:00",
+  "scale": 1.0,
+  "notes": "Redis Open Source 8 (RediSearch/JSON/TimeSeries/probabilistic modules built in). Async primary->replica replication with diskless sync, AOF everysec on both; 3 Sentinels (quorum 2, down-after 2 s) elect a new primary; HAProxy round-robins reads over primary+replica. Documents are hashes with application-maintained index sets/zsets; FT.CREATE on products for text + vector.",
+  "phases": {
+    "logging": {
+      "strategy": {
+        "server_log": "plain text on stdout (`pid:role date level message`), loglevel notice; the docker json-file driver rotates it",
+        "slow_query": "SLOWLOG (in-memory ring: slowlog-log-slower-than \u00b5s, slowlog-max-len) + LATENCY MONITOR (latency-monitor-threshold ms) + LATENCY DOCTOR",
+        "audit": "ACL LOG for denied AUTH / NOPERM attempts (in memory, acllog-max-len); MONITOR is a live debug stream, not a log; persistent audit is Redis Enterprise",
+        "runtime": "CONFIG SET loglevel / slowlog-* / latency-monitor-threshold apply immediately (CONFIG REWRITE persists them)"
+      },
+      "threshold_ms": 100,
+      "containers": {
+        "nslab-redis-haproxy": {
+          "driver": "json-file",
+          "options": {
+            "compress": "true",
+            "max-file": "3",
+            "max-size": "50m"
+          },
+          "log_path": "/var/lib/docker/containers/c8a6b84e33d67274af4d4542238f8c87dfa41a397f363ba0903c031e82343744/c8a6b84e33d67274af4d4542238f8c87dfa41a397f363ba0903c031e82343744-json.log",
+          "user": "haproxy",
+          "started": "2026-09-14T08:01:38.80346097Z",
+          "bytes": 532,
+          "lines": 4,
+          "json_lines_pct": 0.0,
+          "format": "text",
+          "sample": [
+            "[NOTICE]   (1) : Loading success.",
+            "[WARNING]  (8) : Server redis_read/primary is DOWN, reason: Layer7 timeout, info: \" at step 2 of tcp-check (expect string '+PONG')\", check duration: 2002ms. 1 active and 0 backup servers left. 0 sessions active, 0 requeued, 0 remaining in q",
+            "[WARNING]  (8) : Server redis_read/primary is UP, reason: Layer7 check passed, code: 0, info: \"(tcp-check)\", check duration: 0ms. 2 active and 0 backup servers online. 0 sessions requeued, 0 total in queue."
+          ]
+        },
+        "nslab-redis-primary": {
+          "driver": "json-file",
+          "options": {
+            "compress": "true",
+            "max-file": "3",
+            "max-size": "50m"
+          },
+          "log_path": "/var/lib/docker/containers/30623da19f1ade4b49dfd28b52bfbffc627e599fcf0cd5418be893eb710abbe8/30623da19f1ade4b49dfd28b52bfbffc627e599fcf0cd5418be893eb710abbe8-json.log",
+          "user": "root",
+          "started": "2026-09-14T08:23:15.038951476Z",
+          "bytes": 50105,
+          "lines": 564,
+          "json_lines_pct": 0.0,
+          "format": "text",
+          "sample": [
+            "1:M 14 Sep 2026 08:23:26.144 * Streamed RDB transfer with replica 172.23.0.3:6379 succeeded (socket). Waiting for REPLCONF ACK from replica to enable streaming",
+            "1:M 14 Sep 2026 08:23:26.144 * RDB transfer completed, rdb only replica (172.23.0.3:6379) should be disconnected asap",
+            "1:M 14 Sep 2026 08:23:26.144 * Connection with replica (rdbchannel) 172.23.0.3:6379 lost."
+          ]
+        },
+        "nslab-redis-replica": {
+          "driver": "json-file",
+          "options": {
+            "compress": "true",
+            "max-file": "3",
+            "max-size": "50m"
+          },
+          "log_path": "/var/lib/docker/containers/2757bde01d9e39c0d37545e727d803f2d6079ad4a1282e89375a1327b7273f14/2757bde01d9e39c0d37545e727d803f2d6079ad4a1282e89375a1327b7273f14-json.log",
+          "user": "root",
+          "started": "2026-09-14T08:01:36.134405324Z",
+          "bytes": 37049,
+          "lines": 415,
+          "json_lines_pct": 0.0,
+          "format": "text",
+          "sample": [
+            "1:S 14 Sep 2026 08:23:37.884 * Removing the history file appendonly.aof.12.incr.aof in the background",
+            "1:S 14 Sep 2026 08:23:37.884 * Removing the history file appendonly.aof.12.base.rdb in the background",
+            "1:S 14 Sep 2026 08:23:37.886 * Background AOF rewrite finished successfully"
+          ]
+        },
+        "nslab-redis-sentinel1": {
+          "driver": "json-file",
+          "options": {
+            "compress": "true",
+            "max-file": "3",
+            "max-size": "50m"
+          },
+          "log_path": "/var/lib/docker/containers/f2eb6bf757e29432ebe56033101d47463ac299b98080716fbe094ba0d4405e09/f2eb6bf757e29432ebe56033101d47463ac299b98080716fbe094ba0d4405e09-json.log",
+          "user": "root",
+          "started": "2026-09-14T08:01:38.804066319Z",
+          "bytes": 2445,
+          "lines": 29,
+          "json_lines_pct": 0.0,
+          "format": "text",
+          "sample": [
+            "11:X 14 Sep 2026 08:23:16.018 * +reboot master mymaster primary 6379",
+            "11:X 14 Sep 2026 08:23:33.899 # +set master mymaster primary 6379 down-after-milliseconds 600000",
+            "11:X 14 Sep 2026 08:23:33.920 * Sentinel new configuration saved on disk"
+          ]
+        },
+        "nslab-redis-sentinel2": {
+          "driver": "json-file",
+          "options": {
+            "compress": "true",
+            "max-file": "3",
+            "max-size": "50m"
+          },
+          "log_path": "/var/lib/docker/containers/70c2cff8800d3fc7b8e9931c9d8b24c6e678546a39a9c36161a7f189d74ecadc/70c2cff8800d3fc7b8e9931c9d8b24c6e678546a39a9c36161a7f189d74ecadc-json.log",
+          "user": "root",
+          "started": "2026-09-14T08:01:38.80474687Z",
+          "bytes": 2445,
+          "lines": 29,
+          "json_lines_pct": 0.0,
+          "format": "text",
+          "sample": [
+            "11:X 14 Sep 2026 08:23:16.082 * +reboot master mymaster primary 6379",
+            "11:X 14 Sep 2026 08:23:33.993 # +set master mymaster primary 6379 down-after-milliseconds 600000",
+            "11:X 14 Sep 2026 08:23:33.996 * Sentinel new configuration saved on disk"
+          ]
+        },
+        "nslab-redis-sentinel3": {
+          "driver": "json-file",
+          "options": {
+            "compress": "true",
+            "max-file": "3",
+            "max-size": "50m"
+          },
+          "log_path": "/var/lib/docker/containers/eb9807d4abbf58f05b24a31c5bd637bf954ba4c6e09e655f768cd28e1ffb9dbf/eb9807d4abbf58f05b24a31c5bd637bf954ba4c6e09e655f768cd28e1ffb9dbf-json.log",
+          "user": "root",
+          "started": "2026-09-14T08:01:38.805173147Z",
+          "bytes": 2445,
+          "lines": 29,
+          "json_lines_pct": 0.0,
+          "format": "text",
+          "sample": [
+            "11:X 14 Sep 2026 08:23:16.082 * +reboot master mymaster primary 6379",
+            "11:X 14 Sep 2026 08:23:34.070 # +set master mymaster primary 6379 down-after-milliseconds 600000",
+            "11:X 14 Sep 2026 08:23:34.074 * Sentinel new configuration saved on disk"
+          ]
+        }
+      },
+      "server_log": {
+        "status": "ok",
+        "value": {
+          "format": "text",
+          "where": "stdout (docker logs) \u2014 `logfile` when set",
+          "loglevel": "notice",
+          "sample": [
+            "1:M 14 Sep 2026 08:23:26.144 * Streamed RDB transfer with replica 172.23.0.3:6379 succeeded (socket). Waiting for REPLCONF ACK from replica to enable streaming",
+            "1:M 14 Sep 2026 08:23:26.144 * RDB transfer completed, rdb only replica (172.23.0.3:6379) should be disconnected asap",
+            "1:M 14 Sep 2026 08:23:26.144 * Connection with replica (rdbchannel) 172.23.0.3:6379 lost."
+          ]
+        },
+        "ms": 25.4
+      },
+      "slow_query": {
+        "setup": {
+          "status": "ok",
+          "value": "CONFIG SET slowlog-log-slower-than 100000 (\u00b5s) + SLOWLOG RESET; latency-monitor-threshold 100 ms",
+          "ms": 1.1
+        },
+        "effective_threshold_ms": 100,
+        "fast_op": {
+          "desc": "HGET customers:1 name",
+          "ms": 0.3,
+          "status": "ok",
+          "error": null
+        },
+        "slow_op": {
+          "desc": "KEYS customers:* (scans the whole keyspace \u2014 the anti-pattern SLOWLOG exists to catch)",
+          "ms": 226.4,
+          "status": "ok",
+          "error": null
+        },
+        "entries": [
+          {
+            "id": 2,
+            "ts": 1789375997,
+            "ms": 220.67,
+            "text": "KEYS customers:*",
+            "client": "172.23.0.1:46736"
+          },
+          {
+            "ms": 220.0,
+            "text": "LATENCY LATEST event=command latest=220 ms max=220 ms",
+            "kind": "latency-monitor"
+          }
+        ],
+        "entries_status": "ok",
+        "entries_error": null,
+        "slow_op_logged": true,
+        "logged_ms": 220.67,
+        "fast_op_logged": false,
+        "verified": true
+      },
+      "audit": {
+        "setup": {
+          "status": "ok",
+          "value": "ACL LOG RESET; ACL SETUSER nslab_auditor on >s3cret ~* +@read (read-only user to provoke denials)",
+          "ms": 1.3
+        },
+        "exercise": [
+          "AUTH nslab_auditor <wrong> -> AuthenticationError: invalid username-password pair or user is disabled.",
+          "SET as read-only nslab_auditor -> NoPermissionError: User nslab_auditor has no permissions to run the 'set' comma"
+        ],
+        "entries": [
+          "reason=command context=toplevel object=set user=nslab_auditor count=1",
+          "reason=auth context=toplevel object=AUTH user=nslab_auditor count=1"
+        ],
+        "entries_count": 2,
+        "entries_status": "ok",
+        "entries_error": null,
+        "verified": true
+      },
+      "runtime_log_level": {
+        "status": "ok",
+        "value": "CONFIG SET loglevel debug -> verified -> back to notice (no restart)",
+        "ms": 0.7
+      },
+      "log_volume_this_phase": {
+        "nslab-redis-haproxy": {
+          "bytes": 0,
+          "lines": 0
+        },
+        "nslab-redis-primary": {
+          "bytes": 0,
+          "lines": 0
+        },
+        "nslab-redis-replica": {
+          "bytes": 0,
+          "lines": 0
+        },
+        "nslab-redis-sentinel1": {
+          "bytes": 0,
+          "lines": 0
+        },
+        "nslab-redis-sentinel2": {
+          "bytes": 0,
+          "lines": 0
+        },
+        "nslab-redis-sentinel3": {
+          "bytes": 0,
+          "lines": 0
+        }
+      },
+      "_seconds": 2.4
+    }
+  },
+  "partial": false,
+  "server_version": "redis 8.10.1",
+  "finished": "2026-09-14T08:53:19+00:00"
+}

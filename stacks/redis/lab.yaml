@@ -1,0 +1,49 @@
+display: Redis 8
+family: keyvalue
+category: in-memory key-value (data structures, Query Engine, JSON)
+driver: resp
+image: redis:8
+project: nslab-redis
+scale: 1
+notes: >-
+  Redis Open Source 8 (RediSearch/JSON/TimeSeries/probabilistic modules built in). Async primary->replica replication with
+  diskless sync, AOF everysec on both; 3 Sentinels (quorum 2, down-after 2 s) elect a new primary; HAProxy round-robins reads
+  over primary+replica. Documents are hashes with application-maintained index sets/zsets; FT.CREATE on products for text + vector.
+docs:
+  - https://hub.docker.com/_/redis
+  - https://redis.io/docs/latest/operate/oss_and_stack/management/sentinel/
+  - https://redis.io/docs/latest/develop/interact/search-and-query/
+targets:
+  - name: primary
+    role: primary
+    host: 127.0.0.1
+    port: 16379
+    container: nslab-redis-primary
+  - name: replica
+    role: replica
+    host: 127.0.0.1
+    port: 16380
+    container: nslab-redis-replica
+  - name: haproxy-ro
+    role: proxy
+    host: 127.0.0.1
+    port: 16381
+    container: nslab-redis-haproxy
+    splits_reads: true
+  - name: sentinel
+    role: sentinel
+    host: 127.0.0.1
+    port: 26379
+    container: nslab-redis-sentinel1
+stats_containers: [nslab-redis-sentinel1, nslab-redis-sentinel2, nslab-redis-sentinel3]
+replication:
+  kind: async primary/replica (diskless sync, AOF everysec) + Sentinel failover
+  master_name: mymaster
+  verify_target: replica
+  promote:
+    method: auto
+    target: replica
+features:
+  search: true
+  aof: true
+  settle_seconds: 2

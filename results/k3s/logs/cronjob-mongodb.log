@@ -1,0 +1,61 @@
+up: {'seconds': 42.8, 'services': ['mongo1', 'mongo2', 'mongo3', 'init'], 
+'namespace': 'nslab-mongodb'}
+[mongodb] phase: load
+  schema created (17 items, 0.35s)
+  customers       20,000 docs     1.20s     16,701 docs/s  [insert_many(5000, 
+ordered=False, w=1)]
+  categories         200 docs     0.00s     48,035 docs/s  [insert_many(5000, 
+ordered=False, w=1)]
+  products         5,000 docs     0.83s      6,033 docs/s  [insert_many(5000, 
+ordered=False, w=1)]
+  orders         200,000 docs     5.59s     35,791 docs/s  [insert_many(5000, 
+ordered=False, w=1) x4 connections]
+  order_items    487,606 docs     5.36s     90,983 docs/s  [insert_many(5000, 
+ordered=False, w=1) x4 connections]
+  events       1,000,000 docs    21.84s     45,785 docs/s  [insert_many(5000, 
+ordered=False, w=1) x4 connections]
+  inventory       20,000 docs     0.62s     32,197 docs/s  [insert_many(5000, 
+ordered=False, w=1)]
+saved 
+/home/berkay-server/repos/boilers/raw-codes/databases/ns-databases/results/k3s/m
+ongodb/20260914-175248-b04ef7.json
+cronjob.batch/backup-mongodb created
+NAME             SCHEDULE      TIMEZONE   SUSPEND   ACTIVE   LAST SCHEDULE   AGE
+backup-mongodb   0 */6 * * *   <none>     False     0        <none>          0s
+job.batch/backup-mongodb-manual-175326 created
+job.batch/backup-mongodb-manual-175326 condition met
+2026-09-14T14:53:31.012+0000	[####################....]       lab.orders   174533/200000  (87.3%)
+2026-09-14T14:53:31.012+0000	[####################....]  lab.order_items   414252/487606  (85.0%)
+2026-09-14T14:53:31.012+0000	[##......................]       lab.events  104879/1000000  (10.5%)
+2026-09-14T14:53:31.012+0000	
+2026-09-14T14:53:32.299+0000	[########################]  lab.order_items  487606/487606  (100.0%)
+2026-09-14T14:53:34.012+0000	[####################....]  lab.orders   174533/200000  (87.3%)
+2026-09-14T14:53:34.012+0000	[##########..............]  lab.events  419652/1000000  (42.0%)
+2026-09-14T14:53:34.012+0000	
+2026-09-14T14:53:34.205+0000	done dumping `lab.order_items` (487606 documents)
+2026-09-14T14:53:34.205+0000	writing `lab.products` to "archive `/backups/cron/20260914-145328.archive.gz`"
+2026-09-14T14:53:34.207+0000	done dumping `lab.inventory` (20000 documents)
+2026-09-14T14:53:34.207+0000	writing `lab.categories` to "archive `/backups/cron/20260914-145328.archive.gz`"
+2026-09-14T14:53:34.245+0000	[########################]  lab.orders  200000/200000  (100.0%)
+2026-09-14T14:53:35.616+0000	done dumping `lab.orders` (200000 documents)
+2026-09-14T14:53:35.616+0000	writing `lab.scratch` to "archive `/backups/cron/20260914-145328.archive.gz`"
+2026-09-14T14:53:35.618+0000	done dumping `lab.categories` (200 documents)
+2026-09-14T14:53:35.797+0000	done dumping `lab.products` (5000 documents)
+2026-09-14T14:53:35.798+0000	done dumping `lab.scratch` (0 documents)
+2026-09-14T14:53:37.012+0000	[#################.......]  lab.events  734465/1000000  (73.4%)
+2026-09-14T14:53:38.651+0000	[########################]  lab.events  1000000/1000000  (100.0%)
+2026-09-14T14:53:38.909+0000	done dumping `lab.events` (1000000 documents)
+2026-09-14T14:53:38.911+0000	writing captured oplog to ``
+2026-09-14T14:53:38.935+0000		dumped 1 oplog entry
+-rw-r--r-- 1 root root 50785427 Sep 14 14:53 /backups/cron/20260914-145328.archive.gz
+== done
+kept:
+total 49604
+drwxr-xr-x 2 root root     4096 Sep 14 14:53 .
+drwxrwxrwt 3 root root     4096 Sep 14 14:53 ..
+-rw-r--r-- 1 root root 50785427 Sep 14 14:53 20260914-145328.archive.gz
+total 49608
+drwxr-xr-x 2 root root     4096 Sep 14 14:53 .
+drwxrwxrwt 3 root root     4096 Sep 14 14:53 ..
+-rw-r--r-- 1 root root 50785427 Sep 14 14:53 20260914-145328.archive.gz
+49M	/backups/cron

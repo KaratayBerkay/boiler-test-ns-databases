@@ -1,0 +1,316 @@
+{
+  "engine": "mongodb",
+  "display": "MongoDB 7.0",
+  "category": "document store (replica set)",
+  "family": "document",
+  "driver": "pymongo",
+  "image": "mongo:7",
+  "run_id": "20260913-140049-2af672",
+  "started": "2026-09-13T11:00:49+00:00",
+  "scale": 1.0,
+  "notes": "Official mongo:7 image (7.0.x). mongo:8 (8.3.9) refuses to start on this host's Linux 7.0.0 kernel (SERVER-121912: TCMalloc rseq incompatibility with kernels 6.19-7.0.13, exits at startup, no bypass) so the lab pins 7.0. 3-member replica set rs0 (priorities 3/2/1) initiated by a one-shot mongosh container; no auth. Per-node targets use directConnection=true; writes w=1 unless an experiment says otherwise. $vectorSearch is Atlas / mongot-only, so vector_knn is unsupported on Community.",
+  "phases": {
+    "connections": {
+      "max_connections": 5000,
+      "connect_latency": {
+        "primary": {
+          "target": "primary",
+          "n": 30,
+          "ms": {
+            "n": 30,
+            "min": 3.410817,
+            "p50": 3.9047330000000002,
+            "p90": 4.7606107,
+            "p95": 5.0023943,
+            "p99": 5.3191262,
+            "max": 5.418689,
+            "mean": 4.0115731666666665,
+            "stdev": 0.47386789973649
+          },
+          "errors": [],
+          "error_count": 0
+        }
+      },
+      "storm": {
+        "primary": [
+          {
+            "target": "primary",
+            "requested": 10,
+            "opened": 10,
+            "failed": 0,
+            "wall_ms_to_open_all": 50.2,
+            "connect_ms": {
+              "n": 10,
+              "min": 27.178055,
+              "p50": 28.5205385,
+              "p90": 31.987624,
+              "p95": 32.4823675,
+              "p99": 32.8781623,
+              "max": 32.977111,
+              "mean": 29.585822,
+              "stdev": 2.0035165838000437
+            },
+            "error_codes": {},
+            "sample_error": null
+          },
+          {
+            "target": "primary",
+            "requested": 50,
+            "opened": 50,
+            "failed": 0,
+            "wall_ms_to_open_all": 211.5,
+            "connect_ms": {
+              "n": 50,
+              "min": 100.322992,
+              "p50": 145.32252699999998,
+              "p90": 158.1134442,
+              "p95": 159.9756904,
+              "p99": 162.24500204999998,
+              "max": 162.411972,
+              "mean": 140.51310678,
+              "stdev": 16.161094790944677
+            },
+            "error_codes": {},
+            "sample_error": null
+          },
+          {
+            "target": "primary",
+            "requested": 100,
+            "opened": 100,
+            "failed": 0,
+            "wall_ms_to_open_all": 381.8,
+            "connect_ms": {
+              "n": 100,
+              "min": 181.499953,
+              "p50": 265.402999,
+              "p90": 313.3231227,
+              "p95": 321.44696439999996,
+              "p99": 326.44124016,
+              "max": 329.058222,
+              "mean": 265.91227266,
+              "stdev": 35.00589010000593
+            },
+            "error_codes": {},
+            "sample_error": null
+          },
+          {
+            "target": "primary",
+            "requested": 200,
+            "opened": 200,
+            "failed": 0,
+            "wall_ms_to_open_all": 714.2,
+            "connect_ms": {
+              "n": 200,
+              "min": 315.2475,
+              "p50": 503.1130115,
+              "p90": 606.0467135,
+              "p95": 628.7345106,
+              "p99": 649.80016708,
+              "max": 654.44296,
+              "mean": 502.28702641999996,
+              "stdev": 80.47851712294464
+            },
+            "error_codes": {},
+            "sample_error": null
+          },
+          {
+            "target": "primary",
+            "requested": 500,
+            "opened": 500,
+            "failed": 0,
+            "wall_ms_to_open_all": 1778.0,
+            "connect_ms": {
+              "n": 500,
+              "min": 322.164116,
+              "p50": 1021.091363,
+              "p90": 1490.6138808,
+              "p95": 1571.29282595,
+              "p99": 1702.6502764,
+              "max": 1749.929473,
+              "mean": 1009.151363778,
+              "stdev": 342.63646913731446
+            },
+            "error_codes": {},
+            "sample_error": null
+          }
+        ]
+      },
+      "concurrency": {
+        "primary": [
+          {
+            "workers": 1,
+            "targets": [
+              "primary"
+            ],
+            "ops": 3142,
+            "errors": 0,
+            "seconds": 4.0,
+            "ops_per_s": 786,
+            "latency_ms": {
+              "n": 3142,
+              "min": 0.464204,
+              "p50": 1.3936790000000001,
+              "p90": 1.4695747,
+              "p95": 1.5024849999999998,
+              "p99": 1.779636680000004,
+              "max": 3.559993,
+              "mean": 1.270274482495226,
+              "stdev": 0.2848144374618978
+            },
+            "first_error": null,
+            "workers_reported": 1
+          },
+          {
+            "workers": 4,
+            "targets": [
+              "primary"
+            ],
+            "ops": 13998,
+            "errors": 0,
+            "seconds": 4.0,
+            "ops_per_s": 3500,
+            "latency_ms": {
+              "n": 13998,
+              "min": 0.408633,
+              "p50": 1.2316745,
+              "p90": 1.4355062,
+              "p95": 1.4924975999999999,
+              "p99": 1.6418774900000008,
+              "max": 6.041163,
+              "mean": 1.1404802538219745,
+              "stdev": 0.3037127739608114
+            },
+            "first_error": null,
+            "workers_reported": 4
+          },
+          {
+            "workers": 16,
+            "targets": [
+              "primary"
+            ],
+            "ops": 95381,
+            "errors": 0,
+            "seconds": 4.0,
+            "ops_per_s": 23845,
+            "latency_ms": {
+              "n": 95381,
+              "min": 0.449977,
+              "p50": 0.618544,
+              "p90": 0.712765,
+              "p95": 0.828351,
+              "p99": 1.0852483999999991,
+              "max": 193.351723,
+              "mean": 0.6694064525219907,
+              "stdev": 2.3648432852417622
+            },
+            "first_error": null,
+            "workers_reported": 16
+          },
+          {
+            "workers": 32,
+            "targets": [
+              "primary"
+            ],
+            "ops": 111823,
+            "errors": 0,
+            "seconds": 4.0,
+            "ops_per_s": 27956,
+            "latency_ms": {
+              "n": 111823,
+              "min": 0.531142,
+              "p50": 1.068829,
+              "p90": 1.6121262,
+              "p95": 1.8108570999999998,
+              "p99": 2.30580406,
+              "max": 9.443542,
+              "mean": 1.1431138902819635,
+              "stdev": 0.3714099476054045
+            },
+            "first_error": null,
+            "workers_reported": 32
+          },
+          {
+            "workers": 64,
+            "targets": [
+              "primary"
+            ],
+            "ops": 122279,
+            "errors": 0,
+            "seconds": 4.0,
+            "ops_per_s": 30570,
+            "latency_ms": {
+              "n": 122279,
+              "min": 0.563802,
+              "p50": 1.884755,
+              "p90": 3.2726821999999998,
+              "p95": 3.8620287999999987,
+              "p99": 5.4174619,
+              "max": 29.007214,
+              "mean": 2.092328605247017,
+              "stdev": 1.0150094660358544
+            },
+            "first_error": null,
+            "workers_reported": 64
+          }
+        ]
+      },
+      "pool_saturation": {
+        "pool_size": 8,
+        "workers": 32,
+        "ops": 5150,
+        "ops_per_s": 1279,
+        "checkout_wait_ms": {
+          "n": 5150,
+          "min": 0.001938,
+          "p50": 0.005473,
+          "p90": 0.007264100000000033,
+          "p95": 0.0086081,
+          "p99": 0.015332540000000056,
+          "max": 4012.93092,
+          "mean": 18.567076598058254,
+          "stdev": 271.27222483750904
+        },
+        "exec_ms": {
+          "n": 5150,
+          "min": 0.615887,
+          "p50": 5.408526,
+          "p90": 10.698806800000002,
+          "p95": 12.795339450000005,
+          "p99": 17.0418894,
+          "max": 92.608571,
+          "mean": 6.235030175339806,
+          "stdev": 4.57449873457213
+        }
+      },
+      "write_contention": {
+        "threads": 4,
+        "iters_per_thread": 50,
+        "applied": 96,
+        "rejected": 104,
+        "errors": 0,
+        "version_before": 3,
+        "version_after": 99,
+        "version_delta": 96,
+        "atomic": true,
+        "seconds": 0.29,
+        "cas_ms": {
+          "n": 200,
+          "min": 3.203179,
+          "p50": 5.613936,
+          "p90": 7.8732959,
+          "p95": 8.2415398,
+          "p99": 8.560069069999997,
+          "max": 9.063413,
+          "mean": 5.804946179999999,
+          "stdev": 1.4279576484320526
+        },
+        "first_error": null,
+        "interpretation": "every accepted CAS advanced the version exactly once: atomic compare-and-set"
+      },
+      "_seconds": 47.2
+    }
+  },
+  "partial": false,
+  "server_version": "MongoDB 7.0.37",
+  "finished": "2026-09-13T11:01:36+00:00"
+}

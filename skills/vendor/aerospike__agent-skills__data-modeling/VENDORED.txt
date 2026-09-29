@@ -1,0 +1,3 @@
+source: https://github.com/aerospike/agent-skills/tree/main/skills/aerospike-data-modeling
+license: Apache-2.0
+vendored: 2026-09-13 (ns-databases lab)

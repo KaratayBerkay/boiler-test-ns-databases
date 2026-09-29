@@ -1,0 +1,190 @@
+{
+  "engine": "mongodb",
+  "display": "MongoDB 7.0",
+  "category": "document store (replica set)",
+  "family": "document",
+  "driver": "pymongo",
+  "image": "mongo:7",
+  "run_id": "20260913-140137-88edb3",
+  "started": "2026-09-13T11:01:37+00:00",
+  "scale": 1.0,
+  "notes": "Official mongo:7 image (7.0.x). mongo:8 (8.3.9) refuses to start on this host's Linux 7.0.0 kernel (SERVER-121912: TCMalloc rseq incompatibility with kernels 6.19-7.0.13, exits at startup, no bypass) so the lab pins 7.0. 3-member replica set rs0 (priorities 3/2/1) initiated by a one-shot mongosh container; no auth. Per-node targets use directConnection=true; writes w=1 unless an experiment says otherwise. $vectorSearch is Atlas / mongot-only, so vector_knn is unsupported on Community.",
+  "phases": {
+    "loadtest": {
+      "batch_rows": 1000,
+      "seconds_per_run": 15.0,
+      "containers": [
+        "nslab-mongo1",
+        "nslab-mongo2",
+        "nslab-mongo3"
+      ],
+      "runs": [
+        {
+          "workers": 4,
+          "target": "primary",
+          "rows": 1257000,
+          "batches": 1257,
+          "errors": 0,
+          "seconds": 15.0,
+          "rows_per_s": 83800,
+          "batch_ms": {
+            "n": 1257,
+            "min": 24.438451,
+            "p50": 31.074595,
+            "p90": 89.51832500000013,
+            "p95": 121.426688,
+            "p99": 212.84875332000016,
+            "max": 542.337383,
+            "mean": 44.62789571201273,
+            "stdev": 44.85204155424906
+          },
+          "first_error": null,
+          "workers_reported": 4,
+          "cleanup_s": 15.8,
+          "container_usage": {
+            "nslab-mongo1": {
+              "cpu_cores_avg": 3.278,
+              "cpu_limit_cores": null,
+              "cpu_pct_of_limit": null,
+              "mem_peak_mb": 4808,
+              "mem_end_mb": 4667,
+              "mem_limit_mb": null,
+              "cpu_cores_avg_during_inserts": 7.098
+            },
+            "nslab-mongo2": {
+              "cpu_cores_avg": 6.358,
+              "cpu_limit_cores": null,
+              "cpu_pct_of_limit": null,
+              "mem_peak_mb": 4895,
+              "mem_end_mb": 4739,
+              "mem_limit_mb": null,
+              "cpu_cores_avg_during_inserts": 13.768
+            },
+            "nslab-mongo3": {
+              "cpu_cores_avg": 6.123,
+              "cpu_limit_cores": null,
+              "cpu_pct_of_limit": null,
+              "mem_peak_mb": 4890,
+              "mem_end_mb": 4733,
+              "mem_limit_mb": null,
+              "cpu_cores_avg_during_inserts": 13.259
+            }
+          }
+        },
+        {
+          "workers": 16,
+          "target": "primary",
+          "rows": 2034000,
+          "batches": 2034,
+          "errors": 0,
+          "seconds": 15.0,
+          "rows_per_s": 135600,
+          "batch_ms": {
+            "n": 2034,
+            "min": 33.661582,
+            "p50": 105.81172000000001,
+            "p90": 149.2130319,
+            "p95": 176.4199129499996,
+            "p99": 370.11657817,
+            "max": 395.67996,
+            "mean": 114.28313196116028,
+            "stdev": 45.37098119744762
+          },
+          "first_error": null,
+          "workers_reported": 16,
+          "cleanup_s": 29.7,
+          "container_usage": {
+            "nslab-mongo1": {
+              "cpu_cores_avg": 4.805,
+              "cpu_limit_cores": null,
+              "cpu_pct_of_limit": null,
+              "mem_peak_mb": 5770,
+              "mem_end_mb": 5681,
+              "mem_limit_mb": null,
+              "cpu_cores_avg_during_inserts": 15.124
+            },
+            "nslab-mongo2": {
+              "cpu_cores_avg": 8.021,
+              "cpu_limit_cores": null,
+              "cpu_pct_of_limit": null,
+              "mem_peak_mb": 5967,
+              "mem_end_mb": 5839,
+              "mem_limit_mb": null,
+              "cpu_cores_avg_during_inserts": 25.246
+            },
+            "nslab-mongo3": {
+              "cpu_cores_avg": 7.648,
+              "cpu_limit_cores": null,
+              "cpu_pct_of_limit": null,
+              "mem_peak_mb": 5945,
+              "mem_end_mb": 5604,
+              "mem_limit_mb": null,
+              "cpu_cores_avg_during_inserts": 24.072
+            }
+          }
+        },
+        {
+          "workers": 32,
+          "target": "primary",
+          "rows": 2340000,
+          "batches": 2340,
+          "errors": 0,
+          "seconds": 15.0,
+          "rows_per_s": 156000,
+          "batch_ms": {
+            "n": 2340,
+            "min": 58.885168,
+            "p50": 195.4179915,
+            "p90": 243.30171639999998,
+            "p95": 275.5740074,
+            "p99": 364.14966312000035,
+            "max": 498.131732,
+            "mean": 201.225645958547,
+            "stdev": 43.56813287026375
+          },
+          "first_error": null,
+          "workers_reported": 32,
+          "cleanup_s": 38.0,
+          "container_usage": {
+            "nslab-mongo1": {
+              "cpu_cores_avg": 5.475,
+              "cpu_limit_cores": null,
+              "cpu_pct_of_limit": null,
+              "mem_peak_mb": 6844,
+              "mem_end_mb": 6495,
+              "mem_limit_mb": null,
+              "cpu_cores_avg_during_inserts": 20.551
+            },
+            "nslab-mongo2": {
+              "cpu_cores_avg": 8.088,
+              "cpu_limit_cores": null,
+              "cpu_pct_of_limit": null,
+              "mem_peak_mb": 6375,
+              "mem_end_mb": 6214,
+              "mem_limit_mb": null,
+              "cpu_cores_avg_during_inserts": 30.359
+            },
+            "nslab-mongo3": {
+              "cpu_cores_avg": 7.927,
+              "cpu_limit_cores": null,
+              "cpu_pct_of_limit": null,
+              "mem_peak_mb": 6397,
+              "mem_end_mb": 6236,
+              "mem_limit_mb": null,
+              "cpu_cores_avg_during_inserts": 29.755
+            }
+          }
+        }
+      ],
+      "best": {
+        "target": "primary",
+        "workers": 32,
+        "rows_per_s": 156000
+      },
+      "_seconds": 136.3
+    }
+  },
+  "partial": false,
+  "server_version": "MongoDB 7.0.37",
+  "finished": "2026-09-13T11:03:53+00:00"
+}

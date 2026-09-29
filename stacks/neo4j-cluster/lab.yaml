@@ -1,0 +1,89 @@
+display: Neo4j 5 Enterprise cluster
+family: graph
+category: property graph (native, index-free adjacency) — 3-primary Raft cluster
+driver: bolt
+image: neo4j:5-enterprise
+project: nslab-neo4j-cluster
+scale: 1
+notes: >-
+  Neo4j 5 Enterprise (evaluation licence) with 3 primaries in one Raft cluster: the elected leader takes writes,
+  followers replicate and reject direct writes, a new leader is elected when the leader dies. The `primary` target is a
+  routing URI (neo4j://) so writes always reach the leader; node2/node3 are direct Bolt connections to individual
+  members. The dataset lives in a database called `lab` (created by the harness) so it can be dropped and re-seeded from
+  an online backup (neo4j-admin database backup + CREATE DATABASE ... seedURI). Same graph model and indexes as the
+  Community stack. Licence: Enterprise features are used under Neo4j's evaluation terms only.
+docs:
+  - https://neo4j.com/docs/operations-manual/current/clustering/
+  - https://neo4j.com/docs/operations-manual/current/docker/clustering/
+  - https://neo4j.com/docs/operations-manual/current/backup-restore/online-backup/
+  - https://neo4j.com/docs/operations-manual/current/clustering/databases/#cluster-seed-uri
+targets:
+  - name: primary
+    role: primary
+    host: 127.0.0.1
+    port: 17687
+    user: neo4j
+    password: labpass123
+    database: lab
+    container: nslab-neo4j1
+    routing: true                # neo4j:// — the driver routes writes to the Raft leader wherever it is
+  - name: node1
+    role: node
+    host: 127.0.0.1
+    port: 17687
+    user: neo4j
+    password: labpass123
+    database: lab
+    container: nslab-neo4j1
+    advertised: 127.0.0.1:17687
+  - name: node2
+    role: node
+    host: 127.0.0.1
+    port: 17688
+    user: neo4j
+    password: labpass123
+    database: lab
+    container: nslab-neo4j2
+    advertised: 127.0.0.1:17688
+  - name: node3
+    role: node
+    host: 127.0.0.1
+    port: 17689
+    user: neo4j
+    password: labpass123
+    database: lab
+    container: nslab-neo4j3
+    advertised: 127.0.0.1:17689
+  - name: router2
+    role: node
+    host: 127.0.0.1
+    port: 17688
+    user: neo4j
+    password: labpass123
+    database: lab
+    container: nslab-neo4j2
+    routing: true                # routing entry points on the other members: the failover test verifies writes through one whose member is still alive
+  - name: router3
+    role: node
+    host: 127.0.0.1
+    port: 17689
+    user: neo4j
+    password: labpass123
+    database: lab
+    container: nslab-neo4j3
+    routing: true
+replication:
+  kind: Raft cluster of 3 primaries (leader takes writes, followers replicate; automatic leader election)
+  read_targets: [node2, node3]
+  read_scaling_targets: [primary, node2, node3]
+  verify_target: router2
+  promote:
+    method: auto                 # the failover test kills whichever member is the current Raft leader (engine.leader_target)
+    target: node2
+features:
+  enterprise: true
+  vector: true
+  text_index: true
+  settle_seconds: 5
+  connection_storm: true
+  loadtest_workers: [4, 16, 32]

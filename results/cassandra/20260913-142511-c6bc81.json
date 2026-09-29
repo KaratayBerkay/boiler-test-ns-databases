@@ -1,0 +1,296 @@
+{
+  "engine": "cassandra",
+  "display": "Cassandra 5.0",
+  "category": "wide-column (leaderless, tunable consistency)",
+  "family": "widecolumn",
+  "driver": "cql",
+  "image": "cassandra:5",
+  "run_id": "20260913-142511-c6bc81",
+  "started": "2026-09-13T11:25:11+00:00",
+  "scale": 1.0,
+  "notes": "Official cassandra:5 image, 3 nodes RF=3, LOCAL_QUORUM by default. Query-first schema (one table per access path), SAI indexes for vector (ANN) and analyzed text search, LWT for compare-and-set, counter table for increments. Nodes are addressed by static container IPs (10.99.1.11-13); the client is pinned to one node per target.",
+  "phases": {
+    "optimize": {
+      "opt01_secondary_index": {
+        "title": "Range scan on events(event_type, occurred_at): no index vs secondary index (both column orders)",
+        "what": "an access path that is not indexed is a full scan; composite order matters on B-tree-like engines",
+        "variants": [
+          {
+            "name": "no_index_allow_filtering",
+            "note": "",
+            "ok": true,
+            "error": null,
+            "p50_ms": 4794.128,
+            "p95_ms": 4912.724,
+            "n": 8,
+            "rows": 100
+          },
+          {
+            "name": "sai_index_(event_type,occurred_at)",
+            "setup": "SAI indexes on events(event_type) and events(occurred_at) (query ANDs both, no ALLOW FILTERING)",
+            "ok": false,
+            "error": "ReadFailure: Error from server: code=1300 [Replica(s) failed to execute read] message=\"Operation failed - received 0 responses and 1 failures: UNKNOWN from /10.99.1.11:7000\" info={'consistency': 'ONE', 'required_responses': 1, 'received_responses': 0, 'failures': 1, 'error_code_map': {'10.99.1.11': "
+          },
+          {
+            "name": "query_table_((event_type,month),occurred_at)",
+            "setup": "denormalised query table events_by_type_month populated with 1000008 rows",
+            "ok": true,
+            "error": null,
+            "p50_ms": 6.473,
+            "p95_ms": 8.185,
+            "n": 8,
+            "rows": 100
+          }
+        ],
+        "best_variant": "query_table_((event_type,month),occurred_at)",
+        "speedup_vs_first": 740.63
+      },
+      "opt02_projection": {
+        "title": "Point read of an order: whole document (with embedded items) vs 3-field projection",
+        "what": "returning fewer fields saves serialisation and transfer; some engines still read the whole document",
+        "variants": [
+          {
+            "name": "full_document",
+            "ok": true,
+            "error": null,
+            "p50_ms": 1.777,
+            "p95_ms": 7.083,
+            "n": 30,
+            "rows": 1
+          },
+          {
+            "name": "projection_3_fields",
+            "ok": true,
+            "error": null,
+            "p50_ms": 1.049,
+            "p95_ms": 4.609,
+            "n": 30,
+            "rows": 1
+          }
+        ],
+        "best_variant": "projection_3_fields",
+        "speedup_vs_first": 1.69
+      },
+      "opt03_pagination": {
+        "title": "Deep pagination: offset/skip vs keyset (cursor) at depth 10k and 100k",
+        "what": "offset still walks and discards rows; a keyset cursor seeks directly into the sorted index",
+        "variants": [
+          {
+            "name": "offset_depth_10000",
+            "ok": true,
+            "error": null,
+            "p50_ms": 91.031,
+            "p95_ms": 165.049,
+            "n": 8,
+            "rows": 50
+          },
+          {
+            "name": "keyset_depth_10000",
+            "ok": true,
+            "error": null,
+            "p50_ms": 2.879,
+            "p95_ms": 3.178,
+            "n": 8,
+            "rows": 50
+          },
+          {
+            "name": "offset_depth_100000",
+            "ok": true,
+            "error": null,
+            "p50_ms": 661.511,
+            "p95_ms": 753.347,
+            "n": 8,
+            "rows": 50
+          },
+          {
+            "name": "keyset_depth_100000",
+            "ok": true,
+            "error": null,
+            "p50_ms": 3.367,
+            "p95_ms": 3.779,
+            "n": 8,
+            "rows": 50
+          }
+        ],
+        "best_variant": "keyset_depth_10000",
+        "speedup_vs_first": 31.62
+      },
+      "opt04_batching": {
+        "title": "Write batching: 2000 events one-by-one vs 2 bulk requests of 1000",
+        "what": "round trips dominate small writes; every engine has a bulk path (insert_many, pipeline, batch, _bulk)",
+        "variants": [
+          {
+            "name": "single_put_x2000",
+            "rows": 2000,
+            "seconds": 2.828,
+            "rows_per_s": 707,
+            "error": null,
+            "ok": true
+          },
+          {
+            "name": "bulk_put_1000_x2",
+            "rows": 2000,
+            "seconds": 0.525,
+            "rows_per_s": 3810,
+            "error": null,
+            "ok": true
+          }
+        ],
+        "speedup_vs_first": 5.39,
+        "best_variant": "bulk_put_1000_x2"
+      },
+      "opt05_multi_get": {
+        "title": "100 point reads: sequential round trips vs one multi-get request",
+        "what": "batched reads (MGET / $in / IN / mget / pipelining) amortise the network round trip",
+        "variants": [
+          {
+            "name": "sequential_100_gets",
+            "ok": true,
+            "error": null,
+            "p50_ms": 174.497,
+            "p95_ms": 198.089,
+            "n": 10,
+            "rows": 100
+          },
+          {
+            "name": "multi_get_100",
+            "ok": true,
+            "error": null,
+            "p50_ms": 23.546,
+            "p95_ms": 53.736,
+            "n": 10,
+            "rows": 100
+          }
+        ],
+        "best_variant": "multi_get_100",
+        "speedup_vs_first": 7.41
+      },
+      "opt06_embedding_vs_reference": {
+        "title": "Order with its items: embedded array (one document) vs referenced (order + items lookup)",
+        "what": "embedding what is read together avoids a second query / join; referencing keeps documents small and items independently addressable",
+        "variants": [
+          {
+            "name": "embedded_items",
+            "ok": true,
+            "error": null,
+            "p50_ms": 1.14,
+            "p95_ms": 1.468,
+            "n": 30,
+            "rows": 1
+          },
+          {
+            "name": "referenced_items",
+            "ok": true,
+            "error": null,
+            "p50_ms": 2.19,
+            "p95_ms": 2.919,
+            "n": 30,
+            "rows": 1
+          }
+        ],
+        "best_variant": "embedded_items",
+        "speedup_vs_first": 1.0
+      },
+      "opt07_write_durability": {
+        "title": "Single-document write at each durability / write-concern level the engine offers",
+        "what": "acknowledgement level (replica acks, fsync, refresh) is the biggest lever on write latency",
+        "variants": [
+          {
+            "name": "ONE",
+            "ok": true,
+            "error": null,
+            "p50_ms": 0.903,
+            "p95_ms": 1.107,
+            "n": 30,
+            "rows": null
+          },
+          {
+            "name": "LOCAL_QUORUM",
+            "ok": true,
+            "error": null,
+            "p50_ms": 1.348,
+            "p95_ms": 1.528,
+            "n": 30,
+            "rows": null
+          },
+          {
+            "name": "ALL",
+            "ok": true,
+            "error": null,
+            "p50_ms": 1.575,
+            "p95_ms": 1.722,
+            "n": 30,
+            "rows": null
+          }
+        ],
+        "best_variant": "ONE",
+        "speedup_vs_first": 1.0
+      },
+      "opt08_read_consistency": {
+        "title": "Point read at each read consistency level / read preference the engine offers",
+        "what": "linearizable / quorum reads cost extra round trips; replica reads trade freshness for offload",
+        "variants": [
+          {
+            "name": "ONE",
+            "ok": true,
+            "error": null,
+            "p50_ms": 1.217,
+            "p95_ms": 1.419,
+            "n": 30,
+            "rows": 1
+          },
+          {
+            "name": "LOCAL_QUORUM",
+            "ok": true,
+            "error": null,
+            "p50_ms": 1.843,
+            "p95_ms": 2.121,
+            "n": 30,
+            "rows": 1
+          },
+          {
+            "name": "ALL",
+            "ok": true,
+            "error": null,
+            "p50_ms": 1.554,
+            "p95_ms": 1.848,
+            "n": 30,
+            "rows": 1
+          }
+        ],
+        "best_variant": "ONE",
+        "speedup_vs_first": 1.0
+      },
+      "opt09_connection_reuse": {
+        "title": "Point read with a new connection per operation vs one persistent client",
+        "what": "handshakes (TCP, TLS, auth, topology discovery) dwarf a point read; always pool",
+        "variants": [
+          {
+            "name": "connect_per_operation",
+            "ok": true,
+            "error": null,
+            "p50_ms": 37.842,
+            "p95_ms": 44.468,
+            "n": 20,
+            "rows": 1
+          },
+          {
+            "name": "persistent_client",
+            "ok": true,
+            "error": null,
+            "p50_ms": 1.552,
+            "p95_ms": 1.732,
+            "n": 30,
+            "rows": 1
+          }
+        ],
+        "best_variant": "persistent_client",
+        "speedup_vs_first": 24.38
+      },
+      "_seconds": 353.8
+    }
+  },
+  "partial": false,
+  "server_version": "Cassandra 5.0.9 (CQL 3.4.7)",
+  "finished": "2026-09-13T11:31:05+00:00"
+}

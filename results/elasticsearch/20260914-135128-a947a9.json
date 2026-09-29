@@ -1,0 +1,839 @@
+{
+  "engine": "elasticsearch",
+  "display": "Elasticsearch 9",
+  "category": "search / analytics engine (Lucene, inverted index)",
+  "family": "search",
+  "driver": "es",
+  "image": "elasticsearch:9.5.3",
+  "run_id": "20260914-135128-a947a9",
+  "started": "2026-09-14T10:51:28+00:00",
+  "scale": 1.0,
+  "notes": "Elasticsearch 9, 3-node cluster (all master-eligible + data), security disabled. One index per collection with 1 primary shard + 2 replicas, so every node holds every shard (the RF=3 equivalent of the other clustered stacks). Every field indexed at mapping time (inverted index for keyword/text, BKD tree for numeric/geo, HNSW for dense_vector). Eventually consistent for search (30 s refresh; the harness refreshes after load). No multi-document transactions, no server-side joins across indices, no per-document TTL. Any node coordinates writes; the master is re-elected by the remaining quorum when a node dies.",
+  "phases": {
+    "load": {
+      "scale": 1.0,
+      "collections": {
+        "customers": {
+          "rows": 20000,
+          "counted": 20000,
+          "expected": 20000,
+          "seconds": 4.4,
+          "rows_per_s": 4549,
+          "method": "bulk_put",
+          "ok": true
+        },
+        "categories": {
+          "rows": 200,
+          "counted": 200,
+          "expected": 200,
+          "seconds": 0.03,
+          "rows_per_s": 6753,
+          "method": "bulk_put",
+          "ok": true
+        },
+        "products": {
+          "rows": 5000,
+          "counted": 5000,
+          "expected": 5000,
+          "seconds": 2.84,
+          "rows_per_s": 1760,
+          "method": "bulk_put",
+          "ok": true
+        },
+        "orders": {
+          "rows": 200000,
+          "counted": 200000,
+          "expected": 200000,
+          "seconds": 8.41,
+          "rows_per_s": 23793,
+          "method": "bulk_put x4 connections",
+          "ok": true
+        },
+        "order_items": {
+          "rows": 487606,
+          "counted": 487606,
+          "expected": 487606,
+          "seconds": 12.16,
+          "rows_per_s": 40104,
+          "method": "bulk_put x4 connections",
+          "ok": true
+        },
+        "events": {
+          "rows": 1000000,
+          "counted": 1000000,
+          "expected": 1000000,
+          "seconds": 33.9,
+          "rows_per_s": 29495,
+          "method": "bulk_put x4 connections",
+          "ok": true
+        },
+        "inventory": {
+          "rows": 20000,
+          "counted": 20000,
+          "expected": 20000,
+          "seconds": 2.01,
+          "rows_per_s": 9947,
+          "method": "bulk_put",
+          "ok": true
+        }
+      },
+      "schema": [
+        "index lab_customers (9 mapped fields)",
+        "index lab_categories (4 mapped fields)",
+        "index lab_products (9 mapped fields)",
+        "index lab_orders (7 mapped fields)",
+        "index lab_order_items (5 mapped fields)",
+        "index lab_events (8 mapped fields)",
+        "index lab_inventory (5 mapped fields)"
+      ],
+      "errors": [],
+      "schema_seconds": 4.66,
+      "load_seconds": 68.53,
+      "after_load": [
+        "_refresh all indices (search visibility)"
+      ],
+      "post_seconds": 0.02,
+      "server_version": "elasticsearch 9.5.3",
+      "_seconds": 73.3
+    },
+    "replication": {
+      "kind": "primary + replica shards (number_of_replicas 2) over 3 nodes; master election by quorum",
+      "topology": {
+        "primary": {
+          "role_reported": "node",
+          "role_configured": "primary",
+          "version": "elasticsearch 9.5.3",
+          "status": {
+            "status": "green",
+            "nodes": 3,
+            "active_shards": 25,
+            "relocating": 0,
+            "initializing": 0,
+            "unassigned": 0,
+            "master": "es3",
+            "shards_per_node": {
+              "es1": {
+                "p": 7,
+                "r": 0
+              },
+              "es3": {
+                "p": 0,
+                "r": 7
+              },
+              "es2": {
+                "p": 0,
+                "r": 7
+              }
+            }
+          }
+        },
+        "node2": {
+          "role_reported": "node",
+          "role_configured": "node",
+          "version": "elasticsearch 9.5.3",
+          "status": {
+            "status": "green",
+            "nodes": 3,
+            "active_shards": 25,
+            "relocating": 0,
+            "initializing": 0,
+            "unassigned": 0,
+            "master": "es3",
+            "shards_per_node": {
+              "es1": {
+                "p": 7,
+                "r": 0
+              },
+              "es3": {
+                "p": 0,
+                "r": 7
+              },
+              "es2": {
+                "p": 0,
+                "r": 7
+              }
+            }
+          }
+        },
+        "node3": {
+          "role_reported": "master",
+          "role_configured": "node",
+          "version": "elasticsearch 9.5.3",
+          "status": {
+            "status": "green",
+            "nodes": 3,
+            "active_shards": 25,
+            "relocating": 0,
+            "initializing": 0,
+            "unassigned": 0,
+            "master": "es3",
+            "shards_per_node": {
+              "es1": {
+                "p": 7,
+                "r": 0
+              },
+              "es3": {
+                "p": 0,
+                "r": 7
+              },
+              "es2": {
+                "p": 0,
+                "r": 7
+              }
+            }
+          }
+        }
+      },
+      "visibility_lag": {
+        "node2": {
+          "replica": "node2",
+          "n": 30,
+          "visible": 30,
+          "timeouts": 0,
+          "lag_ms": {
+            "n": 30,
+            "min": 3.8855450111441314,
+            "p50": 6.4162125054281205,
+            "p90": 14.704935898771515,
+            "p95": 19.50953404593746,
+            "p99": 24.974362652865242,
+            "max": 26.588411012198776,
+            "mean": 8.488603572671613,
+            "stdev": 5.3406168646103644
+          }
+        },
+        "node3": {
+          "replica": "node3",
+          "n": 30,
+          "visible": 30,
+          "timeouts": 0,
+          "lag_ms": {
+            "n": 30,
+            "min": 3.4777569817379117,
+            "p50": 5.106726515805349,
+            "p90": 6.432738009607419,
+            "p95": 7.316360183176581,
+            "p99": 14.542406721739106,
+            "max": 17.25319999968633,
+            "mean": 5.527283839182928,
+            "stdev": 2.3507671404096464
+          }
+        }
+      },
+      "write_rejection": {
+        "node2": {
+          "replica": "node2",
+          "writes_rejected": false,
+          "note": "replica accepted a write (multi-master / leaderless / coordinator forwards)"
+        },
+        "node3": {
+          "replica": "node3",
+          "writes_rejected": false,
+          "note": "replica accepted a write (multi-master / leaderless / coordinator forwards)"
+        }
+      },
+      "lag_under_load": {
+        "rows": 20000,
+        "batch": 500,
+        "write_seconds": 1.84,
+        "rows_per_s": 10884,
+        "catchup_ms_after_last_write": {
+          "node2": 51.4,
+          "node3": 28.8
+        },
+        "samples": [
+          {
+            "t": 337404.683,
+            "primary": {
+              "status": "green",
+              "nodes": 3,
+              "active_shards": 27,
+              "relocating": 0,
+              "initializing": 0,
+              "unassigned": 0,
+              "master": "es3",
+              "shards_per_node": {
+                "es1": {
+                  "p": 7,
+                  "r": 0
+                },
+                "es3": {
+                  "p": 1,
+                  "r": 7
+                },
+                "es2": {
+                  "p": 0,
+                  "r": 8
+                }
+              }
+            },
+            "node2": {
+              "status": "green",
+              "nodes": 3,
+              "active_shards": 27,
+              "relocating": 0,
+              "initializing": 0,
+              "unassigned": 0,
+              "master": "es3",
+              "shards_per_node": {
+                "es3": {
+                  "p": 1,
+                  "r": 7
+                },
+                "es2": {
+                  "p": 0,
+                  "r": 8
+                },
+                "es1": {
+                  "p": 7,
+                  "r": 0
+                }
+              }
+            },
+            "node3": {
+              "status": "green",
+              "nodes": 3,
+              "active_shards": 27,
+              "relocating": 0,
+              "initializing": 0,
+              "unassigned": 0,
+              "master": "es3",
+              "shards_per_node": {
+                "es1": {
+                  "p": 7,
+                  "r": 0
+                },
+                "es3": {
+                  "p": 1,
+                  "r": 7
+                },
+                "es2": {
+                  "p": 0,
+                  "r": 8
+                }
+              }
+            }
+          },
+          {
+            "t": 337404.99,
+            "primary": {
+              "status": "green",
+              "nodes": 3,
+              "active_shards": 27,
+              "relocating": 0,
+              "initializing": 0,
+              "unassigned": 0,
+              "master": "es3",
+              "shards_per_node": {
+                "es1": {
+                  "p": 7,
+                  "r": 0
+                },
+                "es3": {
+                  "p": 1,
+                  "r": 7
+                },
+                "es2": {
+                  "p": 0,
+                  "r": 8
+                }
+              }
+            },
+            "node2": {
+              "status": "green",
+              "nodes": 3,
+              "active_shards": 27,
+              "relocating": 0,
+              "initializing": 0,
+              "unassigned": 0,
+              "master": "es3",
+              "shards_per_node": {
+                "es1": {
+                  "p": 7,
+                  "r": 0
+                },
+                "es3": {
+                  "p": 1,
+                  "r": 7
+                },
+                "es2": {
+                  "p": 0,
+                  "r": 8
+                }
+              }
+            },
+            "node3": {
+              "status": "green",
+              "nodes": 3,
+              "active_shards": 27,
+              "relocating": 0,
+              "initializing": 0,
+              "unassigned": 0,
+              "master": "es3",
+              "shards_per_node": {
+                "es1": {
+                  "p": 7,
+                  "r": 0
+                },
+                "es3": {
+                  "p": 1,
+                  "r": 7
+                },
+                "es2": {
+                  "p": 0,
+                  "r": 8
+                }
+              }
+            }
+          },
+          {
+            "t": 337405.326,
+            "primary": {
+              "status": "green",
+              "nodes": 3,
+              "active_shards": 27,
+              "relocating": 0,
+              "initializing": 0,
+              "unassigned": 0,
+              "master": "es3",
+              "shards_per_node": {
+                "es1": {
+                  "p": 7,
+                  "r": 0
+                },
+                "es3": {
+                  "p": 1,
+                  "r": 7
+                },
+                "es2": {
+                  "p": 0,
+                  "r": 8
+                }
+              }
+            },
+            "node2": {
+              "status": "green",
+              "nodes": 3,
+              "active_shards": 27,
+              "relocating": 0,
+              "initializing": 0,
+              "unassigned": 0,
+              "master": "es3",
+              "shards_per_node": {
+                "es1": {
+                  "p": 7,
+                  "r": 0
+                },
+                "es3": {
+                  "p": 1,
+                  "r": 7
+                },
+                "es2": {
+                  "p": 0,
+                  "r": 8
+                }
+              }
+            },
+            "node3": {
+              "status": "green",
+              "nodes": 3,
+              "active_shards": 27,
+              "relocating": 0,
+              "initializing": 0,
+              "unassigned": 0,
+              "master": "es3",
+              "shards_per_node": {
+                "es1": {
+                  "p": 7,
+                  "r": 0
+                },
+                "es3": {
+                  "p": 1,
+                  "r": 7
+                },
+                "es2": {
+                  "p": 0,
+                  "r": 8
+                }
+              }
+            }
+          },
+          {
+            "t": 337405.645,
+            "primary": {
+              "status": "green",
+              "nodes": 3,
+              "active_shards": 27,
+              "relocating": 0,
+              "initializing": 0,
+              "unassigned": 0,
+              "master": "es3",
+              "shards_per_node": {
+                "es1": {
+                  "p": 7,
+                  "r": 0
+                },
+                "es3": {
+                  "p": 1,
+                  "r": 7
+                },
+                "es2": {
+                  "p": 0,
+                  "r": 8
+                }
+              }
+            },
+            "node2": {
+              "status": "green",
+              "nodes": 3,
+              "active_shards": 27,
+              "relocating": 0,
+              "initializing": 0,
+              "unassigned": 0,
+              "master": "es3",
+              "shards_per_node": {
+                "es1": {
+                  "p": 7,
+                  "r": 0
+                },
+                "es3": {
+                  "p": 1,
+                  "r": 7
+                },
+                "es2": {
+                  "p": 0,
+                  "r": 8
+                }
+              }
+            },
+            "node3": {
+              "status": "green",
+              "nodes": 3,
+              "active_shards": 27,
+              "relocating": 0,
+              "initializing": 0,
+              "unassigned": 0,
+              "master": "es3",
+              "shards_per_node": {
+                "es1": {
+                  "p": 7,
+                  "r": 0
+                },
+                "es3": {
+                  "p": 1,
+                  "r": 7
+                },
+                "es2": {
+                  "p": 0,
+                  "r": 8
+                }
+              }
+            }
+          },
+          {
+            "t": 337405.971,
+            "primary": {
+              "status": "green",
+              "nodes": 3,
+              "active_shards": 27,
+              "relocating": 0,
+              "initializing": 0,
+              "unassigned": 0,
+              "master": "es3",
+              "shards_per_node": {
+                "es1": {
+                  "p": 7,
+                  "r": 0
+                },
+                "es3": {
+                  "p": 1,
+                  "r": 7
+                },
+                "es2": {
+                  "p": 0,
+                  "r": 8
+                }
+              }
+            },
+            "node2": {
+              "status": "green",
+              "nodes": 3,
+              "active_shards": 27,
+              "relocating": 0,
+              "initializing": 0,
+              "unassigned": 0,
+              "master": "es3",
+              "shards_per_node": {
+                "es1": {
+                  "p": 7,
+                  "r": 0
+                },
+                "es3": {
+                  "p": 1,
+                  "r": 7
+                },
+                "es2": {
+                  "p": 0,
+                  "r": 8
+                }
+              }
+            },
+            "node3": {
+              "status": "green",
+              "nodes": 3,
+              "active_shards": 27,
+              "relocating": 0,
+              "initializing": 0,
+              "unassigned": 0,
+              "master": "es3",
+              "shards_per_node": {
+                "es1": {
+                  "p": 7,
+                  "r": 0
+                },
+                "es3": {
+                  "p": 1,
+                  "r": 7
+                },
+                "es2": {
+                  "p": 0,
+                  "r": 8
+                }
+              }
+            }
+          },
+          {
+            "t": 337406.301,
+            "primary": {
+              "status": "green",
+              "nodes": 3,
+              "active_shards": 27,
+              "relocating": 0,
+              "initializing": 0,
+              "unassigned": 0,
+              "master": "es3",
+              "shards_per_node": {
+                "es1": {
+                  "p": 7,
+                  "r": 0
+                },
+                "es3": {
+                  "p": 1,
+                  "r": 7
+                },
+                "es2": {
+                  "p": 0,
+                  "r": 8
+                }
+              }
+            },
+            "node2": {
+              "status": "green",
+              "nodes": 3,
+              "active_shards": 27,
+              "relocating": 0,
+              "initializing": 0,
+              "unassigned": 0,
+              "master": "es3",
+              "shards_per_node": {
+                "es1": {
+                  "p": 7,
+                  "r": 0
+                },
+                "es3": {
+                  "p": 1,
+                  "r": 7
+                },
+                "es2": {
+                  "p": 0,
+                  "r": 8
+                }
+              }
+            },
+            "node3": {
+              "status": "green",
+              "nodes": 3,
+              "active_shards": 27,
+              "relocating": 0,
+              "initializing": 0,
+              "unassigned": 0,
+              "master": "es3",
+              "shards_per_node": {
+                "es1": {
+                  "p": 7,
+                  "r": 0
+                },
+                "es3": {
+                  "p": 1,
+                  "r": 7
+                },
+                "es2": {
+                  "p": 0,
+                  "r": 8
+                }
+              }
+            }
+          },
+          {
+            "t": 337406.609,
+            "primary": {
+              "status": "green",
+              "nodes": 3,
+              "active_shards": 27,
+              "relocating": 0,
+              "initializing": 0,
+              "unassigned": 0,
+              "master": "es3",
+              "shards_per_node": {
+                "es1": {
+                  "p": 7,
+                  "r": 0
+                },
+                "es3": {
+                  "p": 1,
+                  "r": 7
+                },
+                "es2": {
+                  "p": 0,
+                  "r": 8
+                }
+              }
+            },
+            "node2": {
+              "status": "green",
+              "nodes": 3,
+              "active_shards": 27,
+              "relocating": 0,
+              "initializing": 0,
+              "unassigned": 0,
+              "master": "es3",
+              "shards_per_node": {
+                "es1": {
+                  "p": 7,
+                  "r": 0
+                },
+                "es3": {
+                  "p": 1,
+                  "r": 7
+                },
+                "es2": {
+                  "p": 0,
+                  "r": 8
+                }
+              }
+            },
+            "node3": {
+              "status": "green",
+              "nodes": 3,
+              "active_shards": 27,
+              "relocating": 0,
+              "initializing": 0,
+              "unassigned": 0,
+              "master": "es3",
+              "shards_per_node": {
+                "es1": {
+                  "p": 7,
+                  "r": 0
+                },
+                "es3": {
+                  "p": 1,
+                  "r": 7
+                },
+                "es2": {
+                  "p": 0,
+                  "r": 8
+                }
+              }
+            }
+          }
+        ]
+      },
+      "read_scaling": {
+        "primary_only": {
+          "targets": [
+            "primary"
+          ],
+          "workers": 32,
+          "ops": 22256,
+          "ops_per_s": 5564,
+          "errors": 0,
+          "latency_ms": {
+            "n": 22256,
+            "min": 1.482632,
+            "p50": 5.0206025,
+            "p90": 8.947178000000001,
+            "p95": 10.88952275,
+            "p99": 19.114190750000063,
+            "max": 90.655133,
+            "mean": 5.752050827102804,
+            "stdev": 3.532552370753928
+          }
+        },
+        "primary_plus_replicas": {
+          "targets": [
+            "primary",
+            "node2",
+            "node3"
+          ],
+          "workers": 32,
+          "ops": 27667,
+          "ops_per_s": 6917,
+          "errors": 0,
+          "latency_ms": {
+            "n": 27667,
+            "min": 1.429437,
+            "p50": 4.108134,
+            "p90": 6.9296147999999995,
+            "p95": 8.215467299999995,
+            "p99": 13.02424744,
+            "max": 144.350236,
+            "mean": 4.626013482271298,
+            "stdev": 2.9736211612598322
+          }
+        },
+        "gain": 1.24
+      },
+      "failover": {
+        "kind": "primary + replica shards (number_of_replicas 2) over 3 nodes; master election by quorum",
+        "killed": "node3",
+        "killed_container": "nslab-es3",
+        "writes_still_succeed_after_kill": true,
+        "write_attempts_until_success": 1,
+        "last_error_before_success": null,
+        "downtime_ms": 4869.9,
+        "new_primary": "primary",
+        "verified_via": "node2",
+        "new_primary_role": "master",
+        "new_primary_status": {
+          "status": "yellow",
+          "nodes": 2,
+          "active_shards": 18,
+          "relocating": 0,
+          "initializing": 0,
+          "unassigned": 9,
+          "master": "es1",
+          "shards_per_node": {
+            "es2": {
+              "p": 1,
+              "r": 7
+            },
+            "unassigned": {
+              "p": 0,
+              "r": 8
+            },
+            "es1": {
+              "p": 7,
+              "r": 0
+            }
+          }
+        },
+        "old_primary_restarted": true,
+        "note": "old primary restarted; whether it rejoins depends on the engine (stack should be recreated for reuse)"
+      },
+      "_seconds": 148.2
+    }
+  },
+  "partial": false,
+  "server_version": "elasticsearch 9.5.3",
+  "finished": "2026-09-14T10:55:10+00:00"
+}

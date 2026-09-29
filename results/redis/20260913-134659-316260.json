@@ -1,0 +1,20 @@
+{
+  "engine": "redis",
+  "display": "Redis 8",
+  "category": "in-memory key-value (data structures, Query Engine, JSON)",
+  "family": "keyvalue",
+  "driver": "resp",
+  "image": "redis:8",
+  "run_id": "20260913-134659-316260",
+  "started": "2026-09-13T10:46:59+00:00",
+  "scale": 1.0,
+  "notes": "Redis Open Source 8 (RediSearch/JSON/TimeSeries/probabilistic modules built in). Async primary->replica replication with diskless sync, AOF everysec on both; 3 Sentinels (quorum 2, down-after 2 s) elect a new primary; HAProxy round-robins reads over primary+replica. Documents are hashes with application-maintained index sets/zsets; FT.CREATE on products for text + vector.",
+  "phases": {
+    "connections": {
+      "_error": "AttributeError: 'RespEngine' object has no attribute 'error_code'",
+      "_seconds": 87.3
+    }
+  },
+  "server_version": "redis 8.10.1",
+  "finished": "2026-09-13T10:48:26+00:00"
+}

@@ -1,0 +1,112 @@
+{
+  "engine": "cassandra",
+  "display": "Cassandra 5.0",
+  "category": "wide-column (leaderless, tunable consistency)",
+  "family": "widecolumn",
+  "driver": "cql",
+  "image": "cassandra:5",
+  "run_id": "20260913-141650-35c345",
+  "started": "2026-09-13T11:16:50+00:00",
+  "scale": 1.0,
+  "notes": "Official cassandra:5 image, 3 nodes RF=3, LOCAL_QUORUM by default. Query-first schema (one table per access path), SAI indexes for vector (ANN) and analyzed text search, LWT for compare-and-set, counter table for increments. Nodes are addressed by static container IPs (10.99.1.11-13); the client is pinned to one node per target.",
+  "phases": {
+    "load": {
+      "scale": 1.0,
+      "collections": {
+        "customers": {
+          "rows": 20000,
+          "counted": 20000,
+          "expected": 20000,
+          "seconds": 5.03,
+          "rows_per_s": 3973,
+          "method": "execute_concurrent (prepared, 256 in flight, CL=ONE)",
+          "ok": true
+        },
+        "categories": {
+          "rows": 200,
+          "counted": 200,
+          "expected": 200,
+          "seconds": 0.07,
+          "rows_per_s": 3025,
+          "method": "execute_concurrent (prepared, 256 in flight, CL=ONE)",
+          "ok": true
+        },
+        "products": {
+          "rows": 5000,
+          "counted": 5000,
+          "expected": 5000,
+          "seconds": 2.85,
+          "rows_per_s": 1754,
+          "method": "execute_concurrent (prepared, 256 in flight, CL=ONE)",
+          "ok": true
+        },
+        "orders": {
+          "rows": 200000,
+          "counted": 200000,
+          "expected": 200000,
+          "seconds": 25.85,
+          "rows_per_s": 7738,
+          "method": "execute_concurrent (prepared, 256 in flight, CL=ONE) x8 connections",
+          "ok": true
+        },
+        "order_items": {
+          "rows": 487606,
+          "counted": 487606,
+          "expected": 487606,
+          "seconds": 34.7,
+          "rows_per_s": 14050,
+          "method": "execute_concurrent (prepared, 256 in flight, CL=ONE) x8 connections",
+          "ok": true
+        },
+        "events": {
+          "rows": 1000000,
+          "counted": 1000000,
+          "expected": 1000000,
+          "seconds": 56.77,
+          "rows_per_s": 17615,
+          "method": "execute_concurrent (prepared, 256 in flight, CL=ONE) x8 connections",
+          "ok": true
+        },
+        "inventory": {
+          "rows": 20000,
+          "counted": 20000,
+          "expected": 20000,
+          "seconds": 9.16,
+          "rows_per_s": 2182,
+          "method": "execute_concurrent (prepared, 256 in flight, CL=ONE)",
+          "ok": true
+        }
+      },
+      "schema": [
+        "CREATE TABLE IF NOT EXISTS customers",
+        "CREATE TABLE IF NOT EXISTS categories",
+        "CREATE TABLE IF NOT EXISTS products",
+        "CREATE TABLE IF NOT EXISTS products_by_category",
+        "CREATE TABLE IF NOT EXISTS orders",
+        "CREATE TABLE IF NOT EXISTS orders_by_customer",
+        "CREATE TABLE IF NOT EXISTS orders_by_time",
+        "CREATE TABLE IF NOT EXISTS order_items",
+        "CREATE TABLE IF NOT EXISTS items_by_order",
+        "CREATE TABLE IF NOT EXISTS events",
+        "CREATE TABLE IF NOT EXISTS inventory",
+        "CREATE TABLE IF NOT EXISTS inventory_qty",
+        "CREATE TABLE IF NOT EXISTS repl_probe",
+        "CREATE TABLE IF NOT EXISTS scratch",
+        "SAI vector index products(embedding) cosine",
+        "text index FAILED: <Error from server: code=2300 [Query invalid because of configuration issue] message=\"Properties specified [index_analyz"
+      ],
+      "errors": [],
+      "schema_seconds": 20.18,
+      "load_seconds": 162.98,
+      "after_load": [
+        "(memtables flush on their own; no statistics step)"
+      ],
+      "post_seconds": 2.0,
+      "server_version": "Cassandra 5.0.9 (CQL 3.4.7)",
+      "_seconds": 185.2
+    }
+  },
+  "partial": false,
+  "server_version": "Cassandra 5.0.9 (CQL 3.4.7)",
+  "finished": "2026-09-13T11:19:55+00:00"
+}

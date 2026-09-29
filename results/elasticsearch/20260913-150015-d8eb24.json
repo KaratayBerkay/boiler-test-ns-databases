@@ -1,0 +1,97 @@
+{
+  "engine": "elasticsearch",
+  "display": "Elasticsearch 9",
+  "category": "search / analytics engine (Lucene, inverted index)",
+  "family": "search",
+  "driver": "es",
+  "image": "elasticsearch:9.5.3",
+  "run_id": "20260913-150015-d8eb24",
+  "started": "2026-09-13T12:00:15+00:00",
+  "scale": 1.0,
+  "notes": "Elasticsearch 9 single node, security disabled. One index per collection, every field indexed at mapping time (inverted index for keyword/text, BKD tree for numeric/geo, HNSW for dense_vector). Eventually consistent for search (30 s refresh; the harness refreshes after load). No multi-document transactions, no server-side joins across indices, no per-document TTL.",
+  "phases": {
+    "bench": {
+      "insert_one": {
+        "title": "Single document insert (event)",
+        "tags": [
+          "write"
+        ],
+        "kind": "write",
+        "params_sample": "{'id': 50000000, 'customer_id': 14824, 'event_type': 'bench_insert', 'occurred_at': datetime.datetime(2026, 1, 1, 0, 0), 'payload': {'page': '/bench', 'ref': 'd",
+        "status": "ok",
+        "timing": {
+          "n": 30,
+          "min": 6.315,
+          "p50": 42.671,
+          "p90": 50.112,
+          "p95": 52.585,
+          "p99": 53.407,
+          "max": 53.612,
+          "mean": 37.549,
+          "stdev": 13.511,
+          "first_ms": 37.84
+        },
+        "rows": null,
+        "checksum": null,
+        "error": null,
+        "error_code": null
+      },
+      "pagination_offset": {
+        "title": "Deep page via offset (skip 10000)",
+        "tags": [
+          "read",
+          "pagination"
+        ],
+        "kind": "read",
+        "params_sample": "{'offset': 10000, 'page': 50}",
+        "status": "ok",
+        "timing": {
+          "n": 8,
+          "min": 40.58,
+          "p50": 51.493,
+          "p90": 74.88,
+          "p95": 75.778,
+          "p99": 76.497,
+          "max": 76.677,
+          "mean": 55.348,
+          "stdev": 12.173,
+          "first_ms": 179.672
+        },
+        "rows": 50,
+        "checksum": "e46e41f3a92752684bbeda77",
+        "error": null,
+        "error_code": null
+      },
+      "pagination_keyset": {
+        "title": "Deep page via keyset / cursor",
+        "tags": [
+          "read",
+          "pagination"
+        ],
+        "kind": "read",
+        "params_sample": "{'offset': 10000, 'page': 50}",
+        "status": "ok",
+        "timing": {
+          "n": 10,
+          "min": 10.616,
+          "p50": 12.816,
+          "p90": 15.247,
+          "p95": 16.175,
+          "p99": 16.918,
+          "max": 17.104,
+          "mean": 13.269,
+          "stdev": 1.759,
+          "first_ms": 84.993
+        },
+        "rows": 50,
+        "checksum": "e46e41f3a92752684bbeda77",
+        "error": null,
+        "error_code": null
+      },
+      "_seconds": 2.2
+    }
+  },
+  "partial": true,
+  "server_version": "elasticsearch 9.5.3",
+  "finished": "2026-09-13T12:00:17+00:00"
+}

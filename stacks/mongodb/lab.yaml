@@ -1,0 +1,46 @@
+display: MongoDB 7.0
+family: document
+category: document store (replica set)
+driver: pymongo
+image: mongo:7
+project: nslab-mongodb
+scale: 1
+notes: >-
+  Official mongo:7 image (7.0.x). mongo:8 (8.3.9) refuses to start on this host's Linux 7.0.0 kernel (SERVER-121912:
+  TCMalloc rseq incompatibility with kernels 6.19-7.0.13, exits at startup, no bypass) so the lab pins 7.0.
+  3-member replica set rs0 (priorities 3/2/1) initiated by a one-shot mongosh container; no auth.
+  Per-node targets use directConnection=true; writes w=1 unless an experiment says otherwise. $vectorSearch is Atlas /
+  mongot-only, so vector_knn is unsupported on Community.
+docs:
+  - https://hub.docker.com/_/mongo
+  - https://www.mongodb.com/docs/manual/replication/
+  - https://www.mongodb.com/docs/manual/core/transactions/
+oneshot: [init]
+targets:
+  - name: primary
+    role: primary
+    host: 127.0.0.1
+    port: 27117
+    database: lab
+    container: nslab-mongo1
+  - name: replica
+    role: replica
+    host: 127.0.0.1
+    port: 27118
+    database: lab
+    container: nslab-mongo2
+  - name: replica2
+    role: replica
+    host: 127.0.0.1
+    port: 27119
+    database: lab
+    container: nslab-mongo3
+replication:
+  kind: replica set (oplog, async, automatic election)
+  verify_target: replica
+  promote:
+    method: auto
+    target: replica
+features:
+  settle_seconds: 3
+  loadtest_workers: [4, 16, 32]

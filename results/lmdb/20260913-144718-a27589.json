@@ -1,0 +1,227 @@
+{
+  "engine": "lmdb",
+  "display": "LMDB",
+  "category": "embedded ordered key-value (memory-mapped B+tree)",
+  "family": "embedded",
+  "driver": "lmdb",
+  "image": "(embedded, python lmdb package)",
+  "run_id": "20260913-144718-a27589",
+  "started": "2026-09-13T11:47:18+00:00",
+  "scale": 1.0,
+  "notes": "Lightning Memory-Mapped Database, in-process, single writer / many MVCC readers. No query engine: an ordered key-value map. The lab models documents plus hand-maintained ordered index keyspaces (idx/...); aggregations, text, geo and vector scan the primary keyspace. 8 GB map. No server, no network, no replication.",
+  "phases": {
+    "capabilities": {
+      "secondary_index": {
+        "title": "Create a secondary index on a non-key field and use it",
+        "group": "indexing",
+        "status": "unsupported",
+        "detail": "no query engine; application-maintained ordered index keyspaces (idx/...)",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "compound_index": {
+        "title": "Compound / composite index over two fields",
+        "group": "indexing",
+        "status": "unsupported",
+        "detail": "composite ordered keys built by hand",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "unique_constraint": {
+        "title": "Unique constraint on a non-key field (duplicate rejected)",
+        "group": "indexing",
+        "status": "unsupported",
+        "detail": "keys are unique; no constraint on values",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "ttl_expiry": {
+        "title": "Native per-document/key expiry",
+        "group": "indexing",
+        "status": "unsupported",
+        "detail": "no native TTL (store an expiry field and sweep; RocksDB has a TTL column-family option)",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "text_index": {
+        "title": "Full-text index with tokenised search",
+        "group": "indexing",
+        "status": "unsupported",
+        "detail": "full keyspace scan (no inverted index)",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "geo_index": {
+        "title": "Geospatial index and radius query",
+        "group": "indexing",
+        "status": "unsupported",
+        "detail": "full keyspace scan + haversine",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "vector_index": {
+        "title": "Vector (ANN) index and kNN query",
+        "group": "indexing",
+        "status": "unsupported",
+        "detail": "full keyspace scan (brute-force cosine)",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "partial_update": {
+        "title": "Update a single field without rewriting the document",
+        "group": "model",
+        "status": "supported",
+        "detail": "read-modify-write the whole value (no in-place field update; the value is an opaque blob)",
+        "ms": 0.2
+      },
+      "atomic_increment": {
+        "title": "Server-side atomic numeric increment",
+        "group": "consistency",
+        "status": "supported",
+        "detail": "read-modify-write under the single-writer lock -> [(251,)] (atomic because one writer at a time)",
+        "ms": 0.1
+      },
+      "optimistic_concurrency": {
+        "title": "Compare-and-set / version or ETag-guarded write",
+        "group": "consistency",
+        "status": "supported",
+        "detail": "application-level CAS: read value, compare, write in one write txn/batch -> [(1, 3)]",
+        "ms": 0.1
+      },
+      "multi_doc_transaction": {
+        "title": "Multi-document / multi-key ACID transaction with rollback",
+        "group": "consistency",
+        "status": "supported",
+        "detail": "atomic multi-key write batch (LMDB: one write transaction, fully ACID; RocksDB: WriteBatch, atomic + durable)",
+        "ms": 0.1
+      },
+      "tunable_consistency": {
+        "title": "Per-request consistency / write concern / read preference",
+        "group": "consistency",
+        "status": "supported",
+        "detail": "single local writer: reads are always consistent within a transaction snapshot (LMDB MVCC; RocksDB snapshot)",
+        "ms": 0.0
+      },
+      "nested_query": {
+        "title": "Filter on a field inside a nested object",
+        "group": "model",
+        "status": "unsupported",
+        "detail": "no implementation for this engine family",
+        "ms": 0.0
+      },
+      "array_operators": {
+        "title": "Query and update array-valued fields (contains, push)",
+        "group": "model",
+        "status": "unsupported",
+        "detail": "values are opaque; array handling is in your encoding/decoding",
+        "ms": 0.0
+      },
+      "aggregation": {
+        "title": "Server-side group-by aggregation",
+        "group": "model",
+        "status": "unsupported",
+        "detail": "client-side scan",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "server_side_join": {
+        "title": "Join / lookup between two collections inside the engine",
+        "group": "model",
+        "status": "unsupported",
+        "detail": "client-side",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "graph_traversal": {
+        "title": "Variable-depth traversal over references",
+        "group": "model",
+        "status": "unsupported",
+        "detail": "client-side pointer chasing",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "schema_validation": {
+        "title": "Server-enforced document schema / constraints",
+        "group": "model",
+        "status": "unsupported",
+        "detail": "opaque byte values",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "change_streams": {
+        "title": "Change feed / watch / keyspace notifications",
+        "group": "operations",
+        "status": "unsupported",
+        "detail": "no change feed (RocksDB has a WAL/EventListener at the C++ level, not exposed here)",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "server_side_scripting": {
+        "title": "Stored procedures / Lua / JS / UDF executed by the server",
+        "group": "operations",
+        "status": "unsupported",
+        "detail": "in-process library: 'server-side' is your own code",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "pubsub": {
+        "title": "Publish/subscribe messaging built into the engine",
+        "group": "operations",
+        "status": "unsupported",
+        "detail": "no messaging",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "explain_plan": {
+        "title": "Query plan / profile output for a query",
+        "group": "operations",
+        "status": "unsupported",
+        "detail": "no planner; access is whatever key/range you request",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "bulk_import": {
+        "title": "Native bulk import path (bulk API, batch, COPY-like tool)",
+        "group": "operations",
+        "status": "supported",
+        "detail": "batched write transaction / WriteBatch (what the load phase uses)",
+        "ms": 0.0
+      },
+      "large_document": {
+        "title": "Store and read back a 15 MB document / value",
+        "group": "limits",
+        "status": "supported",
+        "detail": "15 MB value ok (LMDB single value limit is bounded by map size; RocksDB by memory)",
+        "ms": 119.9
+      },
+      "many_fields": {
+        "title": "Document with 5000 top-level fields",
+        "group": "limits",
+        "status": "supported",
+        "detail": "value is an opaque blob; field count is up to your encoding",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "read_from_replica": {
+        "title": "Client can direct reads to a replica / secondary",
+        "group": "operations",
+        "status": "unsupported",
+        "detail": "single local file; replication is external (Litestream-style log shipping)",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "snapshot_backup": {
+        "title": "Online snapshot / backup command available",
+        "group": "operations",
+        "status": "supported",
+        "detail": "consistent on-disk file: copy the data directory (LMDB: env.copy / mdb_copy; RocksDB: Checkpoint / BackupEngine)",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "_seconds": 0.1
+    }
+  },
+  "partial": false,
+  "server_version": "unknown",
+  "finished": "2026-09-13T11:47:19+00:00"
+}

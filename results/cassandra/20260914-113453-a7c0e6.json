@@ -1,0 +1,466 @@
+{
+  "engine": "cassandra",
+  "display": "Cassandra 5.0",
+  "category": "wide-column (leaderless, tunable consistency)",
+  "family": "widecolumn",
+  "driver": "cql",
+  "image": "cassandra:5",
+  "run_id": "20260914-113453-a7c0e6",
+  "started": "2026-09-14T08:34:53+00:00",
+  "scale": 1.0,
+  "notes": "Official cassandra:5 image, 3 nodes RF=3, LOCAL_QUORUM by default. Query-first schema (one table per access path), SAI indexes for vector (ANN) and analyzed text search, LWT for compare-and-set, counter table for increments. Nodes are addressed by static container IPs (10.99.1.11-13); the client is pinned to one node per target.",
+  "phases": {
+    "load": {
+      "scale": 1.0,
+      "collections": {
+        "customers": {
+          "rows": 20000,
+          "counted": 20000,
+          "expected": 20000,
+          "seconds": 5.51,
+          "rows_per_s": 3632,
+          "method": "execute_concurrent (prepared, 256 in flight, CL=ONE)",
+          "ok": true
+        },
+        "categories": {
+          "rows": 200,
+          "counted": 200,
+          "expected": 200,
+          "seconds": 0.06,
+          "rows_per_s": 3080,
+          "method": "execute_concurrent (prepared, 256 in flight, CL=ONE)",
+          "ok": true
+        },
+        "products": {
+          "rows": 5000,
+          "counted": 5000,
+          "expected": 5000,
+          "seconds": 3.02,
+          "rows_per_s": 1655,
+          "method": "execute_concurrent (prepared, 256 in flight, CL=ONE)",
+          "ok": true
+        },
+        "orders": {
+          "rows": 200000,
+          "counted": 200000,
+          "expected": 200000,
+          "seconds": 27.4,
+          "rows_per_s": 7300,
+          "method": "execute_concurrent (prepared, 256 in flight, CL=ONE) x8 connections",
+          "ok": true
+        },
+        "order_items": {
+          "rows": 487606,
+          "counted": 487606,
+          "expected": 487606,
+          "seconds": 37.24,
+          "rows_per_s": 13095,
+          "method": "execute_concurrent (prepared, 256 in flight, CL=ONE) x8 connections",
+          "ok": true
+        },
+        "events": {
+          "rows": 1000000,
+          "counted": 1000000,
+          "expected": 1000000,
+          "seconds": 60.63,
+          "rows_per_s": 16494,
+          "method": "execute_concurrent (prepared, 256 in flight, CL=ONE) x8 connections",
+          "ok": true
+        },
+        "inventory": {
+          "rows": 20000,
+          "counted": 20000,
+          "expected": 20000,
+          "seconds": 9.86,
+          "rows_per_s": 2029,
+          "method": "execute_concurrent (prepared, 256 in flight, CL=ONE)",
+          "ok": true
+        }
+      },
+      "schema": [
+        "CREATE TABLE IF NOT EXISTS customers",
+        "CREATE TABLE IF NOT EXISTS categories",
+        "CREATE TABLE IF NOT EXISTS products",
+        "CREATE TABLE IF NOT EXISTS products_by_category",
+        "CREATE TABLE IF NOT EXISTS orders",
+        "CREATE TABLE IF NOT EXISTS orders_by_customer",
+        "CREATE TABLE IF NOT EXISTS orders_by_time",
+        "CREATE TABLE IF NOT EXISTS order_items",
+        "CREATE TABLE IF NOT EXISTS items_by_order",
+        "CREATE TABLE IF NOT EXISTS events",
+        "CREATE TABLE IF NOT EXISTS inventory",
+        "CREATE TABLE IF NOT EXISTS inventory_qty",
+        "CREATE TABLE IF NOT EXISTS repl_probe",
+        "CREATE TABLE IF NOT EXISTS scratch",
+        "SAI vector index products(embedding) cosine"
+      ],
+      "errors": [],
+      "schema_seconds": 21.35,
+      "load_seconds": 175.8,
+      "after_load": [
+        "(memtables flush on their own; no statistics step)"
+      ],
+      "post_seconds": 2.0,
+      "server_version": "Cassandra 5.0.9 (CQL 3.4.7)",
+      "_seconds": 199.2
+    },
+    "backup": {
+      "tag": "nslab-20260914-113813",
+      "strategy": {
+        "tool": "nodetool flush + nodetool snapshot -t <tag> --ttl 3h (hard-linked SSTables, instant, per node) then export the snapshot dirs to /backups/<tag>/<node>/lab/<table>/",
+        "consistency": "per-node crash-consistent after the flush; cluster-wide consistency comes from repair after restore (or a coordinated snapshot)",
+        "restore": "online: TRUNCATE every table, then each node runs nodetool import -c on its own exported snapshot (server-side, SAI components included); sstableloader streams to the owning replicas but its driver cannot parse vector<float, 8> on 5.0.x",
+        "incremental": "incremental_backups (nodetool enablebackup): each flushed SSTable is hard-linked into <table>/backups/ \u2014 ship those as they appear",
+        "pitr": "commitlog archiving (archive_command + restore_point_in_time) \u2014 configured in commitlog_archiving.properties",
+        "schedule": "cron on every node (nodetool snapshot) or Medusa / Scylla Manager; --ttl makes snapshots self-expiring",
+        "retention": "nodetool clearsnapshot / snapshot --ttl; hard links cost nothing until compaction rewrites the SSTables"
+      },
+      "data_bytes": 1138302267,
+      "fingerprint_before": {
+        "counts": {
+          "customers": 20000,
+          "categories": 200,
+          "products": 5000,
+          "inventory": 20000
+        },
+        "customers_present": 50,
+        "probe_count": 100,
+        "post_probe_present": false
+      },
+      "reads_baseline": {
+        "reads": 537,
+        "errors": 0,
+        "latency_ms": {
+          "n": 537,
+          "min": 0.8950750343501568,
+          "p50": 1.6382979811169207,
+          "p90": 1.9560940214432776,
+          "p95": 2.0275853690691292,
+          "p99": 2.2242309967987235,
+          "max": 4.4508869759738445,
+          "mean": 1.599670539989901,
+          "stdev": 0.3531550260140228
+        }
+      },
+      "backup": {
+        "method": "nodetool flush + snapshot --ttl 3h on every node, export to /backups (sstableloader layout)",
+        "online": true,
+        "artifact": "/backups/nslab-20260914-113813/<node>/lab/<table>/",
+        "artifact_bytes": 378515420,
+        "per_node": {
+          "primary": {
+            "snapshot_ms": 3365.5,
+            "export_ms": 221.9,
+            "bytes": 126219219
+          },
+          "node2": {
+            "snapshot_ms": 3581.6,
+            "export_ms": 211.1,
+            "bytes": 126141981
+          },
+          "node3": {
+            "snapshot_ms": 3417.8,
+            "export_ms": 220.1,
+            "bytes": 126154220
+          }
+        },
+        "listsnapshots_sample": [
+          "nslab-20260914-113813                        lab           items_by_order       1.24 KiB   13.93 MiB    2026-09-14T08:38:19.875Z 2026-09-14T11:38:19.875Z",
+          "nslab-20260914-113813                        lab           inventory            1.23 KiB   485.88 KiB   2026-09-14T08:38:19.875Z 2026-09-14T11:38:19.875Z",
+          "nslab-20260914-113813                        lab           categories           1.12 KiB   12.6 KiB     2026-09-14T08:38:19.875Z 2026-09-14T11:38:19.875Z"
+        ],
+        "note": "RF=3 on 3 nodes: each node's export is a full copy of the keyspace; every node re-imports its own",
+        "seconds": 12.19,
+        "status": "ok",
+        "reads_during": {
+          "reads": 3390,
+          "errors": 0,
+          "latency_ms": {
+            "n": 3390,
+            "min": 0.8582720183767378,
+            "p50": 1.4673580008093268,
+            "p90": 1.9148212915752083,
+            "p95": 2.0275854360079393,
+            "p99": 2.311356063000858,
+            "max": 54.81785797746852,
+            "mean": 1.5097870389967991,
+            "stdev": 1.0157491902208005
+          }
+        },
+        "artifact_pct_of_data": 33.3
+      },
+      "fingerprint_after_mutation": {
+        "counts": {
+          "customers": 19950,
+          "categories": 200,
+          "products": 5000,
+          "inventory": 20000
+        },
+        "customers_present": 0,
+        "probe_count": 600,
+        "post_probe_present": true
+      },
+      "restore": {
+        "method": "TRUNCATE tables + nodetool import -c of each node's own snapshot export (parallel per node)",
+        "online": true,
+        "truncate_ms": 2736.6,
+        "tables": 14,
+        "per_node": {
+          "node2": {
+            "ms": 21456.8,
+            "per_table_ms": {
+              "categories": 1225.0,
+              "customers": 1150.7,
+              "events": 1890.1,
+              "inventory": 1106.2,
+              "inventory_qty": 1076.4,
+              "items_by_order": 1436.9,
+              "order_items": 1682.3,
+              "orders": 1499.1,
+              "orders_by_customer": 1168.3,
+              "orders_by_time": 1288.0,
+              "products": 4068.6,
+              "products_by_category": 1123.3,
+              "repl_probe": 1370.4,
+              "scratch": 1371.3
+            }
+          },
+          "primary": {
+            "ms": 21527.9,
+            "per_table_ms": {
+              "categories": 1194.9,
+              "customers": 1145.9,
+              "events": 2158.8,
+              "inventory": 1114.1,
+              "inventory_qty": 1107.4,
+              "items_by_order": 1348.7,
+              "order_items": 1537.2,
+              "orders": 1427.9,
+              "orders_by_customer": 1260.8,
+              "orders_by_time": 1305.8,
+              "products": 3976.8,
+              "products_by_category": 1145.0,
+              "repl_probe": 1426.9,
+              "scratch": 1377.5
+            }
+          },
+          "node3": {
+            "ms": 21621.2,
+            "per_table_ms": {
+              "categories": 1225.5,
+              "customers": 1179.1,
+              "events": 1917.7,
+              "inventory": 1130.5,
+              "inventory_qty": 1091.4,
+              "items_by_order": 1408.8,
+              "order_items": 1636.6,
+              "orders": 1545.9,
+              "orders_by_customer": 1229.4,
+              "orders_by_time": 1293.8,
+              "products": 3929.6,
+              "products_by_category": 1135.5,
+              "repl_probe": 1546.1,
+              "scratch": 1351.2
+            }
+          }
+        },
+        "nodetool_invocations": 42,
+        "note": "sstableloader (client-side streaming) fails on the vector<float, 8> column in 5.0.x: 'Could not parse type name'",
+        "seconds": 24.36,
+        "status": "ok",
+        "availability": {
+          "downtime_ms": 0.0,
+          "outages": 0
+        },
+        "checks": {
+          "counts_match": true,
+          "deleted_customers_back": true,
+          "probe_count_back_to_pre": true,
+          "post_backup_writes_gone": true
+        },
+        "verified": true
+      },
+      "fingerprint_after_restore": {
+        "counts": {
+          "customers": 20000,
+          "categories": 200,
+          "products": 5000,
+          "inventory": 20000
+        },
+        "customers_present": 50,
+        "probe_count": 100,
+        "post_probe_present": false
+      },
+      "incremental": {
+        "method": "nodetool enablebackup (incremental_backups) + flush: new SSTables hard-linked into <table>/backups/",
+        "files": 8,
+        "artifact_bytes_delta": 5274,
+        "node": "primary",
+        "seconds": 3.15,
+        "status": "ok"
+      },
+      "_seconds": 46.1
+    },
+    "logging": {
+      "strategy": {
+        "server_log": "logback text: system.log (INFO), debug.log (DEBUG, rolling 20 MB) and gc.log under /opt/cassandra/logs, mirrored to stdout",
+        "slow_query": "slow_query_log_timeout (500 ms, cassandra.yaml \u2014 not mutable at run time in 5.0.x): MonitoringTask aggregates slow reads every 5 s into debug.log ('<query>, time N msec - slow timeout 500 msec')",
+        "audit": "nodetool enableauditlog (BinAuditLogger under logs/audit, read with auditlogviewer; FileAuditLogger via logback) + full query log (enablefullquerylog / fqltool)",
+        "runtime": "nodetool setlogginglevel <logger> <level> per node (logback), getlogginglevels; audit/FQL/incremental backups toggled with nodetool too"
+      },
+      "threshold_ms": 100,
+      "containers": {
+        "nslab-cassandra1": {
+          "driver": "json-file",
+          "options": {
+            "compress": "true",
+            "max-file": "3",
+            "max-size": "50m"
+          },
+          "log_path": "/var/lib/docker/containers/ca3abed6c60e56388c2045e12b84e2a2f8b32fd50d3bf3650b42077237140b0a/ca3abed6c60e56388c2045e12b84e2a2f8b32fd50d3bf3650b42077237140b0a-json.log",
+          "user": "root",
+          "started": "2026-09-14T08:03:51.544019782Z",
+          "bytes": 1014725,
+          "lines": 6113,
+          "json_lines_pct": 0.0,
+          "format": "text",
+          "sample": [
+            "WARNING: System::setSecurityManager will be removed in a future release",
+            "Sep 14, 2026 8:28:18 AM io.github.jbellis.jvector.vector.VectorizationProvider lookup",
+            "WARNING: You are running with Java 19 or earlier, which do not support the required incubating Vector API. Falling back to slower defaults."
+          ]
+        },
+        "nslab-cassandra2": {
+          "driver": "json-file",
+          "options": {
+            "compress": "true",
+            "max-file": "3",
+            "max-size": "50m"
+          },
+          "log_path": "/var/lib/docker/containers/b17510b345819cc4a3582d097ee904bd29ced8dd03a312a4a812c2e99d43aa5f/b17510b345819cc4a3582d097ee904bd29ced8dd03a312a4a812c2e99d43aa5f-json.log",
+          "user": "root",
+          "started": "2026-09-14T08:04:58.185659734Z",
+          "bytes": 979590,
+          "lines": 4996,
+          "json_lines_pct": 0.0,
+          "format": "text",
+          "sample": [
+            "WARNING: System::setSecurityManager will be removed in a future release",
+            "Sep 14, 2026 8:28:18 AM io.github.jbellis.jvector.vector.VectorizationProvider lookup",
+            "WARNING: You are running with Java 19 or earlier, which do not support the required incubating Vector API. Falling back to slower defaults."
+          ]
+        },
+        "nslab-cassandra3": {
+          "driver": "json-file",
+          "options": {
+            "compress": "true",
+            "max-file": "3",
+            "max-size": "50m"
+          },
+          "log_path": "/var/lib/docker/containers/b876bc3005338782ce26833209b79003350220bf8d1d6ada840cb5e804b952d1/b876bc3005338782ce26833209b79003350220bf8d1d6ada840cb5e804b952d1-json.log",
+          "user": "root",
+          "started": "2026-09-14T08:05:51.833409551Z",
+          "bytes": 2332276,
+          "lines": 20468,
+          "json_lines_pct": 0.0,
+          "format": "text",
+          "sample": [
+            "WARNING: System::setSecurityManager will be removed in a future release",
+            "Sep 14, 2026 8:28:18 AM io.github.jbellis.jvector.vector.VectorizationProvider lookup",
+            "WARNING: You are running with Java 19 or earlier, which do not support the required incubating Vector API. Falling back to slower defaults."
+          ]
+        }
+      },
+      "server_log": {
+        "status": "ok",
+        "value": {
+          "format": "text",
+          "where": "/opt/cassandra/logs/{system,debug,gc}.log + stdout",
+          "files": [],
+          "sample": [
+            "INFO  [PerDiskMemtableFlushWriter_0:5] 2026-09-14T08:38:59,134 Flushing.java:179 - Completed flushing /var/lib/cassandra/data/system/local-7ad54392bcdd35a684174e047860b377/nb-76-big-Data.db (64B) for ",
+            "INFO  [MutationStage-2] 2026-09-14T08:38:59,187 ColumnFamilyStore.java:2829 - Truncate of lab.repl_probe is complete"
+          ]
+        },
+        "ms": 80.2
+      },
+      "slow_query": {
+        "setup": {
+          "status": "ok",
+          "value": "slow_query_log_timeout=500ms from cassandra.yaml (settings vtable is read-only: InvalidRequest: Error from server: code=2200 [Invalid query]) -> debug.log via MonitoringTask (5 s report interval)",
+          "ms": 76.7
+        },
+        "effective_threshold_ms": 500,
+        "fast_op": {
+          "desc": "SELECT id FROM customers WHERE id = 1",
+          "ms": 2.4,
+          "status": "ok",
+          "error": null
+        },
+        "slow_op": {
+          "desc": "SELECT COUNT(*) FROM orders (200k-partition cluster-wide read)",
+          "ms": 4155.7,
+          "status": "ok",
+          "error": null
+        },
+        "entries": [
+          {
+            "ms": 1736,
+            "text": "SELECT * FROM lab.orders ALLOW FILTERING",
+            "threshold_ms": 500
+          }
+        ],
+        "entries_status": "ok",
+        "entries_error": null,
+        "slow_op_logged": true,
+        "logged_ms": 1736,
+        "fast_op_logged": false,
+        "verified": true
+      },
+      "audit": {
+        "setup": {
+          "status": "ok",
+          "value": "nodetool enableauditlog --included-keyspaces lab (BinAuditLogger -> /opt/cassandra/logs/audit, Chronicle queue)",
+          "ms": 1113.1
+        },
+        "exercise": [
+          "SELECT id FROM customers WHERE id = 42",
+          "INSERT INTO scratch (k, v) VALUES ('audit-probe', 'x')",
+          "DELETE FROM scratch WHERE k = 'audit-probe'"
+        ],
+        "entries": [
+          "user:anonymous|host:/10.99.1.11:7000|source:/10.99.1.1|port:54752|timestamp:1789375145601|type:SELECT|category:QUERY|ks:lab|scope:customers|operation:SELECT id FROM customers WHERE id = 42",
+          "user:anonymous|host:/10.99.1.11:7000|source:/10.99.1.1|port:54752|timestamp:1789375145602|type:UPDATE|category:DML|ks:lab|scope:scratch|operation:INSERT INTO scratch (k, v) VALUES ('audit-probe', 'x')",
+          "user:anonymous|host:/10.99.1.11:7000|source:/10.99.1.1|port:54752|timestamp:1789375145604|type:DELETE|category:DML|ks:lab|scope:scratch|operation:DELETE FROM scratch WHERE k = 'audit-probe'"
+        ],
+        "entries_count": 3,
+        "entries_status": "ok",
+        "entries_error": null,
+        "verified": true
+      },
+      "runtime_log_level": {
+        "status": "ok",
+        "value": "nodetool setlogginglevel org.apache.cassandra.db.Keyspace TRACE -> verified -> DEBUG (per node, no restart)",
+        "ms": 3036.6
+      },
+      "log_volume_this_phase": {
+        "nslab-cassandra1": {
+          "bytes": 2098,
+          "lines": 10
+        },
+        "nslab-cassandra2": {
+          "bytes": 0,
+          "lines": 0
+        },
+        "nslab-cassandra3": {
+          "bytes": 0,
+          "lines": 0
+        }
+      },
+      "_seconds": 13.8
+    }
+  },
+  "partial": false,
+  "server_version": "Cassandra 5.0.9 (CQL 3.4.7)",
+  "finished": "2026-09-14T08:39:13+00:00"
+}

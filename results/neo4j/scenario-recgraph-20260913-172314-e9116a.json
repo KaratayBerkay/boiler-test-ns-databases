@@ -1,0 +1,674 @@
+{
+  "scenario": "recgraph",
+  "engine": "neo4j",
+  "size": "small",
+  "opts": {
+    "fanout": "write"
+  },
+  "mix": {
+    "also_bought": 18,
+    "for_you": 14,
+    "similar_products": 10,
+    "trending_in_category": 6,
+    "fraud_ring": 12,
+    "ring_expand": 6,
+    "shortest_path": 4,
+    "shared_id_accounts": 6,
+    "category_path": 4,
+    "customer_orders": 8,
+    "place_order": 8,
+    "rate_product": 4
+  },
+  "server": "Neo4j Kernel 5.26.30 (community) \u2014 recgraph",
+  "runs": [
+    {
+      "workers": 8,
+      "seconds": 20.0,
+      "mode": "closed",
+      "rate": null,
+      "think_ms": 0.0,
+      "throughput_ops_s": 450,
+      "ops": 8991,
+      "errors": 13,
+      "per_op": {
+        "also_bought": {
+          "n": 1597,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 1597,
+            "min": 4.280854,
+            "p50": 6.398568,
+            "p90": 8.712136600000001,
+            "p95": 9.543613999999996,
+            "p99": 12.245047679999994,
+            "max": 137.606812,
+            "mean": 7.0216440187852225,
+            "stdev": 5.472043416942966
+          }
+        },
+        "for_you": {
+          "n": 1265,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 1265,
+            "min": 7.192239,
+            "p50": 95.732404,
+            "p90": 158.48193440000003,
+            "p95": 179.1284624,
+            "p99": 251.01648451999972,
+            "max": 569.888406,
+            "mean": 102.79754713913044,
+            "stdev": 47.13666968697703
+          }
+        },
+        "similar_products": {
+          "n": 870,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 870,
+            "min": 1.017932,
+            "p50": 2.0216065,
+            "p90": 2.7283217,
+            "p95": 3.03467715,
+            "p99": 4.473918839999997,
+            "max": 97.560576,
+            "mean": 2.224187164367816,
+            "stdev": 3.3336283509999816
+          }
+        },
+        "trending_in_category": {
+          "n": 521,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 521,
+            "min": 1.391637,
+            "p50": 2.551162,
+            "p90": 3.416338,
+            "p95": 3.723123,
+            "p99": 4.8942869999999985,
+            "max": 79.212241,
+            "mean": 2.8437621823416506,
+            "stdev": 3.6765460802390573
+          }
+        },
+        "fraud_ring": {
+          "n": 1070,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 1070,
+            "min": 0.912442,
+            "p50": 2.74772,
+            "p90": 3.7901545999999997,
+            "p95": 4.1580428,
+            "p99": 5.873492239999985,
+            "max": 111.174242,
+            "mean": 3.151654185046729,
+            "stdev": 5.753023411202102
+          }
+        },
+        "ring_expand": {
+          "n": 553,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 553,
+            "min": 1.638678,
+            "p50": 3.286976,
+            "p90": 4.4058458,
+            "p95": 4.915289,
+            "p99": 10.483291640000019,
+            "max": 69.117459,
+            "mean": 3.7338877287522605,
+            "stdev": 4.402989649668399
+          }
+        },
+        "shortest_path": {
+          "n": 385,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 385,
+            "min": 1.210098,
+            "p50": 2.705561,
+            "p90": 3.9396758000000016,
+            "p95": 4.476133999999998,
+            "p99": 8.168346279999959,
+            "max": 71.428522,
+            "mean": 3.1381732181818185,
+            "stdev": 3.882718078085591
+          }
+        },
+        "shared_id_accounts": {
+          "n": 581,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 581,
+            "min": 0.92064,
+            "p50": 1.764374,
+            "p90": 2.424517,
+            "p95": 2.697842,
+            "p99": 3.332211000000002,
+            "max": 77.031399,
+            "mean": 2.0984228709122204,
+            "stdev": 4.352849514191144
+          }
+        },
+        "category_path": {
+          "n": 372,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 372,
+            "min": 1.118007,
+            "p50": 2.026825,
+            "p90": 2.7117567000000005,
+            "p95": 3.1888627499999993,
+            "p99": 23.189395050000016,
+            "max": 110.29126,
+            "mean": 2.957242153225806,
+            "stdev": 8.28405829947978
+          }
+        },
+        "customer_orders": {
+          "n": 719,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 719,
+            "min": 1.240249,
+            "p50": 2.335921,
+            "p90": 3.1507274,
+            "p95": 3.4569409000000006,
+            "p99": 5.039628400000014,
+            "max": 103.899778,
+            "mean": 2.660880945757997,
+            "stdev": 4.153460053191372
+          }
+        },
+        "place_order": {
+          "n": 698,
+          "errors": 13,
+          "first_error": "ConstraintError: {neo4j_code: Neo.ClientError.Schema.ConstraintValidationFailed} {message: Node(78920) already exists with label `Order` and property `id` = 909329526} {gql_status: 50N42} {gql_status_",
+          "latency_ms": {
+            "n": 698,
+            "min": 2.135061,
+            "p50": 3.9937115,
+            "p90": 5.026669800000001,
+            "p95": 5.61475115,
+            "p99": 12.338606929999969,
+            "max": 73.320648,
+            "mean": 4.394670578796561,
+            "stdev": 3.9987249460053627
+          }
+        },
+        "rate_product": {
+          "n": 360,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 360,
+            "min": 2.070064,
+            "p50": 3.7469505,
+            "p90": 4.8585417,
+            "p95": 5.0923546,
+            "p99": 5.946548040000002,
+            "max": 89.57155,
+            "mean": 4.0856811,
+            "stdev": 4.686275075360574
+          }
+        }
+      },
+      "container_usage": {
+        "nslab-neo4j": {
+          "cpu_cores_avg": 8.702,
+          "cpu_limit_cores": null,
+          "cpu_pct_of_limit": null,
+          "mem_peak_mb": 5909,
+          "mem_end_mb": 5591,
+          "mem_limit_mb": null,
+          "cpu_cores_avg_during_run": 9.597
+        }
+      }
+    },
+    {
+      "workers": 32,
+      "seconds": 20.0,
+      "mode": "closed",
+      "rate": null,
+      "think_ms": 0.0,
+      "throughput_ops_s": 909,
+      "ops": 18179,
+      "errors": 57,
+      "per_op": {
+        "also_bought": {
+          "n": 3261,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 3261,
+            "min": 4.798593,
+            "p50": 13.535287,
+            "p90": 21.37282,
+            "p95": 24.53515,
+            "p99": 33.30891240000001,
+            "max": 123.497844,
+            "mean": 14.808187765409384,
+            "stdev": 5.743786797815525
+          }
+        },
+        "for_you": {
+          "n": 2520,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 2520,
+            "min": 10.679379,
+            "p50": 198.06032499999998,
+            "p90": 311.86900449999996,
+            "p95": 356.65111249999984,
+            "p99": 459.79391933999955,
+            "max": 663.753617,
+            "mean": 206.63019951507937,
+            "stdev": 83.00439310499668
+          }
+        },
+        "similar_products": {
+          "n": 1813,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 1813,
+            "min": 1.153302,
+            "p50": 3.506253,
+            "p90": 6.8108188,
+            "p95": 8.4161144,
+            "p99": 12.8712910399999,
+            "max": 37.9445,
+            "mean": 4.149109848317705,
+            "stdev": 2.5519817784464554
+          }
+        },
+        "trending_in_category": {
+          "n": 1081,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 1081,
+            "min": 1.602311,
+            "p50": 4.440331,
+            "p90": 7.558073,
+            "p95": 9.215122,
+            "p99": 14.013578200000007,
+            "max": 28.592492,
+            "mean": 5.0017300601295105,
+            "stdev": 2.463225371179854
+          }
+        },
+        "fraud_ring": {
+          "n": 2196,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 2196,
+            "min": 1.338507,
+            "p50": 4.282025,
+            "p90": 7.194471,
+            "p95": 8.9708755,
+            "p99": 13.738262000000017,
+            "max": 32.532588,
+            "mean": 4.800468039162113,
+            "stdev": 2.3805022865628254
+          }
+        },
+        "ring_expand": {
+          "n": 1077,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 1077,
+            "min": 2.061041,
+            "p50": 4.702132,
+            "p90": 7.6265307999999985,
+            "p95": 9.009371799999995,
+            "p99": 11.855112360000001,
+            "max": 27.461664,
+            "mean": 5.196422194986073,
+            "stdev": 2.071286627756586
+          }
+        },
+        "shortest_path": {
+          "n": 716,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 716,
+            "min": 1.555489,
+            "p50": 4.6794125,
+            "p90": 8.5719735,
+            "p95": 9.7010185,
+            "p99": 15.310875600000037,
+            "max": 49.47046,
+            "mean": 5.357453189944134,
+            "stdev": 3.349719782707195
+          }
+        },
+        "shared_id_accounts": {
+          "n": 1133,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 1133,
+            "min": 1.07316,
+            "p50": 3.285853,
+            "p90": 6.5434490000000025,
+            "p95": 7.730652799999998,
+            "p99": 12.079448320000003,
+            "max": 27.962304,
+            "mean": 3.8953683618711388,
+            "stdev": 2.440980940634345
+          }
+        },
+        "category_path": {
+          "n": 701,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 701,
+            "min": 1.357946,
+            "p50": 3.599679,
+            "p90": 6.649838,
+            "p95": 8.493529,
+            "p99": 15.138958,
+            "max": 43.621639,
+            "mean": 4.2633030042796,
+            "stdev": 3.1877279512555794
+          }
+        },
+        "customer_orders": {
+          "n": 1524,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 1524,
+            "min": 1.336085,
+            "p50": 3.907774,
+            "p90": 6.9273451,
+            "p95": 8.27374255,
+            "p99": 12.085688349999995,
+            "max": 42.120774,
+            "mean": 4.460211622047244,
+            "stdev": 2.6621161933385973
+          }
+        },
+        "place_order": {
+          "n": 1442,
+          "errors": 57,
+          "first_error": "ConstraintError: {neo4j_code: Neo.ClientError.Schema.ConstraintValidationFailed} {message: Node(80392) already exists with label `Order` and property `id` = 909361070} {gql_status: 50N42} {gql_status_",
+          "latency_ms": {
+            "n": 1442,
+            "min": 3.157959,
+            "p50": 11.040079500000001,
+            "p90": 17.863645899999998,
+            "p95": 20.286102250000003,
+            "p99": 30.281357659999852,
+            "max": 54.717376,
+            "mean": 11.889325301664355,
+            "stdev": 5.04580211845676
+          }
+        },
+        "rate_product": {
+          "n": 715,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 715,
+            "min": 2.494143,
+            "p50": 9.343984,
+            "p90": 16.136007000000003,
+            "p95": 18.403318399999993,
+            "p99": 27.591507220000008,
+            "max": 44.468718,
+            "mean": 10.212627833566433,
+            "stdev": 4.9251457186728524
+          }
+        }
+      },
+      "container_usage": {
+        "nslab-neo4j": {
+          "cpu_cores_avg": 20.7,
+          "cpu_limit_cores": null,
+          "cpu_pct_of_limit": null,
+          "mem_peak_mb": 5912,
+          "mem_end_mb": 5605,
+          "mem_limit_mb": null,
+          "cpu_cores_avg_during_run": 24.055
+        }
+      }
+    },
+    {
+      "workers": 64,
+      "seconds": 20.0,
+      "mode": "closed",
+      "rate": null,
+      "think_ms": 0.0,
+      "throughput_ops_s": 872,
+      "ops": 17449,
+      "errors": 46,
+      "per_op": {
+        "also_bought": {
+          "n": 3189,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 3189,
+            "min": 5.857682,
+            "p50": 25.46283,
+            "p90": 43.022743,
+            "p95": 49.937546,
+            "p99": 79.23500211999998,
+            "max": 151.874299,
+            "mean": 27.83611259297585,
+            "stdev": 13.56512896907628
+          }
+        },
+        "for_you": {
+          "n": 2423,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 2423,
+            "min": 49.525833,
+            "p50": 400.049061,
+            "p90": 781.8458518000001,
+            "p95": 901.5907732,
+            "p99": 1208.0739827600016,
+            "max": 1757.524827,
+            "mean": 452.5556496805613,
+            "stdev": 234.84184072624444
+          }
+        },
+        "similar_products": {
+          "n": 1731,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 1731,
+            "min": 1.377618,
+            "p50": 4.890434,
+            "p90": 10.688035,
+            "p95": 13.2212095,
+            "p99": 23.025213100000002,
+            "max": 73.319617,
+            "mean": 6.063148607163489,
+            "stdev": 4.386362365886743
+          }
+        },
+        "trending_in_category": {
+          "n": 1079,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 1079,
+            "min": 1.808862,
+            "p50": 5.882776,
+            "p90": 12.235634800000003,
+            "p95": 14.1441878,
+            "p99": 25.803484240000284,
+            "max": 107.161196,
+            "mean": 7.303287806302132,
+            "stdev": 6.60186634115528
+          }
+        },
+        "fraud_ring": {
+          "n": 2076,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 2076,
+            "min": 1.511895,
+            "p50": 5.8116015,
+            "p90": 12.031627,
+            "p95": 15.606866499999999,
+            "p99": 35.656931,
+            "max": 99.579536,
+            "mean": 7.442124057803468,
+            "stdev": 7.249822562704962
+          }
+        },
+        "ring_expand": {
+          "n": 1024,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 1024,
+            "min": 2.268421,
+            "p50": 6.3064605,
+            "p90": 12.355343,
+            "p95": 16.01261125,
+            "p99": 34.31173474999994,
+            "max": 111.83768,
+            "mean": 7.991554111328125,
+            "stdev": 7.660783174969166
+          }
+        },
+        "shortest_path": {
+          "n": 682,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 682,
+            "min": 1.636259,
+            "p50": 6.49615,
+            "p90": 12.262386799999998,
+            "p95": 14.574005649999988,
+            "p99": 24.070960089999943,
+            "max": 89.935428,
+            "mean": 7.515166920821113,
+            "stdev": 5.415390057639111
+          }
+        },
+        "shared_id_accounts": {
+          "n": 1068,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 1068,
+            "min": 1.265043,
+            "p50": 4.620925,
+            "p90": 10.485236600000006,
+            "p95": 12.822320599999998,
+            "p99": 21.012676189999958,
+            "max": 96.693214,
+            "mean": 5.936849315543071,
+            "stdev": 5.002074622837402
+          }
+        },
+        "category_path": {
+          "n": 709,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 709,
+            "min": 1.520924,
+            "p50": 4.809463,
+            "p90": 11.236422400000002,
+            "p95": 13.9209388,
+            "p99": 33.69072035999989,
+            "max": 73.944906,
+            "mean": 6.354780598025388,
+            "stdev": 6.0918539530900215
+          }
+        },
+        "customer_orders": {
+          "n": 1458,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 1458,
+            "min": 1.307714,
+            "p50": 5.1811435,
+            "p90": 11.0673096,
+            "p95": 13.677259999999999,
+            "p99": 25.566725660000056,
+            "max": 95.261426,
+            "mean": 6.516397244855967,
+            "stdev": 5.246391398777678
+          }
+        },
+        "place_order": {
+          "n": 1337,
+          "errors": 46,
+          "first_error": "ConstraintError: {neo4j_code: Neo.ClientError.Schema.ConstraintValidationFailed} {message: Node(81743) already exists with label `Order` and property `id` = 909386131} {gql_status: 50N42} {gql_status_",
+          "latency_ms": {
+            "n": 1337,
+            "min": 3.710225,
+            "p50": 17.309489,
+            "p90": 28.424413,
+            "p95": 33.361273600000004,
+            "p99": 69.78749464000023,
+            "max": 122.842723,
+            "mean": 19.18241322064323,
+            "stdev": 10.732291653256116
+          }
+        },
+        "rate_product": {
+          "n": 673,
+          "errors": 0,
+          "first_error": null,
+          "latency_ms": {
+            "n": 673,
+            "min": 2.654637,
+            "p50": 13.654361,
+            "p90": 24.329369200000006,
+            "p95": 29.2975428,
+            "p99": 54.40768867999999,
+            "max": 84.106593,
+            "mean": 15.439149203566123,
+            "stdev": 8.860473321878022
+          }
+        }
+      },
+      "container_usage": {
+        "nslab-neo4j": {
+          "cpu_cores_avg": 20.132,
+          "cpu_limit_cores": null,
+          "cpu_pct_of_limit": null,
+          "mem_peak_mb": 5924,
+          "mem_end_mb": 5750,
+          "mem_limit_mb": null,
+          "cpu_cores_avg_during_run": 25.211
+        }
+      }
+    }
+  ],
+  "peak_throughput_ops_s": 909,
+  "peak_workers": 32,
+  "run_id": "20260913-172314-e9116a",
+  "saved": "2026-09-13T14:23:14+00:00"
+}

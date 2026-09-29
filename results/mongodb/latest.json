@@ -1,0 +1,3574 @@
+{
+  "engine": "mongodb",
+  "display": "MongoDB 7.0",
+  "category": "document store (replica set)",
+  "family": "document",
+  "driver": "pymongo",
+  "image": "mongo:7",
+  "run_id": "20260914-123107-77bc54",
+  "started": "2026-09-14T09:30:30+00:00",
+  "scale": 1.0,
+  "notes": "Official mongo:7 image (7.0.x). mongo:8 (8.3.9) refuses to start on this host's Linux 7.0.0 kernel (SERVER-121912: TCMalloc rseq incompatibility with kernels 6.19-7.0.13, exits at startup, no bypass) so the lab pins 7.0. 3-member replica set rs0 (priorities 3/2/1) initiated by a one-shot mongosh container; no auth. Per-node targets use directConnection=true; writes w=1 unless an experiment says otherwise. $vectorSearch is Atlas / mongot-only, so vector_knn is unsupported on Community.",
+  "phases": {
+    "load": {
+      "scale": 1.0,
+      "collections": {
+        "customers": {
+          "rows": 20000,
+          "counted": 20000,
+          "expected": 20000,
+          "seconds": 1.13,
+          "rows_per_s": 17633,
+          "method": "insert_many(5000, ordered=False, w=1)",
+          "ok": true
+        },
+        "categories": {
+          "rows": 200,
+          "counted": 200,
+          "expected": 200,
+          "seconds": 0.0,
+          "rows_per_s": 50348,
+          "method": "insert_many(5000, ordered=False, w=1)",
+          "ok": true
+        },
+        "products": {
+          "rows": 5000,
+          "counted": 5000,
+          "expected": 5000,
+          "seconds": 0.81,
+          "rows_per_s": 6191,
+          "method": "insert_many(5000, ordered=False, w=1)",
+          "ok": true
+        },
+        "orders": {
+          "rows": 200000,
+          "counted": 200000,
+          "expected": 200000,
+          "seconds": 5.39,
+          "rows_per_s": 37090,
+          "method": "insert_many(5000, ordered=False, w=1) x4 connections",
+          "ok": true
+        },
+        "order_items": {
+          "rows": 487606,
+          "counted": 487606,
+          "expected": 487606,
+          "seconds": 5.29,
+          "rows_per_s": 92255,
+          "method": "insert_many(5000, ordered=False, w=1) x4 connections",
+          "ok": true
+        },
+        "events": {
+          "rows": 1000000,
+          "counted": 1000000,
+          "expected": 1000000,
+          "seconds": 21.42,
+          "rows_per_s": 46677,
+          "method": "insert_many(5000, ordered=False, w=1) x4 connections",
+          "ok": true
+        },
+        "inventory": {
+          "rows": 20000,
+          "counted": 20000,
+          "expected": 20000,
+          "seconds": 0.56,
+          "rows_per_s": 35589,
+          "method": "insert_many(5000, ordered=False, w=1)",
+          "ok": true
+        }
+      },
+      "schema": [
+        "customers: [('email', 1)] {'unique': True}",
+        "customers: [('country_code', 1), ('tier', 1)]",
+        "customers: [('location', '2dsphere')]",
+        "customers: [('attrs.lang', 1), ('tier', 1)]",
+        "categories: [('parent_id', 1)]",
+        "products: [('category_id', 1), ('price', -1)]",
+        "products: [('sku', 1)] {'unique': True}",
+        "products: [('attrs.tags', 1)]",
+        "products: [('description', 'text')]",
+        "orders: [('customer_id', 1)]",
+        "orders: [('status', 1), ('ordered_at', 1)]",
+        "orders: [('ordered_at', 1), ('_id', 1)]",
+        "order_items: [('order_id', 1)]",
+        "order_items: [('product_id', 1)]",
+        "events: [('customer_id', 1)]",
+        "inventory: [('product_id', 1), ('warehouse_id', 1)]",
+        "scratch: [('expires_at', 1)] {'expireAfterSeconds': 0}"
+      ],
+      "errors": [],
+      "schema_seconds": 0.43,
+      "load_seconds": 35.67,
+      "after_load": [],
+      "post_seconds": 0.0,
+      "server_version": "MongoDB 7.0.37",
+      "_seconds": 36.1
+    },
+    "capabilities": {
+      "secondary_index": {
+        "title": "Create a secondary index on a non-key field and use it",
+        "group": "indexing",
+        "status": "supported",
+        "detail": "createIndex on any field",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "compound_index": {
+        "title": "Compound / composite index over two fields",
+        "group": "indexing",
+        "status": "supported",
+        "detail": "compound index (ESR rule: equality, sort, range)",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "unique_constraint": {
+        "title": "Unique constraint on a non-key field (duplicate rejected)",
+        "group": "indexing",
+        "status": "supported",
+        "detail": "duplicate rejected (E11000): E11000 duplicate key error collection: lab.scratch index: u_",
+        "ms": 41.7
+      },
+      "ttl_expiry": {
+        "title": "Native per-document/key expiry",
+        "group": "indexing",
+        "status": "supported",
+        "detail": "TTL index (expireAfterSeconds; background sweep every 60 s)",
+        "ms": 31.5
+      },
+      "text_index": {
+        "title": "Full-text index with tokenised search",
+        "group": "indexing",
+        "status": "supported",
+        "detail": "text index + $text (community); Atlas Search for BM25/analyzers",
+        "ms": 12.5
+      },
+      "geo_index": {
+        "title": "Geospatial index and radius query",
+        "group": "indexing",
+        "status": "supported",
+        "detail": "2dsphere index + $nearSphere / $geoWithin",
+        "ms": 2.4
+      },
+      "vector_index": {
+        "title": "Vector (ANN) index and kNN query",
+        "group": "indexing",
+        "status": "unsupported",
+        "detail": "$vectorSearch: $vectorSearch stage is only allowed on MongoDB Atlas, full error: {'ok': 0.0, 'errmsg': '$vectorSearch stage is only all",
+        "ms": 5.8
+      },
+      "partial_update": {
+        "title": "Update a single field without rewriting the document",
+        "group": "model",
+        "status": "supported",
+        "detail": "$set / $unset / $inc operators",
+        "ms": 6.0
+      },
+      "atomic_increment": {
+        "title": "Server-side atomic numeric increment",
+        "group": "consistency",
+        "status": "supported",
+        "detail": "$inc via findOneAndUpdate -> [(363,)]",
+        "ms": 2.7
+      },
+      "optimistic_concurrency": {
+        "title": "Compare-and-set / version or ETag-guarded write",
+        "group": "consistency",
+        "status": "supported",
+        "detail": "filter on version + $inc version -> [(1, 2)]",
+        "ms": 3.4
+      },
+      "multi_doc_transaction": {
+        "title": "Multi-document / multi-key ACID transaction with rollback",
+        "group": "consistency",
+        "status": "supported",
+        "detail": "multi-document ACID transactions with abort (replica set / sharded)",
+        "ms": 2.3
+      },
+      "tunable_consistency": {
+        "title": "Per-request consistency / write concern / read preference",
+        "group": "consistency",
+        "status": "supported",
+        "detail": "writeConcern (w, j, wtimeout), readConcern (local/majority/linearizable), readPreference",
+        "ms": 6.4
+      },
+      "nested_query": {
+        "title": "Filter on a field inside a nested object",
+        "group": "model",
+        "status": "supported",
+        "detail": "dot notation on embedded documents",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "array_operators": {
+        "title": "Query and update array-valued fields (contains, push)",
+        "group": "model",
+        "status": "supported",
+        "detail": "$push/$addToSet/$pull, $elemMatch, array equality match -> 1",
+        "ms": 9.7
+      },
+      "aggregation": {
+        "title": "Server-side group-by aggregation",
+        "group": "model",
+        "status": "supported",
+        "detail": "aggregation pipeline",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "server_side_join": {
+        "title": "Join / lookup between two collections inside the engine",
+        "group": "model",
+        "status": "supported",
+        "detail": "$lookup (+ $graphLookup)",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "graph_traversal": {
+        "title": "Variable-depth traversal over references",
+        "group": "model",
+        "status": "supported",
+        "detail": "$graphLookup",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "schema_validation": {
+        "title": "Server-enforced document schema / constraints",
+        "group": "model",
+        "status": "supported",
+        "detail": "$jsonSchema validator rejects non-conforming documents",
+        "ms": 22.1
+      },
+      "change_streams": {
+        "title": "Change feed / watch / keyspace notifications",
+        "group": "operations",
+        "status": "supported",
+        "detail": "change streams (oplog-backed) -> insert",
+        "ms": 7.0
+      },
+      "server_side_scripting": {
+        "title": "Stored procedures / Lua / JS / UDF executed by the server",
+        "group": "operations",
+        "status": "unsupported",
+        "detail": "no server-side JS since 4.2 (no such command: 'eval', full error: {'ok': 0.0, '); $function/$accumulator in aggregation only",
+        "ms": 0.5
+      },
+      "pubsub": {
+        "title": "Publish/subscribe messaging built into the engine",
+        "group": "operations",
+        "status": "unsupported",
+        "detail": "no pub/sub; change streams or capped tailable cursors",
+        "ms": 0.0
+      },
+      "explain_plan": {
+        "title": "Query plan / profile output for a query",
+        "group": "operations",
+        "status": "supported",
+        "detail": "explain(executionStats) -> FETCH",
+        "ms": 1.0
+      },
+      "bulk_import": {
+        "title": "Native bulk import path (bulk API, batch, COPY-like tool)",
+        "group": "operations",
+        "status": "supported",
+        "detail": "insertMany / bulkWrite / mongoimport",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "large_document": {
+        "title": "Store and read back a 15 MB document / value",
+        "group": "limits",
+        "status": "supported",
+        "detail": "15 MB document ok (BSON limit 16 MB; GridFS beyond)",
+        "ms": 347.6
+      },
+      "many_fields": {
+        "title": "Document with 5000 top-level fields",
+        "group": "limits",
+        "status": "supported",
+        "detail": "5001 fields",
+        "ms": 27.0
+      },
+      "read_from_replica": {
+        "title": "Client can direct reads to a replica / secondary",
+        "group": "operations",
+        "status": "supported",
+        "detail": "readPreference=secondary/secondaryPreferred/nearest (+ readConcern)",
+        "ms": 8.7
+      },
+      "snapshot_backup": {
+        "title": "Online snapshot / backup command available",
+        "group": "operations",
+        "status": "supported",
+        "detail": "fsyncLock + filesystem snapshot; mongodump --oplog / mongorestore --oplogReplay (exercised in the backup phase)",
+        "ms": 994.3
+      },
+      "incremental_backup": {
+        "title": "Incremental / differential backup (file- or segment-level)",
+        "group": "operations",
+        "status": "unsupported",
+        "detail": "mongodump is always full; Percona PBM / Ops Manager / Atlas do physical + incremental",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "pitr": {
+        "title": "Point-in-time recovery from a continuous change log",
+        "group": "operations",
+        "status": "supported",
+        "detail": "oplog: mongodump --oplog captures it, PBM tails it continuously (replSetResizeOplog sets the window)",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "slow_query_log": {
+        "title": "Server-side slow-query log with a configurable threshold",
+        "group": "logging",
+        "status": "supported",
+        "detail": "profiler level 1 slowms=100 -> system.profile + JSON log 'Slow query' (getLog global)",
+        "ms": 1.0
+      },
+      "audit_log": {
+        "title": "Audit / full-query log of statements or auth events",
+        "group": "logging",
+        "status": "unsupported",
+        "detail": "auditLog is MongoDB Enterprise / Percona Server for MongoDB; Community has the JSON log + profiler only",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "structured_logs": {
+        "title": "JSON-structured server log out of the box",
+        "group": "logging",
+        "status": "supported",
+        "detail": "JSON log lines since 4.4 ({t, s, c, id, ctx, msg, attr}); getLog returns the in-memory ring",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "runtime_log_level": {
+        "title": "Change log verbosity at run time (no restart)",
+        "group": "logging",
+        "status": "supported",
+        "detail": "setParameter logLevel / logComponentVerbosity (current logLevel 0); db.setProfilingLevel per database",
+        "ms": 2.4
+      },
+      "_seconds": 1.6
+    },
+    "bench": {
+      "ping": {
+        "title": "Round trip: cheapest server call",
+        "tags": [
+          "connection"
+        ],
+        "kind": "read",
+        "params_sample": "{}",
+        "status": "ok",
+        "timing": {
+          "n": 30,
+          "min": 0.277,
+          "p50": 0.295,
+          "p90": 0.332,
+          "p95": 0.359,
+          "p99": 0.373,
+          "max": 0.376,
+          "mean": 0.301,
+          "stdev": 0.025,
+          "first_ms": 0.663
+        },
+        "rows": null,
+        "checksum": null,
+        "error": null,
+        "error_code": null
+      },
+      "get_by_key": {
+        "title": "Point read: customer by primary key",
+        "tags": [
+          "kv",
+          "read"
+        ],
+        "kind": "read",
+        "params_sample": "{'id': 14824}",
+        "status": "ok",
+        "timing": {
+          "n": 30,
+          "min": 0.561,
+          "p50": 0.791,
+          "p90": 0.876,
+          "p95": 0.926,
+          "p99": 0.937,
+          "max": 0.939,
+          "mean": 0.783,
+          "stdev": 0.095,
+          "first_ms": 0.979
+        },
+        "rows": 1,
+        "checksum": "6fd6c2fc65d6b71d6b168c58",
+        "error": null,
+        "error_code": null
+      },
+      "multi_get": {
+        "title": "Batch point read: 100 customers by key in one request",
+        "tags": [
+          "kv",
+          "read",
+          "batch"
+        ],
+        "kind": "read",
+        "params_sample": "{'ids': [18, 151, 359, 492, 497, 554, 975, 986, 1169, 1373, 1715, 1952, 1963, 2070, 2190, 2302, 2394, 2727, 2785, 2856, 2972, 3085, 3312, 3533, 3537, 3818, 3867",
+        "status": "ok",
+        "timing": {
+          "n": 20,
+          "min": 1.945,
+          "p50": 2.164,
+          "p90": 2.326,
+          "p95": 2.353,
+          "p99": 2.379,
+          "max": 2.386,
+          "mean": 2.156,
+          "stdev": 0.123,
+          "first_ms": 2.197
+        },
+        "rows": 100,
+        "checksum": "655e0c701b1171ed48085c10",
+        "error": null,
+        "error_code": null
+      },
+      "insert_one": {
+        "title": "Single document insert (event)",
+        "tags": [
+          "write"
+        ],
+        "kind": "write",
+        "params_sample": "{'id': 50000000, 'customer_id': 14824, 'event_type': 'bench_insert', 'occurred_at': datetime.datetime(2026, 1, 1, 0, 0), 'payload': {'page': '/bench', 'ref': 'd",
+        "status": "ok",
+        "timing": {
+          "n": 30,
+          "min": 3.638,
+          "p50": 3.958,
+          "p90": 4.23,
+          "p95": 4.284,
+          "p99": 4.329,
+          "max": 4.333,
+          "mean": 3.965,
+          "stdev": 0.186,
+          "first_ms": 4.813
+        },
+        "rows": null,
+        "checksum": null,
+        "error": null,
+        "error_code": null
+      },
+      "update_field": {
+        "title": "Partial update: set one field of a customer",
+        "tags": [
+          "write",
+          "partial"
+        ],
+        "kind": "write",
+        "params_sample": "{'id': 14824, 'value': '2026-01-01T00:00:00Z'}",
+        "status": "ok",
+        "timing": {
+          "n": 30,
+          "min": 4.261,
+          "p50": 4.531,
+          "p90": 4.7,
+          "p95": 4.728,
+          "p99": 4.89,
+          "max": 4.951,
+          "mean": 4.531,
+          "stdev": 0.134,
+          "first_ms": 4.639
+        },
+        "rows": null,
+        "checksum": null,
+        "error": null,
+        "error_code": null
+      },
+      "upsert": {
+        "title": "Upsert inventory row by composite key",
+        "tags": [
+          "write"
+        ],
+        "kind": "write",
+        "params_sample": "{'product_id': 3706, 'warehouse_id': 4, 'qty': 331}",
+        "status": "ok",
+        "timing": {
+          "n": 30,
+          "min": 2.688,
+          "p50": 3.611,
+          "p90": 4.437,
+          "p95": 4.485,
+          "p99": 4.563,
+          "max": 4.583,
+          "mean": 3.679,
+          "stdev": 0.656,
+          "first_ms": 4.077
+        },
+        "rows": null,
+        "checksum": null,
+        "error": null,
+        "error_code": null
+      },
+      "delete_one": {
+        "title": "Delete one document by key",
+        "tags": [
+          "write"
+        ],
+        "kind": "write",
+        "params_sample": "{'id': 60000000, 'customer_id': 14824, 'event_type': 'bench_delete', 'occurred_at': datetime.datetime(2026, 1, 2, 0, 0), 'payload': None, 'value_num': 1.0}",
+        "status": "ok",
+        "timing": {
+          "n": 30,
+          "min": 4.283,
+          "p50": 4.46,
+          "p90": 4.611,
+          "p95": 4.648,
+          "p99": 5.862,
+          "max": 6.35,
+          "mean": 4.536,
+          "stdev": 0.349,
+          "first_ms": 4.291
+        },
+        "rows": null,
+        "checksum": null,
+        "error": null,
+        "error_code": null
+      },
+      "atomic_increment": {
+        "title": "Server-side atomic increment of a numeric field",
+        "tags": [
+          "write",
+          "atomic"
+        ],
+        "kind": "write",
+        "params_sample": "{'product_id': 3706, 'warehouse_id': 4, 'qty': 331}",
+        "status": "ok",
+        "timing": {
+          "n": 30,
+          "min": 4.612,
+          "p50": 4.917,
+          "p90": 5.033,
+          "p95": 5.064,
+          "p99": 5.085,
+          "max": 5.087,
+          "mean": 4.897,
+          "stdev": 0.109,
+          "first_ms": 4.885
+        },
+        "rows": 1,
+        "checksum": "198dac8425ff655c276be095",
+        "error": null,
+        "error_code": null
+      },
+      "conditional_update": {
+        "title": "Compare-and-set on a version field",
+        "tags": [
+          "write",
+          "atomic",
+          "cas"
+        ],
+        "kind": "write",
+        "params_sample": "{'product_id': 3706, 'warehouse_id': 4}",
+        "status": "ok",
+        "timing": {
+          "n": 30,
+          "min": 4.674,
+          "p50": 6.066,
+          "p90": 6.265,
+          "p95": 6.395,
+          "p99": 6.538,
+          "max": 6.574,
+          "mean": 5.879,
+          "stdev": 0.492,
+          "first_ms": 6.167
+        },
+        "rows": 1,
+        "checksum": "4a520767a593e2aaa486f609",
+        "error": null,
+        "error_code": null
+      },
+      "batch_insert_1000": {
+        "title": "Bulk write: 1000 events in one request",
+        "tags": [
+          "write",
+          "batch"
+        ],
+        "kind": "write",
+        "params_sample": "{'base': 70000000, 'docs': [{'id': 70000000, 'customer_id': 14824, 'event_type': 'bench_batch', 'occurred_at': datetime.datetime(2026, 1, 3, 0, 0), 'payload': N",
+        "status": "ok",
+        "timing": {
+          "n": 8,
+          "min": 29.576,
+          "p50": 31.83,
+          "p90": 40.801,
+          "p95": 42.588,
+          "p99": 44.018,
+          "max": 44.375,
+          "mean": 33.88,
+          "stdev": 5.001,
+          "first_ms": 46.686
+        },
+        "rows": null,
+        "checksum": null,
+        "error": null,
+        "error_code": null
+      },
+      "range_by_secondary": {
+        "title": "Secondary lookup: orders of one customer",
+        "tags": [
+          "read",
+          "index"
+        ],
+        "kind": "read",
+        "params_sample": "{'customer_id': 14824}",
+        "status": "ok",
+        "timing": {
+          "n": 20,
+          "min": 0.662,
+          "p50": 0.773,
+          "p90": 0.824,
+          "p95": 0.855,
+          "p99": 0.935,
+          "max": 0.955,
+          "mean": 0.771,
+          "stdev": 0.064,
+          "first_ms": 1.421
+        },
+        "rows": 7,
+        "checksum": "28011086de01faf9ceced703",
+        "error": null,
+        "error_code": null
+      },
+      "range_by_time": {
+        "title": "Range scan: events of one type in a 3-day window",
+        "tags": [
+          "read",
+          "range",
+          "time"
+        ],
+        "kind": "read",
+        "params_sample": "{'event_type': 'checkout', 'start': datetime.datetime(2025, 8, 28, 0, 0), 'end': datetime.datetime(2025, 8, 31, 0, 0), 'limit': 100}",
+        "status": "ok",
+        "timing": {
+          "n": 10,
+          "min": 592.799,
+          "p50": 599.228,
+          "p90": 614.425,
+          "p95": 615.978,
+          "p99": 617.221,
+          "max": 617.532,
+          "mean": 602.295,
+          "stdev": 7.753,
+          "first_ms": 600.904
+        },
+        "rows": 100,
+        "checksum": "706ac8b4bf31cce133e30d69",
+        "error": null,
+        "error_code": null
+      },
+      "filter_nested": {
+        "title": "Filter on a nested field + top-level field",
+        "tags": [
+          "read",
+          "nested"
+        ],
+        "kind": "read",
+        "params_sample": "{}",
+        "status": "ok",
+        "timing": {
+          "n": 10,
+          "min": 1.18,
+          "p50": 1.299,
+          "p90": 1.342,
+          "p95": 1.343,
+          "p99": 1.343,
+          "max": 1.344,
+          "mean": 1.282,
+          "stdev": 0.057,
+          "first_ms": 1.488
+        },
+        "rows": 1,
+        "checksum": "a37e4981ca422ff62b38fee7",
+        "error": null,
+        "error_code": null
+      },
+      "array_contains": {
+        "title": "Filter on array membership",
+        "tags": [
+          "read",
+          "array"
+        ],
+        "kind": "read",
+        "params_sample": "{}",
+        "status": "ok",
+        "timing": {
+          "n": 10,
+          "min": 2.835,
+          "p50": 2.937,
+          "p90": 3.092,
+          "p95": 3.116,
+          "p99": 3.136,
+          "max": 3.141,
+          "mean": 2.97,
+          "stdev": 0.102,
+          "first_ms": 3.159
+        },
+        "rows": 1,
+        "checksum": "855c097b08a3ac4fd8a9ee27",
+        "error": null,
+        "error_code": null
+      },
+      "top_n_sorted": {
+        "title": "Top-N with sort: 10 most expensive active products of a category",
+        "tags": [
+          "read",
+          "sort"
+        ],
+        "kind": "read",
+        "params_sample": "{'category_id': 116, 'n': 10}",
+        "status": "ok",
+        "timing": {
+          "n": 20,
+          "min": 1.183,
+          "p50": 1.281,
+          "p90": 1.404,
+          "p95": 1.532,
+          "p99": 1.56,
+          "max": 1.567,
+          "mean": 1.314,
+          "stdev": 0.091,
+          "first_ms": 1.42
+        },
+        "rows": 10,
+        "checksum": "a26dab79ede7f4d5249c5cb5",
+        "error": null,
+        "error_code": null
+      },
+      "pagination_offset": {
+        "title": "Deep page via offset (skip 10000)",
+        "tags": [
+          "read",
+          "pagination"
+        ],
+        "kind": "read",
+        "params_sample": "{'offset': 10000, 'page': 50}",
+        "status": "ok",
+        "timing": {
+          "n": 8,
+          "min": 7.934,
+          "p50": 8.488,
+          "p90": 9.098,
+          "p95": 9.278,
+          "p99": 9.422,
+          "max": 9.458,
+          "mean": 8.572,
+          "stdev": 0.463,
+          "first_ms": 9.461
+        },
+        "rows": 50,
+        "checksum": "e46e41f3a92752684bbeda77",
+        "error": null,
+        "error_code": null
+      },
+      "pagination_keyset": {
+        "title": "Deep page via keyset / cursor",
+        "tags": [
+          "read",
+          "pagination"
+        ],
+        "kind": "read",
+        "params_sample": "{'offset': 10000, 'page': 50}",
+        "status": "ok",
+        "timing": {
+          "n": 10,
+          "min": 1.954,
+          "p50": 2.017,
+          "p90": 2.044,
+          "p95": 2.052,
+          "p99": 2.058,
+          "max": 2.06,
+          "mean": 2.015,
+          "stdev": 0.028,
+          "first_ms": 9.098
+        },
+        "rows": 50,
+        "checksum": "e46e41f3a92752684bbeda77",
+        "error": null,
+        "error_code": null
+      },
+      "count_filtered": {
+        "title": "Count with equality filter",
+        "tags": [
+          "read",
+          "aggregate"
+        ],
+        "kind": "read",
+        "params_sample": "{}",
+        "status": "ok",
+        "timing": {
+          "n": 10,
+          "min": 8.729,
+          "p50": 9.096,
+          "p90": 9.275,
+          "p95": 9.509,
+          "p99": 9.696,
+          "max": 9.743,
+          "mean": 9.096,
+          "stdev": 0.264,
+          "first_ms": 10.443
+        },
+        "rows": 1,
+        "checksum": "462747c4825a83f70293e696",
+        "error": null,
+        "error_code": null
+      },
+      "aggregate_group": {
+        "title": "Group-by aggregate over 200k orders",
+        "tags": [
+          "read",
+          "aggregate"
+        ],
+        "kind": "read",
+        "params_sample": "{}",
+        "status": "ok",
+        "timing": {
+          "n": 8,
+          "min": 247.226,
+          "p50": 251.151,
+          "p90": 273.527,
+          "p95": 276.456,
+          "p99": 278.798,
+          "max": 279.384,
+          "mean": 258.277,
+          "stdev": 11.305,
+          "first_ms": 248.811
+        },
+        "rows": 13,
+        "checksum": "82a653fa5048bcc6289cad3d",
+        "error": null,
+        "error_code": null
+      },
+      "aggregate_time_bucket": {
+        "title": "Time-bucketed aggregate over 1M events",
+        "tags": [
+          "read",
+          "aggregate",
+          "time"
+        ],
+        "kind": "read",
+        "params_sample": "{}",
+        "status": "ok",
+        "timing": {
+          "n": 5,
+          "min": 645.282,
+          "p50": 651.825,
+          "p90": 667.712,
+          "p95": 672.829,
+          "p99": 676.924,
+          "max": 677.947,
+          "mean": 654.832,
+          "stdev": 11.883,
+          "first_ms": 648.322
+        },
+        "rows": 24,
+        "checksum": "7c611891940b3812b8b36ca6",
+        "error": null,
+        "error_code": null
+      },
+      "join_lookup": {
+        "title": "Orders of a customer with the customer's name (server-side join if the engine has one)",
+        "tags": [
+          "read",
+          "join"
+        ],
+        "kind": "read",
+        "params_sample": "{'customer_id': 14824}",
+        "status": "ok",
+        "timing": {
+          "n": 20,
+          "min": 1.781,
+          "p50": 2.359,
+          "p90": 2.776,
+          "p95": 2.928,
+          "p99": 3.36,
+          "max": 3.468,
+          "mean": 2.367,
+          "stdev": 0.374,
+          "first_ms": 4.653
+        },
+        "rows": 7,
+        "checksum": "4c1b6f23a7e9d95af19b26c5",
+        "error": null,
+        "error_code": null
+      },
+      "graph_traversal": {
+        "title": "Category ancestor chain of a product (variable-depth traversal)",
+        "tags": [
+          "read",
+          "graph"
+        ],
+        "kind": "read",
+        "params_sample": "{'product_id': 3706}",
+        "status": "ok",
+        "timing": {
+          "n": 20,
+          "min": 1.416,
+          "p50": 1.695,
+          "p90": 1.848,
+          "p95": 1.859,
+          "p99": 1.861,
+          "max": 1.862,
+          "mean": 1.675,
+          "stdev": 0.132,
+          "first_ms": 1.84
+        },
+        "rows": 2,
+        "checksum": "f8df79f1ddf52e913fdd7bbf",
+        "error": null,
+        "error_code": null
+      },
+      "text_search": {
+        "title": "Full-text search on product descriptions",
+        "tags": [
+          "read",
+          "text"
+        ],
+        "kind": "read",
+        "params_sample": "{'words': ['wireless', 'charger'], 'limit': 20}",
+        "status": "ok",
+        "timing": {
+          "n": 10,
+          "min": 10.234,
+          "p50": 10.942,
+          "p90": 11.165,
+          "p95": 11.747,
+          "p99": 12.211,
+          "max": 12.328,
+          "mean": 10.946,
+          "stdev": 0.524,
+          "first_ms": 13.498
+        },
+        "rows": 20,
+        "checksum": "a235fed79befa7de480f1d5b",
+        "error": null,
+        "error_code": null
+      },
+      "geo_near": {
+        "title": "Geo radius query on customer locations",
+        "tags": [
+          "read",
+          "geo"
+        ],
+        "kind": "read",
+        "params_sample": "{'lat': 52.5, 'lon': 13.4, 'km': 200, 'limit': 20}",
+        "status": "ok",
+        "timing": {
+          "n": 10,
+          "min": 1.564,
+          "p50": 1.981,
+          "p90": 2.594,
+          "p95": 2.733,
+          "p99": 2.845,
+          "max": 2.873,
+          "mean": 2.057,
+          "stdev": 0.484,
+          "first_ms": 1.971
+        },
+        "rows": 20,
+        "checksum": "ef5985a217c590de050f108e",
+        "error": null,
+        "error_code": null
+      },
+      "vector_knn": {
+        "title": "k-nearest-neighbour search on 8-dim product embeddings",
+        "tags": [
+          "read",
+          "vector"
+        ],
+        "kind": "read",
+        "params_sample": "{'vector': [-0.16177, -0.22283, -0.59722, 0.1963, 0.07576, 0.45484, 0.05553, 0.5597], 'k': 10}",
+        "status": "unsupported",
+        "timing": {
+          "n": 0,
+          "first_ms": null
+        },
+        "rows": null,
+        "checksum": null,
+        "error": "Unsupported: $vectorSearch: $vectorSearch stage is only allowed on MongoDB Atlas, full error: {'ok': 0.0, 'errmsg': '$vectorSearch stage is only all",
+        "error_code": null
+      },
+      "transaction_transfer": {
+        "title": "Multi-document atomic transfer between two inventory rows",
+        "tags": [
+          "write",
+          "txn"
+        ],
+        "kind": "txn",
+        "params_sample": "{'product_id': 3706, 'from': 4, 'to': 2, 'amount': 1}",
+        "status": "ok",
+        "timing": {
+          "n": 20,
+          "min": 5.634,
+          "p50": 6.429,
+          "p90": 6.868,
+          "p95": 7.908,
+          "p99": 19.038,
+          "max": 21.821,
+          "mean": 7.182,
+          "stdev": 3.378,
+          "first_ms": 6.638
+        },
+        "rows": null,
+        "checksum": null,
+        "error": null,
+        "error_code": null
+      },
+      "ttl_set": {
+        "title": "Write with expiry",
+        "tags": [
+          "write",
+          "ttl"
+        ],
+        "kind": "write",
+        "params_sample": "{'key': 'ttl:0', 'seconds': 120, 'value': {'i': 0, 'note': 'bench'}}",
+        "status": "ok",
+        "timing": {
+          "n": 30,
+          "min": 2.738,
+          "p50": 4.466,
+          "p90": 4.604,
+          "p95": 4.62,
+          "p99": 4.685,
+          "max": 4.71,
+          "mean": 4.229,
+          "stdev": 0.551,
+          "first_ms": 4.87
+        },
+        "rows": null,
+        "checksum": null,
+        "error": null,
+        "error_code": null
+      },
+      "scan_full": {
+        "title": "Full scan: count all events",
+        "tags": [
+          "read",
+          "scan"
+        ],
+        "kind": "read",
+        "params_sample": "{}",
+        "status": "ok",
+        "timing": {
+          "n": 5,
+          "min": 556.508,
+          "p50": 577.597,
+          "p90": 590.901,
+          "p95": 594.493,
+          "p99": 597.367,
+          "max": 598.086,
+          "mean": 574.45,
+          "stdev": 15.055,
+          "first_ms": 603.219
+        },
+        "rows": 1,
+        "checksum": "3c61354c65cb9b97e3304b8e",
+        "error": null,
+        "error_code": null
+      },
+      "_seconds": 20.9
+    },
+    "optimize": {
+      "opt01_secondary_index": {
+        "title": "Range scan on events(event_type, occurred_at): no index vs secondary index (both column orders)",
+        "what": "an access path that is not indexed is a full scan; composite order matters on B-tree-like engines",
+        "variants": [
+          {
+            "name": "no_index",
+            "note": "",
+            "ok": true,
+            "error": null,
+            "p50_ms": 593.826,
+            "p95_ms": 602.239,
+            "n": 8,
+            "rows": 100
+          },
+          {
+            "name": "index_(event_type,occurred_at)",
+            "setup": "createIndex(events, ['event_type', 'occurred_at']) as ix_events_type_ts",
+            "ok": true,
+            "error": null,
+            "p50_ms": 5.601,
+            "p95_ms": 7.08,
+            "n": 8,
+            "rows": 100
+          },
+          {
+            "name": "index_(occurred_at,event_type)",
+            "setup": "createIndex(events, ['occurred_at', 'event_type']) as ix_events_type_ts",
+            "ok": true,
+            "error": null,
+            "p50_ms": 16.288,
+            "p95_ms": 19.06,
+            "n": 8,
+            "rows": 100
+          }
+        ],
+        "best_variant": "index_(event_type,occurred_at)",
+        "speedup_vs_first": 106.02
+      },
+      "opt02_projection": {
+        "title": "Point read of an order: whole document (with embedded items) vs 3-field projection",
+        "what": "returning fewer fields saves serialisation and transfer; some engines still read the whole document",
+        "variants": [
+          {
+            "name": "full_document",
+            "ok": true,
+            "error": null,
+            "p50_ms": 1.311,
+            "p95_ms": 1.406,
+            "n": 30,
+            "rows": 1
+          },
+          {
+            "name": "projection_3_fields",
+            "ok": true,
+            "error": null,
+            "p50_ms": 1.409,
+            "p95_ms": 1.443,
+            "n": 30,
+            "rows": 1
+          }
+        ],
+        "best_variant": "full_document",
+        "speedup_vs_first": 1.0
+      },
+      "opt03_pagination": {
+        "title": "Deep pagination: offset/skip vs keyset (cursor) at depth 10k and 100k",
+        "what": "offset still walks and discards rows; a keyset cursor seeks directly into the sorted index",
+        "variants": [
+          {
+            "name": "offset_depth_10000",
+            "ok": true,
+            "error": null,
+            "p50_ms": 12.498,
+            "p95_ms": 14.76,
+            "n": 8,
+            "rows": 50
+          },
+          {
+            "name": "keyset_depth_10000",
+            "ok": true,
+            "error": null,
+            "p50_ms": 2.151,
+            "p95_ms": 2.27,
+            "n": 8,
+            "rows": 50
+          },
+          {
+            "name": "offset_depth_100000",
+            "ok": true,
+            "error": null,
+            "p50_ms": 61.368,
+            "p95_ms": 62.286,
+            "n": 8,
+            "rows": 50
+          },
+          {
+            "name": "keyset_depth_100000",
+            "ok": true,
+            "error": null,
+            "p50_ms": 1.976,
+            "p95_ms": 2.092,
+            "n": 8,
+            "rows": 50
+          }
+        ],
+        "best_variant": "keyset_depth_100000",
+        "speedup_vs_first": 6.32
+      },
+      "opt04_batching": {
+        "title": "Write batching: 2000 events one-by-one vs 2 bulk requests of 1000",
+        "what": "round trips dominate small writes; every engine has a bulk path (insert_many, pipeline, batch, _bulk)",
+        "variants": [
+          {
+            "name": "single_put_x2000",
+            "rows": 2000,
+            "seconds": 7.918,
+            "rows_per_s": 253,
+            "error": null,
+            "ok": true
+          },
+          {
+            "name": "bulk_put_1000_x2",
+            "rows": 2000,
+            "seconds": 0.092,
+            "rows_per_s": 21811,
+            "error": null,
+            "ok": true
+          }
+        ],
+        "speedup_vs_first": 86.21,
+        "best_variant": "bulk_put_1000_x2"
+      },
+      "opt05_multi_get": {
+        "title": "100 point reads: sequential round trips vs one multi-get request",
+        "what": "batched reads (MGET / $in / IN / mget / pipelining) amortise the network round trip",
+        "variants": [
+          {
+            "name": "sequential_100_gets",
+            "ok": true,
+            "error": null,
+            "p50_ms": 113.772,
+            "p95_ms": 134.093,
+            "n": 10,
+            "rows": 100
+          },
+          {
+            "name": "multi_get_100",
+            "ok": true,
+            "error": null,
+            "p50_ms": 2.919,
+            "p95_ms": 3.115,
+            "n": 10,
+            "rows": 100
+          }
+        ],
+        "best_variant": "multi_get_100",
+        "speedup_vs_first": 38.98
+      },
+      "opt06_embedding_vs_reference": {
+        "title": "Order with its items: embedded array (one document) vs referenced (order + items lookup)",
+        "what": "embedding what is read together avoids a second query / join; referencing keeps documents small and items independently addressable",
+        "variants": [
+          {
+            "name": "embedded_items",
+            "ok": true,
+            "error": null,
+            "p50_ms": 1.331,
+            "p95_ms": 1.385,
+            "n": 30,
+            "rows": 1
+          },
+          {
+            "name": "referenced_items",
+            "ok": true,
+            "error": null,
+            "p50_ms": 2.895,
+            "p95_ms": 3.141,
+            "n": 30,
+            "rows": 1
+          }
+        ],
+        "best_variant": "embedded_items",
+        "speedup_vs_first": 1.0
+      },
+      "opt07_write_durability": {
+        "title": "Single-document write at each durability / write-concern level the engine offers",
+        "what": "acknowledgement level (replica acks, fsync, refresh) is the biggest lever on write latency",
+        "variants": [
+          {
+            "name": "w0_unacknowledged",
+            "ok": true,
+            "error": null,
+            "p50_ms": 0.322,
+            "p95_ms": 0.414,
+            "n": 30,
+            "rows": null
+          },
+          {
+            "name": "w1",
+            "ok": true,
+            "error": null,
+            "p50_ms": 1.463,
+            "p95_ms": 1.721,
+            "n": 30,
+            "rows": null
+          },
+          {
+            "name": "w1_journal",
+            "ok": true,
+            "error": null,
+            "p50_ms": 2.183,
+            "p95_ms": 2.51,
+            "n": 30,
+            "rows": null
+          },
+          {
+            "name": "w_majority",
+            "ok": true,
+            "error": null,
+            "p50_ms": 4.545,
+            "p95_ms": 4.7,
+            "n": 30,
+            "rows": null
+          },
+          {
+            "name": "w_majority_journal",
+            "ok": true,
+            "error": null,
+            "p50_ms": 4.54,
+            "p95_ms": 4.925,
+            "n": 30,
+            "rows": null
+          }
+        ],
+        "best_variant": "w0_unacknowledged",
+        "speedup_vs_first": 1.0
+      },
+      "opt08_read_consistency": {
+        "title": "Point read at each read consistency level / read preference the engine offers",
+        "what": "linearizable / quorum reads cost extra round trips; replica reads trade freshness for offload",
+        "variants": [
+          {
+            "name": "primary",
+            "ok": true,
+            "error": null,
+            "p50_ms": 0.68,
+            "p95_ms": 0.857,
+            "n": 30,
+            "rows": 1
+          },
+          {
+            "name": "local",
+            "ok": true,
+            "error": null,
+            "p50_ms": 0.645,
+            "p95_ms": 0.773,
+            "n": 30,
+            "rows": 1
+          },
+          {
+            "name": "majority",
+            "ok": true,
+            "error": null,
+            "p50_ms": 0.709,
+            "p95_ms": 0.884,
+            "n": 30,
+            "rows": 1
+          },
+          {
+            "name": "secondaryPreferred@replica",
+            "ok": true,
+            "error": null,
+            "p50_ms": 0.495,
+            "p95_ms": 0.625,
+            "n": 30,
+            "rows": 1
+          },
+          {
+            "name": "linearizable",
+            "ok": true,
+            "error": null,
+            "p50_ms": 3.541,
+            "p95_ms": 3.91,
+            "n": 30,
+            "rows": 1
+          }
+        ],
+        "best_variant": "secondaryPreferred@replica",
+        "speedup_vs_first": 1.37
+      },
+      "opt09_connection_reuse": {
+        "title": "Point read with a new connection per operation vs one persistent client",
+        "what": "handshakes (TCP, TLS, auth, topology discovery) dwarf a point read; always pool",
+        "variants": [
+          {
+            "name": "connect_per_operation",
+            "ok": true,
+            "error": null,
+            "p50_ms": 5.098,
+            "p95_ms": 7.698,
+            "n": 20,
+            "rows": 1
+          },
+          {
+            "name": "persistent_client",
+            "ok": true,
+            "error": null,
+            "p50_ms": 0.521,
+            "p95_ms": 0.602,
+            "n": 30,
+            "rows": 1
+          }
+        ],
+        "best_variant": "persistent_client",
+        "speedup_vs_first": 9.79
+      },
+      "_seconds": 23.8
+    },
+    "connections": {
+      "max_connections": 5000,
+      "connect_latency": {
+        "primary": {
+          "target": "primary",
+          "n": 30,
+          "ms": {
+            "n": 30,
+            "min": 3.410817,
+            "p50": 3.9047330000000002,
+            "p90": 4.7606107,
+            "p95": 5.0023943,
+            "p99": 5.3191262,
+            "max": 5.418689,
+            "mean": 4.0115731666666665,
+            "stdev": 0.47386789973649
+          },
+          "errors": [],
+          "error_count": 0
+        }
+      },
+      "storm": {
+        "primary": [
+          {
+            "target": "primary",
+            "requested": 10,
+            "opened": 10,
+            "failed": 0,
+            "wall_ms_to_open_all": 50.2,
+            "connect_ms": {
+              "n": 10,
+              "min": 27.178055,
+              "p50": 28.5205385,
+              "p90": 31.987624,
+              "p95": 32.4823675,
+              "p99": 32.8781623,
+              "max": 32.977111,
+              "mean": 29.585822,
+              "stdev": 2.0035165838000437
+            },
+            "error_codes": {},
+            "sample_error": null
+          },
+          {
+            "target": "primary",
+            "requested": 50,
+            "opened": 50,
+            "failed": 0,
+            "wall_ms_to_open_all": 211.5,
+            "connect_ms": {
+              "n": 50,
+              "min": 100.322992,
+              "p50": 145.32252699999998,
+              "p90": 158.1134442,
+              "p95": 159.9756904,
+              "p99": 162.24500204999998,
+              "max": 162.411972,
+              "mean": 140.51310678,
+              "stdev": 16.161094790944677
+            },
+            "error_codes": {},
+            "sample_error": null
+          },
+          {
+            "target": "primary",
+            "requested": 100,
+            "opened": 100,
+            "failed": 0,
+            "wall_ms_to_open_all": 381.8,
+            "connect_ms": {
+              "n": 100,
+              "min": 181.499953,
+              "p50": 265.402999,
+              "p90": 313.3231227,
+              "p95": 321.44696439999996,
+              "p99": 326.44124016,
+              "max": 329.058222,
+              "mean": 265.91227266,
+              "stdev": 35.00589010000593
+            },
+            "error_codes": {},
+            "sample_error": null
+          },
+          {
+            "target": "primary",
+            "requested": 200,
+            "opened": 200,
+            "failed": 0,
+            "wall_ms_to_open_all": 714.2,
+            "connect_ms": {
+              "n": 200,
+              "min": 315.2475,
+              "p50": 503.1130115,
+              "p90": 606.0467135,
+              "p95": 628.7345106,
+              "p99": 649.80016708,
+              "max": 654.44296,
+              "mean": 502.28702641999996,
+              "stdev": 80.47851712294464
+            },
+            "error_codes": {},
+            "sample_error": null
+          },
+          {
+            "target": "primary",
+            "requested": 500,
+            "opened": 500,
+            "failed": 0,
+            "wall_ms_to_open_all": 1778.0,
+            "connect_ms": {
+              "n": 500,
+              "min": 322.164116,
+              "p50": 1021.091363,
+              "p90": 1490.6138808,
+              "p95": 1571.29282595,
+              "p99": 1702.6502764,
+              "max": 1749.929473,
+              "mean": 1009.151363778,
+              "stdev": 342.63646913731446
+            },
+            "error_codes": {},
+            "sample_error": null
+          }
+        ]
+      },
+      "concurrency": {
+        "primary": [
+          {
+            "workers": 1,
+            "targets": [
+              "primary"
+            ],
+            "ops": 3142,
+            "errors": 0,
+            "seconds": 4.0,
+            "ops_per_s": 786,
+            "latency_ms": {
+              "n": 3142,
+              "min": 0.464204,
+              "p50": 1.3936790000000001,
+              "p90": 1.4695747,
+              "p95": 1.5024849999999998,
+              "p99": 1.779636680000004,
+              "max": 3.559993,
+              "mean": 1.270274482495226,
+              "stdev": 0.2848144374618978
+            },
+            "first_error": null,
+            "workers_reported": 1
+          },
+          {
+            "workers": 4,
+            "targets": [
+              "primary"
+            ],
+            "ops": 13998,
+            "errors": 0,
+            "seconds": 4.0,
+            "ops_per_s": 3500,
+            "latency_ms": {
+              "n": 13998,
+              "min": 0.408633,
+              "p50": 1.2316745,
+              "p90": 1.4355062,
+              "p95": 1.4924975999999999,
+              "p99": 1.6418774900000008,
+              "max": 6.041163,
+              "mean": 1.1404802538219745,
+              "stdev": 0.3037127739608114
+            },
+            "first_error": null,
+            "workers_reported": 4
+          },
+          {
+            "workers": 16,
+            "targets": [
+              "primary"
+            ],
+            "ops": 95381,
+            "errors": 0,
+            "seconds": 4.0,
+            "ops_per_s": 23845,
+            "latency_ms": {
+              "n": 95381,
+              "min": 0.449977,
+              "p50": 0.618544,
+              "p90": 0.712765,
+              "p95": 0.828351,
+              "p99": 1.0852483999999991,
+              "max": 193.351723,
+              "mean": 0.6694064525219907,
+              "stdev": 2.3648432852417622
+            },
+            "first_error": null,
+            "workers_reported": 16
+          },
+          {
+            "workers": 32,
+            "targets": [
+              "primary"
+            ],
+            "ops": 111823,
+            "errors": 0,
+            "seconds": 4.0,
+            "ops_per_s": 27956,
+            "latency_ms": {
+              "n": 111823,
+              "min": 0.531142,
+              "p50": 1.068829,
+              "p90": 1.6121262,
+              "p95": 1.8108570999999998,
+              "p99": 2.30580406,
+              "max": 9.443542,
+              "mean": 1.1431138902819635,
+              "stdev": 0.3714099476054045
+            },
+            "first_error": null,
+            "workers_reported": 32
+          },
+          {
+            "workers": 64,
+            "targets": [
+              "primary"
+            ],
+            "ops": 122279,
+            "errors": 0,
+            "seconds": 4.0,
+            "ops_per_s": 30570,
+            "latency_ms": {
+              "n": 122279,
+              "min": 0.563802,
+              "p50": 1.884755,
+              "p90": 3.2726821999999998,
+              "p95": 3.8620287999999987,
+              "p99": 5.4174619,
+              "max": 29.007214,
+              "mean": 2.092328605247017,
+              "stdev": 1.0150094660358544
+            },
+            "first_error": null,
+            "workers_reported": 64
+          }
+        ]
+      },
+      "pool_saturation": {
+        "pool_size": 8,
+        "workers": 32,
+        "ops": 5150,
+        "ops_per_s": 1279,
+        "checkout_wait_ms": {
+          "n": 5150,
+          "min": 0.001938,
+          "p50": 0.005473,
+          "p90": 0.007264100000000033,
+          "p95": 0.0086081,
+          "p99": 0.015332540000000056,
+          "max": 4012.93092,
+          "mean": 18.567076598058254,
+          "stdev": 271.27222483750904
+        },
+        "exec_ms": {
+          "n": 5150,
+          "min": 0.615887,
+          "p50": 5.408526,
+          "p90": 10.698806800000002,
+          "p95": 12.795339450000005,
+          "p99": 17.0418894,
+          "max": 92.608571,
+          "mean": 6.235030175339806,
+          "stdev": 4.57449873457213
+        }
+      },
+      "write_contention": {
+        "threads": 4,
+        "iters_per_thread": 50,
+        "applied": 96,
+        "rejected": 104,
+        "errors": 0,
+        "version_before": 3,
+        "version_after": 99,
+        "version_delta": 96,
+        "atomic": true,
+        "seconds": 0.29,
+        "cas_ms": {
+          "n": 200,
+          "min": 3.203179,
+          "p50": 5.613936,
+          "p90": 7.8732959,
+          "p95": 8.2415398,
+          "p99": 8.560069069999997,
+          "max": 9.063413,
+          "mean": 5.804946179999999,
+          "stdev": 1.4279576484320526
+        },
+        "first_error": null,
+        "interpretation": "every accepted CAS advanced the version exactly once: atomic compare-and-set"
+      },
+      "_seconds": 47.2
+    },
+    "loadtest": {
+      "batch_rows": 1000,
+      "seconds_per_run": 15.0,
+      "containers": [
+        "nslab-mongo1",
+        "nslab-mongo2",
+        "nslab-mongo3"
+      ],
+      "runs": [
+        {
+          "workers": 4,
+          "target": "primary",
+          "rows": 1257000,
+          "batches": 1257,
+          "errors": 0,
+          "seconds": 15.0,
+          "rows_per_s": 83800,
+          "batch_ms": {
+            "n": 1257,
+            "min": 24.438451,
+            "p50": 31.074595,
+            "p90": 89.51832500000013,
+            "p95": 121.426688,
+            "p99": 212.84875332000016,
+            "max": 542.337383,
+            "mean": 44.62789571201273,
+            "stdev": 44.85204155424906
+          },
+          "first_error": null,
+          "workers_reported": 4,
+          "cleanup_s": 15.8,
+          "container_usage": {
+            "nslab-mongo1": {
+              "cpu_cores_avg": 3.278,
+              "cpu_limit_cores": null,
+              "cpu_pct_of_limit": null,
+              "mem_peak_mb": 4808,
+              "mem_end_mb": 4667,
+              "mem_limit_mb": null,
+              "cpu_cores_avg_during_inserts": 7.098
+            },
+            "nslab-mongo2": {
+              "cpu_cores_avg": 6.358,
+              "cpu_limit_cores": null,
+              "cpu_pct_of_limit": null,
+              "mem_peak_mb": 4895,
+              "mem_end_mb": 4739,
+              "mem_limit_mb": null,
+              "cpu_cores_avg_during_inserts": 13.768
+            },
+            "nslab-mongo3": {
+              "cpu_cores_avg": 6.123,
+              "cpu_limit_cores": null,
+              "cpu_pct_of_limit": null,
+              "mem_peak_mb": 4890,
+              "mem_end_mb": 4733,
+              "mem_limit_mb": null,
+              "cpu_cores_avg_during_inserts": 13.259
+            }
+          }
+        },
+        {
+          "workers": 16,
+          "target": "primary",
+          "rows": 2034000,
+          "batches": 2034,
+          "errors": 0,
+          "seconds": 15.0,
+          "rows_per_s": 135600,
+          "batch_ms": {
+            "n": 2034,
+            "min": 33.661582,
+            "p50": 105.81172000000001,
+            "p90": 149.2130319,
+            "p95": 176.4199129499996,
+            "p99": 370.11657817,
+            "max": 395.67996,
+            "mean": 114.28313196116028,
+            "stdev": 45.37098119744762
+          },
+          "first_error": null,
+          "workers_reported": 16,
+          "cleanup_s": 29.7,
+          "container_usage": {
+            "nslab-mongo1": {
+              "cpu_cores_avg": 4.805,
+              "cpu_limit_cores": null,
+              "cpu_pct_of_limit": null,
+              "mem_peak_mb": 5770,
+              "mem_end_mb": 5681,
+              "mem_limit_mb": null,
+              "cpu_cores_avg_during_inserts": 15.124
+            },
+            "nslab-mongo2": {
+              "cpu_cores_avg": 8.021,
+              "cpu_limit_cores": null,
+              "cpu_pct_of_limit": null,
+              "mem_peak_mb": 5967,
+              "mem_end_mb": 5839,
+              "mem_limit_mb": null,
+              "cpu_cores_avg_during_inserts": 25.246
+            },
+            "nslab-mongo3": {
+              "cpu_cores_avg": 7.648,
+              "cpu_limit_cores": null,
+              "cpu_pct_of_limit": null,
+              "mem_peak_mb": 5945,
+              "mem_end_mb": 5604,
+              "mem_limit_mb": null,
+              "cpu_cores_avg_during_inserts": 24.072
+            }
+          }
+        },
+        {
+          "workers": 32,
+          "target": "primary",
+          "rows": 2340000,
+          "batches": 2340,
+          "errors": 0,
+          "seconds": 15.0,
+          "rows_per_s": 156000,
+          "batch_ms": {
+            "n": 2340,
+            "min": 58.885168,
+            "p50": 195.4179915,
+            "p90": 243.30171639999998,
+            "p95": 275.5740074,
+            "p99": 364.14966312000035,
+            "max": 498.131732,
+            "mean": 201.225645958547,
+            "stdev": 43.56813287026375
+          },
+          "first_error": null,
+          "workers_reported": 32,
+          "cleanup_s": 38.0,
+          "container_usage": {
+            "nslab-mongo1": {
+              "cpu_cores_avg": 5.475,
+              "cpu_limit_cores": null,
+              "cpu_pct_of_limit": null,
+              "mem_peak_mb": 6844,
+              "mem_end_mb": 6495,
+              "mem_limit_mb": null,
+              "cpu_cores_avg_during_inserts": 20.551
+            },
+            "nslab-mongo2": {
+              "cpu_cores_avg": 8.088,
+              "cpu_limit_cores": null,
+              "cpu_pct_of_limit": null,
+              "mem_peak_mb": 6375,
+              "mem_end_mb": 6214,
+              "mem_limit_mb": null,
+              "cpu_cores_avg_during_inserts": 30.359
+            },
+            "nslab-mongo3": {
+              "cpu_cores_avg": 7.927,
+              "cpu_limit_cores": null,
+              "cpu_pct_of_limit": null,
+              "mem_peak_mb": 6397,
+              "mem_end_mb": 6236,
+              "mem_limit_mb": null,
+              "cpu_cores_avg_during_inserts": 29.755
+            }
+          }
+        }
+      ],
+      "best": {
+        "target": "primary",
+        "workers": 32,
+        "rows_per_s": 156000
+      },
+      "_seconds": 136.3
+    },
+    "replication": {
+      "kind": "replica set (oplog, async, automatic election)",
+      "topology": {
+        "primary": {
+          "role_reported": "primary",
+          "role_configured": "primary",
+          "version": "MongoDB 7.0.37",
+          "status": {
+            "set": "rs0",
+            "my_state": 1,
+            "members": [
+              {
+                "name": "mongo1:27017",
+                "state": "PRIMARY",
+                "optime": "2026-09-13 11:03:52",
+                "lag_s": 2.739
+              },
+              {
+                "name": "mongo2:27018",
+                "state": "SECONDARY",
+                "optime": "2026-09-13 11:03:52",
+                "lag_s": 2.739
+              },
+              {
+                "name": "mongo3:27019",
+                "state": "SECONDARY",
+                "optime": "2026-09-13 11:03:52",
+                "lag_s": 2.739
+              }
+            ]
+          }
+        },
+        "replica": {
+          "role_reported": "replica",
+          "role_configured": "replica",
+          "version": "MongoDB 7.0.37",
+          "status": {
+            "set": "rs0",
+            "my_state": 2,
+            "members": [
+              {
+                "name": "mongo1:27017",
+                "state": "PRIMARY",
+                "optime": "2026-09-13 11:03:52",
+                "lag_s": 2.747
+              },
+              {
+                "name": "mongo2:27018",
+                "state": "SECONDARY",
+                "optime": "2026-09-13 11:03:52",
+                "lag_s": 2.747
+              },
+              {
+                "name": "mongo3:27019",
+                "state": "SECONDARY",
+                "optime": "2026-09-13 11:03:51",
+                "lag_s": 3.747
+              }
+            ]
+          }
+        },
+        "replica2": {
+          "role_reported": "replica",
+          "role_configured": "replica",
+          "version": "MongoDB 7.0.37",
+          "status": {
+            "set": "rs0",
+            "my_state": 2,
+            "members": [
+              {
+                "name": "mongo1:27017",
+                "state": "PRIMARY",
+                "optime": "2026-09-13 11:03:52",
+                "lag_s": 2.753
+              },
+              {
+                "name": "mongo2:27018",
+                "state": "SECONDARY",
+                "optime": "2026-09-13 11:03:51",
+                "lag_s": 3.753
+              },
+              {
+                "name": "mongo3:27019",
+                "state": "SECONDARY",
+                "optime": "2026-09-13 11:03:52",
+                "lag_s": 2.753
+              }
+            ]
+          }
+        }
+      },
+      "visibility_lag": {
+        "replica": {
+          "replica": "replica",
+          "n": 30,
+          "visible": 30,
+          "timeouts": 0,
+          "lag_ms": {
+            "n": 30,
+            "min": 0.8661739993840456,
+            "p50": 1.352518011117354,
+            "p90": 1.4492582151433453,
+            "p95": 1.4703070497489534,
+            "p99": 1.5080647359718569,
+            "max": 1.521849015261978,
+            "mean": 1.2935837012870859,
+            "stdev": 0.1833206112144034
+          }
+        },
+        "replica2": {
+          "replica": "replica2",
+          "n": 30,
+          "visible": 30,
+          "timeouts": 0,
+          "lag_ms": {
+            "n": 30,
+            "min": 0.8619729778729379,
+            "p50": 1.3045755185885355,
+            "p90": 1.3495445979060605,
+            "p95": 1.39319765730761,
+            "p99": 1.4441621015430428,
+            "max": 1.4617099950555712,
+            "mean": 1.2703378345274057,
+            "stdev": 0.1221343658330843
+          }
+        }
+      },
+      "write_rejection": {
+        "replica": {
+          "replica": "replica",
+          "writes_rejected": true,
+          "error_code": null,
+          "error": "NotPrimaryError: not primary, full error: {'topologyVersion': {'processId': ObjectId('6aa6819528ddb6fb0df55ea0'), 'counter': 4}, 'ok': 0.0, 'errmsg': 'not primary', 'code': 10107, 'codeName': 'NotWritablePrimary', '$clusterTime': {'clusterTime': Timestamp(1789297439, 9), 'signature': {'hash': b'\\x00"
+        },
+        "replica2": {
+          "replica": "replica2",
+          "writes_rejected": true,
+          "error_code": null,
+          "error": "NotPrimaryError: not primary, full error: {'topologyVersion': {'processId': ObjectId('6aa681959cac9e83b3d1bea0'), 'counter': 4}, 'ok': 0.0, 'errmsg': 'not primary', 'code': 10107, 'codeName': 'NotWritablePrimary', '$clusterTime': {'clusterTime': Timestamp(1789297439, 9), 'signature': {'hash': b'\\x00"
+        }
+      },
+      "lag_under_load": {
+        "rows": 20000,
+        "batch": 500,
+        "write_seconds": 3.34,
+        "rows_per_s": 5988,
+        "catchup_ms_after_last_write": {
+          "replica": 28.9,
+          "replica2": 29.0
+        },
+        "samples": [
+          {
+            "t": 251556.067,
+            "primary": {
+              "set": "rs0",
+              "my_state": 1,
+              "members": [
+                {
+                  "name": "mongo1:27017",
+                  "state": "PRIMARY",
+                  "optime": "2026-09-13 11:03:59",
+                  "lag_s": 0.916
+                },
+                {
+                  "name": "mongo2:27018",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:03:58",
+                  "lag_s": 1.916
+                },
+                {
+                  "name": "mongo3:27019",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:03:58",
+                  "lag_s": 1.916
+                }
+              ]
+            },
+            "replica": {
+              "set": "rs0",
+              "my_state": 2,
+              "members": [
+                {
+                  "name": "mongo1:27017",
+                  "state": "PRIMARY",
+                  "optime": "2026-09-13 11:03:59",
+                  "lag_s": 0.918
+                },
+                {
+                  "name": "mongo2:27018",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:03:59",
+                  "lag_s": 0.918
+                },
+                {
+                  "name": "mongo3:27019",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:03:59",
+                  "lag_s": 0.918
+                }
+              ]
+            },
+            "replica2": {
+              "set": "rs0",
+              "my_state": 2,
+              "members": [
+                {
+                  "name": "mongo1:27017",
+                  "state": "PRIMARY",
+                  "optime": "2026-09-13 11:03:59",
+                  "lag_s": 0.919
+                },
+                {
+                  "name": "mongo2:27018",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:03:59",
+                  "lag_s": 0.919
+                },
+                {
+                  "name": "mongo3:27019",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:03:59",
+                  "lag_s": 0.919
+                }
+              ]
+            }
+          },
+          {
+            "t": 251556.32,
+            "primary": {
+              "set": "rs0",
+              "my_state": 1,
+              "members": [
+                {
+                  "name": "mongo1:27017",
+                  "state": "PRIMARY",
+                  "optime": "2026-09-13 11:04:00",
+                  "lag_s": 0.17
+                },
+                {
+                  "name": "mongo2:27018",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:03:58",
+                  "lag_s": 2.17
+                },
+                {
+                  "name": "mongo3:27019",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:03:58",
+                  "lag_s": 2.17
+                }
+              ]
+            },
+            "replica": {
+              "set": "rs0",
+              "my_state": 2,
+              "members": [
+                {
+                  "name": "mongo1:27017",
+                  "state": "PRIMARY",
+                  "optime": "2026-09-13 11:03:59",
+                  "lag_s": 1.171
+                },
+                {
+                  "name": "mongo2:27018",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:04:00",
+                  "lag_s": 0.171
+                },
+                {
+                  "name": "mongo3:27019",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:03:59",
+                  "lag_s": 1.171
+                }
+              ]
+            },
+            "replica2": {
+              "set": "rs0",
+              "my_state": 2,
+              "members": [
+                {
+                  "name": "mongo1:27017",
+                  "state": "PRIMARY",
+                  "optime": "2026-09-13 11:03:59",
+                  "lag_s": 1.172
+                },
+                {
+                  "name": "mongo2:27018",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:03:59",
+                  "lag_s": 1.172
+                },
+                {
+                  "name": "mongo3:27019",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:04:00",
+                  "lag_s": 0.172
+                }
+              ]
+            }
+          },
+          {
+            "t": 251556.574,
+            "primary": {
+              "set": "rs0",
+              "my_state": 1,
+              "members": [
+                {
+                  "name": "mongo1:27017",
+                  "state": "PRIMARY",
+                  "optime": "2026-09-13 11:04:00",
+                  "lag_s": 0.423
+                },
+                {
+                  "name": "mongo2:27018",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:03:58",
+                  "lag_s": 2.423
+                },
+                {
+                  "name": "mongo3:27019",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:03:58",
+                  "lag_s": 2.423
+                }
+              ]
+            },
+            "replica": {
+              "set": "rs0",
+              "my_state": 2,
+              "members": [
+                {
+                  "name": "mongo1:27017",
+                  "state": "PRIMARY",
+                  "optime": "2026-09-13 11:03:59",
+                  "lag_s": 1.424
+                },
+                {
+                  "name": "mongo2:27018",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:04:00",
+                  "lag_s": 0.424
+                },
+                {
+                  "name": "mongo3:27019",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:03:59",
+                  "lag_s": 1.424
+                }
+              ]
+            },
+            "replica2": {
+              "set": "rs0",
+              "my_state": 2,
+              "members": [
+                {
+                  "name": "mongo1:27017",
+                  "state": "PRIMARY",
+                  "optime": "2026-09-13 11:03:59",
+                  "lag_s": 1.424
+                },
+                {
+                  "name": "mongo2:27018",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:03:59",
+                  "lag_s": 1.424
+                },
+                {
+                  "name": "mongo3:27019",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:04:00",
+                  "lag_s": 0.424
+                }
+              ]
+            }
+          },
+          {
+            "t": 251556.826,
+            "primary": {
+              "set": "rs0",
+              "my_state": 1,
+              "members": [
+                {
+                  "name": "mongo1:27017",
+                  "state": "PRIMARY",
+                  "optime": "2026-09-13 11:04:00",
+                  "lag_s": 0.676
+                },
+                {
+                  "name": "mongo2:27018",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:03:58",
+                  "lag_s": 2.676
+                },
+                {
+                  "name": "mongo3:27019",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:03:58",
+                  "lag_s": 2.676
+                }
+              ]
+            },
+            "replica": {
+              "set": "rs0",
+              "my_state": 2,
+              "members": [
+                {
+                  "name": "mongo1:27017",
+                  "state": "PRIMARY",
+                  "optime": "2026-09-13 11:03:59",
+                  "lag_s": 1.677
+                },
+                {
+                  "name": "mongo2:27018",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:04:00",
+                  "lag_s": 0.677
+                },
+                {
+                  "name": "mongo3:27019",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:03:59",
+                  "lag_s": 1.677
+                }
+              ]
+            },
+            "replica2": {
+              "set": "rs0",
+              "my_state": 2,
+              "members": [
+                {
+                  "name": "mongo1:27017",
+                  "state": "PRIMARY",
+                  "optime": "2026-09-13 11:03:59",
+                  "lag_s": 1.678
+                },
+                {
+                  "name": "mongo2:27018",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:03:59",
+                  "lag_s": 1.678
+                },
+                {
+                  "name": "mongo3:27019",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:04:00",
+                  "lag_s": 0.678
+                }
+              ]
+            }
+          },
+          {
+            "t": 251557.079,
+            "primary": {
+              "set": "rs0",
+              "my_state": 1,
+              "members": [
+                {
+                  "name": "mongo1:27017",
+                  "state": "PRIMARY",
+                  "optime": "2026-09-13 11:04:00",
+                  "lag_s": 0.929
+                },
+                {
+                  "name": "mongo2:27018",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:04:00",
+                  "lag_s": 0.929
+                },
+                {
+                  "name": "mongo3:27019",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:04:00",
+                  "lag_s": 0.929
+                }
+              ]
+            },
+            "replica": {
+              "set": "rs0",
+              "my_state": 2,
+              "members": [
+                {
+                  "name": "mongo1:27017",
+                  "state": "PRIMARY",
+                  "optime": "2026-09-13 11:03:59",
+                  "lag_s": 1.931
+                },
+                {
+                  "name": "mongo2:27018",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:04:00",
+                  "lag_s": 0.931
+                },
+                {
+                  "name": "mongo3:27019",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:03:59",
+                  "lag_s": 1.931
+                }
+              ]
+            },
+            "replica2": {
+              "set": "rs0",
+              "my_state": 2,
+              "members": [
+                {
+                  "name": "mongo1:27017",
+                  "state": "PRIMARY",
+                  "optime": "2026-09-13 11:03:59",
+                  "lag_s": 1.935
+                },
+                {
+                  "name": "mongo2:27018",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:03:59",
+                  "lag_s": 1.935
+                },
+                {
+                  "name": "mongo3:27019",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:04:00",
+                  "lag_s": 0.935
+                }
+              ]
+            }
+          },
+          {
+            "t": 251557.337,
+            "primary": {
+              "set": "rs0",
+              "my_state": 1,
+              "members": [
+                {
+                  "name": "mongo1:27017",
+                  "state": "PRIMARY",
+                  "optime": "2026-09-13 11:04:01",
+                  "lag_s": 0.187
+                },
+                {
+                  "name": "mongo2:27018",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:04:00",
+                  "lag_s": 1.187
+                },
+                {
+                  "name": "mongo3:27019",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:04:00",
+                  "lag_s": 1.187
+                }
+              ]
+            },
+            "replica": {
+              "set": "rs0",
+              "my_state": 2,
+              "members": [
+                {
+                  "name": "mongo1:27017",
+                  "state": "PRIMARY",
+                  "optime": "2026-09-13 11:03:59",
+                  "lag_s": 2.188
+                },
+                {
+                  "name": "mongo2:27018",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:04:01",
+                  "lag_s": 0.188
+                },
+                {
+                  "name": "mongo3:27019",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:03:59",
+                  "lag_s": 2.188
+                }
+              ]
+            },
+            "replica2": {
+              "set": "rs0",
+              "my_state": 2,
+              "members": [
+                {
+                  "name": "mongo1:27017",
+                  "state": "PRIMARY",
+                  "optime": "2026-09-13 11:03:59",
+                  "lag_s": 2.189
+                },
+                {
+                  "name": "mongo2:27018",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:03:59",
+                  "lag_s": 2.189
+                },
+                {
+                  "name": "mongo3:27019",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:04:01",
+                  "lag_s": 0.189
+                }
+              ]
+            }
+          },
+          {
+            "t": 251557.591,
+            "primary": {
+              "set": "rs0",
+              "my_state": 1,
+              "members": [
+                {
+                  "name": "mongo1:27017",
+                  "state": "PRIMARY",
+                  "optime": "2026-09-13 11:04:01",
+                  "lag_s": 0.441
+                },
+                {
+                  "name": "mongo2:27018",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:04:00",
+                  "lag_s": 1.441
+                },
+                {
+                  "name": "mongo3:27019",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:04:00",
+                  "lag_s": 1.441
+                }
+              ]
+            },
+            "replica": {
+              "set": "rs0",
+              "my_state": 2,
+              "members": [
+                {
+                  "name": "mongo1:27017",
+                  "state": "PRIMARY",
+                  "optime": "2026-09-13 11:03:59",
+                  "lag_s": 2.442
+                },
+                {
+                  "name": "mongo2:27018",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:04:01",
+                  "lag_s": 0.442
+                },
+                {
+                  "name": "mongo3:27019",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:04:01",
+                  "lag_s": 0.442
+                }
+              ]
+            },
+            "replica2": {
+              "set": "rs0",
+              "my_state": 2,
+              "members": [
+                {
+                  "name": "mongo1:27017",
+                  "state": "PRIMARY",
+                  "optime": "2026-09-13 11:03:59",
+                  "lag_s": 2.444
+                },
+                {
+                  "name": "mongo2:27018",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:04:01",
+                  "lag_s": 0.444
+                },
+                {
+                  "name": "mongo3:27019",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:04:01",
+                  "lag_s": 0.444
+                }
+              ]
+            }
+          },
+          {
+            "t": 251557.845,
+            "primary": {
+              "set": "rs0",
+              "my_state": 1,
+              "members": [
+                {
+                  "name": "mongo1:27017",
+                  "state": "PRIMARY",
+                  "optime": "2026-09-13 11:04:01",
+                  "lag_s": 0.695
+                },
+                {
+                  "name": "mongo2:27018",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:04:00",
+                  "lag_s": 1.695
+                },
+                {
+                  "name": "mongo3:27019",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:04:00",
+                  "lag_s": 1.695
+                }
+              ]
+            },
+            "replica": {
+              "set": "rs0",
+              "my_state": 2,
+              "members": [
+                {
+                  "name": "mongo1:27017",
+                  "state": "PRIMARY",
+                  "optime": "2026-09-13 11:03:59",
+                  "lag_s": 2.697
+                },
+                {
+                  "name": "mongo2:27018",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:04:01",
+                  "lag_s": 0.697
+                },
+                {
+                  "name": "mongo3:27019",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:04:01",
+                  "lag_s": 0.697
+                }
+              ]
+            },
+            "replica2": {
+              "set": "rs0",
+              "my_state": 2,
+              "members": [
+                {
+                  "name": "mongo1:27017",
+                  "state": "PRIMARY",
+                  "optime": "2026-09-13 11:03:59",
+                  "lag_s": 2.698
+                },
+                {
+                  "name": "mongo2:27018",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:04:01",
+                  "lag_s": 0.698
+                },
+                {
+                  "name": "mongo3:27019",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:04:01",
+                  "lag_s": 0.698
+                }
+              ]
+            }
+          },
+          {
+            "t": 251558.1,
+            "primary": {
+              "set": "rs0",
+              "my_state": 1,
+              "members": [
+                {
+                  "name": "mongo1:27017",
+                  "state": "PRIMARY",
+                  "optime": "2026-09-13 11:04:01",
+                  "lag_s": 0.95
+                },
+                {
+                  "name": "mongo2:27018",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:04:00",
+                  "lag_s": 1.95
+                },
+                {
+                  "name": "mongo3:27019",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:04:00",
+                  "lag_s": 1.95
+                }
+              ]
+            },
+            "replica": {
+              "set": "rs0",
+              "my_state": 2,
+              "members": [
+                {
+                  "name": "mongo1:27017",
+                  "state": "PRIMARY",
+                  "optime": "2026-09-13 11:04:01",
+                  "lag_s": 0.951
+                },
+                {
+                  "name": "mongo2:27018",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:04:01",
+                  "lag_s": 0.951
+                },
+                {
+                  "name": "mongo3:27019",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:04:01",
+                  "lag_s": 0.951
+                }
+              ]
+            },
+            "replica2": {
+              "set": "rs0",
+              "my_state": 2,
+              "members": [
+                {
+                  "name": "mongo1:27017",
+                  "state": "PRIMARY",
+                  "optime": "2026-09-13 11:04:01",
+                  "lag_s": 0.952
+                },
+                {
+                  "name": "mongo2:27018",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:04:01",
+                  "lag_s": 0.952
+                },
+                {
+                  "name": "mongo3:27019",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:04:01",
+                  "lag_s": 0.952
+                }
+              ]
+            }
+          },
+          {
+            "t": 251558.354,
+            "primary": {
+              "set": "rs0",
+              "my_state": 1,
+              "members": [
+                {
+                  "name": "mongo1:27017",
+                  "state": "PRIMARY",
+                  "optime": "2026-09-13 11:04:02",
+                  "lag_s": 0.204
+                },
+                {
+                  "name": "mongo2:27018",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:04:00",
+                  "lag_s": 2.204
+                },
+                {
+                  "name": "mongo3:27019",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:04:00",
+                  "lag_s": 2.204
+                }
+              ]
+            },
+            "replica": {
+              "set": "rs0",
+              "my_state": 2,
+              "members": [
+                {
+                  "name": "mongo1:27017",
+                  "state": "PRIMARY",
+                  "optime": "2026-09-13 11:04:01",
+                  "lag_s": 1.205
+                },
+                {
+                  "name": "mongo2:27018",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:04:02",
+                  "lag_s": 0.205
+                },
+                {
+                  "name": "mongo3:27019",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:04:01",
+                  "lag_s": 1.205
+                }
+              ]
+            },
+            "replica2": {
+              "set": "rs0",
+              "my_state": 2,
+              "members": [
+                {
+                  "name": "mongo1:27017",
+                  "state": "PRIMARY",
+                  "optime": "2026-09-13 11:04:01",
+                  "lag_s": 1.206
+                },
+                {
+                  "name": "mongo2:27018",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:04:01",
+                  "lag_s": 1.206
+                },
+                {
+                  "name": "mongo3:27019",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:04:02",
+                  "lag_s": 0.206
+                }
+              ]
+            }
+          },
+          {
+            "t": 251558.608,
+            "primary": {
+              "set": "rs0",
+              "my_state": 1,
+              "members": [
+                {
+                  "name": "mongo1:27017",
+                  "state": "PRIMARY",
+                  "optime": "2026-09-13 11:04:02",
+                  "lag_s": 0.457
+                },
+                {
+                  "name": "mongo2:27018",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:04:00",
+                  "lag_s": 2.457
+                },
+                {
+                  "name": "mongo3:27019",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:04:00",
+                  "lag_s": 2.457
+                }
+              ]
+            },
+            "replica": {
+              "set": "rs0",
+              "my_state": 2,
+              "members": [
+                {
+                  "name": "mongo1:27017",
+                  "state": "PRIMARY",
+                  "optime": "2026-09-13 11:04:01",
+                  "lag_s": 1.458
+                },
+                {
+                  "name": "mongo2:27018",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:04:02",
+                  "lag_s": 0.458
+                },
+                {
+                  "name": "mongo3:27019",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:04:01",
+                  "lag_s": 1.458
+                }
+              ]
+            },
+            "replica2": {
+              "set": "rs0",
+              "my_state": 2,
+              "members": [
+                {
+                  "name": "mongo1:27017",
+                  "state": "PRIMARY",
+                  "optime": "2026-09-13 11:04:01",
+                  "lag_s": 1.459
+                },
+                {
+                  "name": "mongo2:27018",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:04:01",
+                  "lag_s": 1.459
+                },
+                {
+                  "name": "mongo3:27019",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:04:02",
+                  "lag_s": 0.459
+                }
+              ]
+            }
+          },
+          {
+            "t": 251558.866,
+            "primary": {
+              "set": "rs0",
+              "my_state": 1,
+              "members": [
+                {
+                  "name": "mongo1:27017",
+                  "state": "PRIMARY",
+                  "optime": "2026-09-13 11:04:02",
+                  "lag_s": 0.716
+                },
+                {
+                  "name": "mongo2:27018",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:04:00",
+                  "lag_s": 2.716
+                },
+                {
+                  "name": "mongo3:27019",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:04:00",
+                  "lag_s": 2.716
+                }
+              ]
+            },
+            "replica": {
+              "set": "rs0",
+              "my_state": 2,
+              "members": [
+                {
+                  "name": "mongo1:27017",
+                  "state": "PRIMARY",
+                  "optime": "2026-09-13 11:04:01",
+                  "lag_s": 1.717
+                },
+                {
+                  "name": "mongo2:27018",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:04:02",
+                  "lag_s": 0.717
+                },
+                {
+                  "name": "mongo3:27019",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:04:01",
+                  "lag_s": 1.717
+                }
+              ]
+            },
+            "replica2": {
+              "set": "rs0",
+              "my_state": 2,
+              "members": [
+                {
+                  "name": "mongo1:27017",
+                  "state": "PRIMARY",
+                  "optime": "2026-09-13 11:04:01",
+                  "lag_s": 1.718
+                },
+                {
+                  "name": "mongo2:27018",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:04:01",
+                  "lag_s": 1.718
+                },
+                {
+                  "name": "mongo3:27019",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:04:02",
+                  "lag_s": 0.718
+                }
+              ]
+            }
+          },
+          {
+            "t": 251559.12,
+            "primary": {
+              "set": "rs0",
+              "my_state": 1,
+              "members": [
+                {
+                  "name": "mongo1:27017",
+                  "state": "PRIMARY",
+                  "optime": "2026-09-13 11:04:02",
+                  "lag_s": 0.969
+                },
+                {
+                  "name": "mongo2:27018",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:04:02",
+                  "lag_s": 0.969
+                },
+                {
+                  "name": "mongo3:27019",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:04:02",
+                  "lag_s": 0.969
+                }
+              ]
+            },
+            "replica": {
+              "set": "rs0",
+              "my_state": 2,
+              "members": [
+                {
+                  "name": "mongo1:27017",
+                  "state": "PRIMARY",
+                  "optime": "2026-09-13 11:04:01",
+                  "lag_s": 1.971
+                },
+                {
+                  "name": "mongo2:27018",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:04:02",
+                  "lag_s": 0.971
+                },
+                {
+                  "name": "mongo3:27019",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:04:01",
+                  "lag_s": 1.971
+                }
+              ]
+            },
+            "replica2": {
+              "set": "rs0",
+              "my_state": 2,
+              "members": [
+                {
+                  "name": "mongo1:27017",
+                  "state": "PRIMARY",
+                  "optime": "2026-09-13 11:04:01",
+                  "lag_s": 1.972
+                },
+                {
+                  "name": "mongo2:27018",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:04:01",
+                  "lag_s": 1.972
+                },
+                {
+                  "name": "mongo3:27019",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:04:02",
+                  "lag_s": 0.972
+                }
+              ]
+            }
+          },
+          {
+            "t": 251559.373,
+            "primary": {
+              "set": "rs0",
+              "my_state": 1,
+              "members": [
+                {
+                  "name": "mongo1:27017",
+                  "state": "PRIMARY",
+                  "optime": "2026-09-13 11:04:03",
+                  "lag_s": 0.223
+                },
+                {
+                  "name": "mongo2:27018",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:04:02",
+                  "lag_s": 1.223
+                },
+                {
+                  "name": "mongo3:27019",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:04:02",
+                  "lag_s": 1.223
+                }
+              ]
+            },
+            "replica": {
+              "set": "rs0",
+              "my_state": 2,
+              "members": [
+                {
+                  "name": "mongo1:27017",
+                  "state": "PRIMARY",
+                  "optime": "2026-09-13 11:04:01",
+                  "lag_s": 2.224
+                },
+                {
+                  "name": "mongo2:27018",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:04:03",
+                  "lag_s": 0.224
+                },
+                {
+                  "name": "mongo3:27019",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:04:01",
+                  "lag_s": 2.224
+                }
+              ]
+            },
+            "replica2": {
+              "set": "rs0",
+              "my_state": 2,
+              "members": [
+                {
+                  "name": "mongo1:27017",
+                  "state": "PRIMARY",
+                  "optime": "2026-09-13 11:04:01",
+                  "lag_s": 2.226
+                },
+                {
+                  "name": "mongo2:27018",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:04:03",
+                  "lag_s": 0.226
+                },
+                {
+                  "name": "mongo3:27019",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-13 11:04:03",
+                  "lag_s": 0.226
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "read_scaling": {
+        "primary_only": {
+          "targets": [
+            "primary"
+          ],
+          "workers": 32,
+          "ops": 113262,
+          "ops_per_s": 28316,
+          "errors": 0,
+          "latency_ms": {
+            "n": 113262,
+            "min": 0.494922,
+            "p50": 1.060015,
+            "p90": 1.5800557,
+            "p95": 1.77554075,
+            "p99": 2.2373339299999997,
+            "max": 5.525041,
+            "mean": 1.1285838435662445,
+            "stdev": 0.3531916362678909
+          }
+        },
+        "primary_plus_replicas": {
+          "targets": [
+            "primary",
+            "replica",
+            "replica2"
+          ],
+          "workers": 32,
+          "ops": 114851,
+          "ops_per_s": 28713,
+          "errors": 0,
+          "latency_ms": {
+            "n": 114851,
+            "min": 0.503835,
+            "p50": 1.043369,
+            "p90": 1.574649,
+            "p95": 1.776003,
+            "p99": 2.24547,
+            "max": 9.496931,
+            "mean": 1.1129241511262418,
+            "stdev": 0.35821097367369614
+          }
+        },
+        "gain": 1.01
+      },
+      "failover": {
+        "kind": "replica set (oplog, async, automatic election)",
+        "killed": "primary",
+        "write_error_after_kill": "NotPrimaryError: not primary, full error: {'topologyVersion': {'processId': ObjectId('6aa6819528ddb6fb0df55ea0'), 'counter': 4}, 'ok': 0.0, 'errmsg': 'not primary', 'code': 10107, 'codeName': 'NotWritablePrimary', '$clusterTime': {'clusterTime': Timestamp(1789297443, 1500), 'signature': {'hash': b'\\",
+        "write_attempts_until_success": 144,
+        "last_error_before_success": "NotPrimaryError: not primary, full error: {'topologyVersion': {'processId': ObjectId('6aa6819528ddb6fb0df55ea0'), 'counter': 5}, 'ok': 0.0, 'errmsg': 'not primary', 'code': 10107, 'codeName': 'NotWritablePrimary', '$clusterTime': {'clusterTime': Timestamp(1789297488, 1), 'signature': {'hash': b'\\x00",
+        "downtime_ms": 30503.8,
+        "new_primary": "replica",
+        "verified_via": "replica",
+        "new_primary_role": "primary",
+        "new_primary_status": {
+          "set": "rs0",
+          "my_state": 1,
+          "members": [
+            {
+              "name": "mongo1:27017",
+              "state": "(not reachable/healthy)",
+              "optime": "1970-01-01 00:00:00",
+              "lag_s": 1789297488.531
+            },
+            {
+              "name": "mongo2:27018",
+              "state": "PRIMARY",
+              "optime": "2026-09-13 11:04:48",
+              "lag_s": 0.531
+            },
+            {
+              "name": "mongo3:27019",
+              "state": "SECONDARY",
+              "optime": "2026-09-13 11:04:48",
+              "lag_s": 0.531
+            }
+          ]
+        },
+        "old_primary_restarted": true,
+        "note": "old primary restarted; whether it rejoins depends on the engine (stack should be recreated for reuse)"
+      },
+      "_seconds": 54.0
+    },
+    "backup": {
+      "tag": "nslab-20260914-115553",
+      "strategy": {
+        "tool": "mongodump --oplog --gzip --archive (logical, cluster-consistent thanks to the oplog captured during the dump); physical alternative: fsyncLock + volume snapshot",
+        "consistency": "point-in-time at the end of the dump (--oplogReplay applies the oplog captured while dumping)",
+        "restore": "online: dropDatabase, then mongorestore --oplogReplay --drop against the primary (secondaries replicate the restore); --oplogReplay cannot be combined with namespace filters",
+        "incremental": "none in Community tooling; Percona PBM does physical + incremental + selective restores",
+        "pitr": "oplog-based \u2014 keep the oplog window (replSetResizeOplog) longer than the backup interval; PBM/Ops Manager tail it continuously",
+        "schedule": "cron / CronJob running mongodump on a secondary (readPreference=secondary) or PBM's scheduler",
+        "retention": "external: archives are self-contained files; PBM has retention policies"
+      },
+      "data_bytes": 187797504,
+      "fingerprint_before": {
+        "counts": {
+          "customers": 20000,
+          "categories": 200,
+          "products": 5000,
+          "inventory": 20000
+        },
+        "customers_present": 50,
+        "probe_count": 100,
+        "post_probe_present": false
+      },
+      "reads_baseline": {
+        "reads": 651,
+        "errors": 0,
+        "latency_ms": {
+          "n": 651,
+          "min": 0.5077579990029335,
+          "p50": 1.0139190126210451,
+          "p90": 1.2886350159533322,
+          "p95": 1.349251513602212,
+          "p99": 1.5495984989684075,
+          "max": 1.6897839959710836,
+          "mean": 0.9869337923282588,
+          "stdev": 0.2512743022962656
+        }
+      },
+      "backup": {
+        "method": "mongodump --oplog --gzip --archive",
+        "online": true,
+        "artifact": "/backups/nslab-20260914-115553.archive.gz",
+        "artifact_bytes": 50803021,
+        "collections_dumped": 10,
+        "dataSize": 267181887.0,
+        "storageSize": 112443392.0,
+        "indexSize": 75362304.0,
+        "data_dir_bytes": 986681036,
+        "oplog_captured": true,
+        "physical_alternative": {
+          "method": "fsyncLock + cp -a /data/db + fsyncUnlock (stand-in for a volume snapshot)",
+          "writes_blocked_ms": 2101.6,
+          "bytes": 1091753498
+        },
+        "seconds": 13.55,
+        "status": "ok",
+        "reads_during": {
+          "reads": 4457,
+          "errors": 0,
+          "latency_ms": {
+            "n": 4457,
+            "min": 0.4814669955521822,
+            "p50": 0.9499830193817616,
+            "p90": 1.2644398142583668,
+            "p95": 1.3251490192487836,
+            "p99": 1.4766430086456237,
+            "max": 11.523341992869973,
+            "mean": 0.9576005028912433,
+            "stdev": 0.30138336793620707
+          }
+        },
+        "artifact_pct_of_data": 27.1
+      },
+      "fingerprint_after_mutation": {
+        "counts": {
+          "customers": 19950,
+          "categories": 200,
+          "products": 5000,
+          "inventory": 20000
+        },
+        "customers_present": 0,
+        "probe_count": 600,
+        "post_probe_present": true
+      },
+      "restore": {
+        "method": "dropDatabase + mongorestore --oplogReplay --drop",
+        "online": true,
+        "summary": "2026-09-14T08:57:10.208+0000\t1732906 document(s) restored successfully. 0 document(s) failed to restore.",
+        "index_builds": 0,
+        "seconds": 59.53,
+        "status": "ok",
+        "availability": {
+          "downtime_ms": 0.0,
+          "outages": 0
+        },
+        "checks": {
+          "counts_match": true,
+          "deleted_customers_back": true,
+          "probe_count_back_to_pre": true,
+          "post_backup_writes_gone": true
+        },
+        "verified": true
+      },
+      "fingerprint_after_restore": {
+        "counts": {
+          "customers": 20000,
+          "categories": 200,
+          "products": 5000,
+          "inventory": 20000
+        },
+        "customers_present": 50,
+        "probe_count": 100,
+        "post_probe_present": false
+      },
+      "incremental": {
+        "status": "unsupported",
+        "detail": "pymongo: no incremental backup"
+      },
+      "_seconds": 77.2,
+      "dr": {
+        "tag": "nslab-dr-20260914-123107",
+        "fingerprint_before": {
+          "counts": {
+            "customers": 20000,
+            "categories": 200,
+            "products": 5000,
+            "inventory": 20000
+          },
+          "customers_present": 50,
+          "probe_count": 100,
+          "post_probe_present": false
+        },
+        "backup": {
+          "method": "mongodump --oplog --gzip --archive",
+          "online": true,
+          "artifact": "/backups/nslab-dr-20260914-123107.archive.gz",
+          "artifact_bytes": 50799829,
+          "collections_dumped": 10,
+          "dataSize": 267253085.0,
+          "storageSize": 100270080.0,
+          "indexSize": 134123520.0,
+          "data_dir_bytes": 706373393,
+          "oplog_captured": true,
+          "physical_alternative": {
+            "method": "fsyncLock + cp -a /data/db + fsyncUnlock (stand-in for a volume snapshot)",
+            "writes_blocked_ms": 1121.6,
+            "bytes": 841462989
+          },
+          "seconds": 11.98
+        },
+        "export": {
+          "dir": "/home/berkay-server/repos/boilers/raw-codes/databases/ns-databases/data/backups/mongodb/nslab-dr-20260914-123107",
+          "files": [
+            "/home/berkay-server/repos/boilers/raw-codes/databases/ns-databases/data/backups/mongodb/nslab-dr-20260914-123107/nslab-dr-20260914-123107.archive.gz"
+          ],
+          "bytes": 50799829,
+          "seconds": 0.12
+        },
+        "destroy": {
+          "method": "docker compose down -v (data + backups volumes removed)",
+          "seconds": 16.6
+        },
+        "fresh_up": {
+          "seconds": 22.1,
+          "services": [
+            "init",
+            "mongo1",
+            "mongo2",
+            "mongo3"
+          ]
+        },
+        "after_destroy": {
+          "customers": 0,
+          "repl_probe": 0
+        },
+        "import": {
+          "placed": [
+            "nslab-mongo1:/backups/nslab-dr-20260914-123107.archive.gz"
+          ],
+          "seconds": 0.47
+        },
+        "restore": {
+          "method": "dropDatabase + mongorestore --oplogReplay --drop",
+          "online": true,
+          "summary": "2026-09-14T09:33:09.810+0000\t1732906 document(s) restored successfully. 0 document(s) failed to restore.",
+          "index_builds": 0,
+          "seconds": 67.55,
+          "checks": {
+            "counts_match": true,
+            "customers_present": true,
+            "probe_count_match": true
+          },
+          "verified": true
+        },
+        "fingerprint_after_restore": {
+          "counts": {
+            "customers": 20000,
+            "categories": 200,
+            "products": 5000,
+            "inventory": 20000
+          },
+          "customers_present": 50,
+          "probe_count": 100,
+          "post_probe_present": false
+        },
+        "_seconds": 122.6
+      }
+    },
+    "logging": {
+      "strategy": {
+        "server_log": "JSON lines on stdout ({t, s, c, id, ctx, msg, attr}); systemLog.path + logRotate for files; getLog reads the in-memory ring",
+        "slow_query": "operationProfiling: mode slowOp/all, slowOpThresholdMs, slowOpSampleRate -> capped system.profile per database + 'Slow query' log lines (durationMillis, planSummary, keysExamined/docsExamined)",
+        "audit": "auditLog is Enterprise / Percona PSMDB (destination file|syslog|console, filter) \u2014 not in Community",
+        "runtime": "setParameter logLevel / logComponentVerbosity, db.setProfilingLevel(level, {slowms, sampleRate}) \u2014 no restart"
+      },
+      "threshold_ms": 100,
+      "containers": {
+        "nslab-mongo1": {
+          "driver": "json-file",
+          "options": {
+            "compress": "true",
+            "max-file": "3",
+            "max-size": "50m"
+          },
+          "log_path": "/var/lib/docker/containers/2c5122c6c1540a8aeb6b169f889ce45fff1adfd6483d2cc7734d0c326d42b68e/2c5122c6c1540a8aeb6b169f889ce45fff1adfd6483d2cc7734d0c326d42b68e-json.log",
+          "user": "root",
+          "started": "2026-09-14T08:02:30.915385769Z",
+          "bytes": 8110230,
+          "lines": 21778,
+          "json_lines_pct": 100.0,
+          "format": "json",
+          "sample": [
+            "{\"t\":{\"$date\":\"2026-09-14T08:53:12.320+00:00\"},\"s\":\"I\",  \"c\":\"NETWORK\",  \"id\":22944,   \"ctx\":\"conn4430\",\"msg\":\"Connection ended\",\"attr\":{\"remote\":\"127.0.0.1:56234\",\"isLoadBalanced\":false,\"uuid\":{\"uuid\":{\"$uuid\":\"7abd87a3-466a-4ad0-afc0-6cee",
+            "{\"t\":{\"$date\":\"2026-09-14T08:53:12.320+00:00\"},\"s\":\"I\",  \"c\":\"NETWORK\",  \"id\":22944,   \"ctx\":\"conn4429\",\"msg\":\"Connection ended\",\"attr\":{\"remote\":\"127.0.0.1:56228\",\"isLoadBalanced\":false,\"uuid\":{\"uuid\":{\"$uuid\":\"ad5214c8-8459-4817-a73f-ef8e",
+            "{\"t\":{\"$date\":\"2026-09-14T08:53:12.320+00:00\"},\"s\":\"I\",  \"c\":\"NETWORK\",  \"id\":22944,   \"ctx\":\"conn4428\",\"msg\":\"Connection ended\",\"attr\":{\"remote\":\"127.0.0.1:56220\",\"isLoadBalanced\":false,\"uuid\":{\"uuid\":{\"$uuid\":\"666cef58-c86c-484d-8932-a3eb"
+          ]
+        },
+        "nslab-mongo2": {
+          "driver": "json-file",
+          "options": {
+            "compress": "true",
+            "max-file": "3",
+            "max-size": "50m"
+          },
+          "log_path": "/var/lib/docker/containers/e8996ea0e0ddb068c8b99dfd40c21e5552caba9b91484e4ab8e4d8405b7325ef/e8996ea0e0ddb068c8b99dfd40c21e5552caba9b91484e4ab8e4d8405b7325ef-json.log",
+          "user": "root",
+          "started": "2026-09-14T08:02:30.914325723Z",
+          "bytes": 7565360,
+          "lines": 20826,
+          "json_lines_pct": 100.0,
+          "format": "json",
+          "sample": [
+            "{\"t\":{\"$date\":\"2026-09-14T08:53:11.411+00:00\"},\"s\":\"I\",  \"c\":\"NETWORK\",  \"id\":22944,   \"ctx\":\"conn4291\",\"msg\":\"Connection ended\",\"attr\":{\"remote\":\"127.0.0.1:52000\",\"isLoadBalanced\":false,\"uuid\":{\"uuid\":{\"$uuid\":\"9ec40cfe-6857-42ba-a8ba-0673",
+            "{\"t\":{\"$date\":\"2026-09-14T08:53:11.411+00:00\"},\"s\":\"I\",  \"c\":\"NETWORK\",  \"id\":22944,   \"ctx\":\"conn4290\",\"msg\":\"Connection ended\",\"attr\":{\"remote\":\"127.0.0.1:51998\",\"isLoadBalanced\":false,\"uuid\":{\"uuid\":{\"$uuid\":\"7fc7691a-c10a-4ed7-9c3d-3534",
+            "{\"t\":{\"$date\":\"2026-09-14T08:53:11.411+00:00\"},\"s\":\"I\",  \"c\":\"NETWORK\",  \"id\":22944,   \"ctx\":\"conn4289\",\"msg\":\"Connection ended\",\"attr\":{\"remote\":\"127.0.0.1:51984\",\"isLoadBalanced\":false,\"uuid\":{\"uuid\":{\"$uuid\":\"acccb6ea-b8d5-4736-be38-1817"
+          ]
+        },
+        "nslab-mongo3": {
+          "driver": "json-file",
+          "options": {
+            "compress": "true",
+            "max-file": "3",
+            "max-size": "50m"
+          },
+          "log_path": "/var/lib/docker/containers/925aa6e42d672a8f9b9bd9009e4d3983d827ecbafafc985c69cad09264787e1e/925aa6e42d672a8f9b9bd9009e4d3983d827ecbafafc985c69cad09264787e1e-json.log",
+          "user": "root",
+          "started": "2026-09-14T08:02:30.914812494Z",
+          "bytes": 7558825,
+          "lines": 20766,
+          "json_lines_pct": 100.0,
+          "format": "json",
+          "sample": [
+            "{\"t\":{\"$date\":\"2026-09-14T08:53:11.721+00:00\"},\"s\":\"I\",  \"c\":\"NETWORK\",  \"id\":22944,   \"ctx\":\"conn4292\",\"msg\":\"Connection ended\",\"attr\":{\"remote\":\"127.0.0.1:35420\",\"isLoadBalanced\":false,\"uuid\":{\"uuid\":{\"$uuid\":\"c1c46bf1-e867-4aaf-8271-be90",
+            "{\"t\":{\"$date\":\"2026-09-14T08:53:11.722+00:00\"},\"s\":\"I\",  \"c\":\"NETWORK\",  \"id\":22944,   \"ctx\":\"conn4291\",\"msg\":\"Connection ended\",\"attr\":{\"remote\":\"127.0.0.1:35406\",\"isLoadBalanced\":false,\"uuid\":{\"uuid\":{\"$uuid\":\"4e4388a0-6423-4113-8776-b1a8",
+            "{\"t\":{\"$date\":\"2026-09-14T08:53:11.722+00:00\"},\"s\":\"I\",  \"c\":\"NETWORK\",  \"id\":22944,   \"ctx\":\"conn4290\",\"msg\":\"Connection ended\",\"attr\":{\"remote\":\"127.0.0.1:35392\",\"isLoadBalanced\":false,\"uuid\":{\"uuid\":{\"$uuid\":\"5b79b64f-5b63-4213-bb5b-f489"
+          ]
+        }
+      },
+      "server_log": {
+        "status": "ok",
+        "value": {
+          "format": "json",
+          "where": "stdout (docker logs) \u2014 systemLog.path when set; getLog: global = last 1024 lines in memory",
+          "ring_lines": 21788,
+          "sample": [
+            "{\"t\":{\"$date\":\"2026-09-14T08:53:13.588+00:00\"},\"s\":\"I\",  \"c\":\"NETWORK\",  \"id\":51800,   \"ctx\":\"conn4434\",\"msg\":\"client metadata\",\"attr\":{\"remote\":\"172.24.0.1:48322\",\"client\":\"conn4434\",\"negotiatedCompr",
+            "{\"t\":{\"$date\":\"2026-09-14T08:53:13.588+00:00\"},\"s\":\"I\",  \"c\":\"ACCESS\",   \"id\":10483900,\"ctx\":\"conn4434\",\"msg\":\"Connection not authenticating\",\"attr\":{\"client\":\"172.24.0.1:48322\",\"doc\":{\"driver\":{\"name",
+            "{\"t\":{\"$date\":\"2026-09-14T08:53:13.588+00:00\"},\"s\":\"I\",  \"c\":\"NETWORK\",  \"id\":6788700, \"ctx\":\"conn4433\",\"msg\":\"Received first command on ingress connection since session start or auth handshake\",\"attr"
+          ]
+        },
+        "ms": 1.3
+      },
+      "slow_query": {
+        "setup": {
+          "status": "ok",
+          "value": "db.setProfilingLevel(1, {slowms: 100, sampleRate: 1.0}) on 'lab' (system.profile capped 1 MB + 'Slow query' JSON log lines)",
+          "ms": 1.0
+        },
+        "effective_threshold_ms": 100,
+        "fast_op": {
+          "desc": "find customers {_id: 1}",
+          "ms": 0.9,
+          "status": "ok",
+          "error": null
+        },
+        "slow_op": {
+          "desc": "aggregate events [$group by event_type] (1M-doc collection scan)",
+          "ms": 1099.0,
+          "status": "ok",
+          "error": null
+        },
+        "entries": [
+          {
+            "ms": 1097,
+            "text": "command lab.events {\"aggregate\": \"events\", \"pipeline\": [{\"$group\": {\"_id\": \"$event_type\", \"n\": {\"$sum\": 1}}}], \"cursor\": {}}",
+            "planSummary": "COLLSCAN",
+            "docsExamined": 1000000,
+            "keysExamined": 0
+          },
+          {
+            "ms": 1202,
+            "text": "command lab.events {\"aggregate\": \"events\", \"pipeline\": [{\"$group\": {\"_id\": \"$event_type\", \"n\": {\"$sum\": 1}}}], \"cursor\": {}}",
+            "planSummary": "COLLSCAN",
+            "docsExamined": 1000000,
+            "keysExamined": 0
+          },
+          {
+            "ms": 3346,
+            "text": "command lab.events {\"createIndexes\": \"events\", \"indexes\": [{\"key\": {\"customer_id\": 1}, \"ns\": \"lab.events\", \"name\": \"customer_id_1\"}], \"ignoreUnknownIndexOptions\": true}",
+            "planSummary": null,
+            "docsExamined": null,
+            "keysExamined": null
+          },
+          {
+            "ms": 2676,
+            "text": "command lab.order_items {\"createIndexes\": \"order_items\", \"indexes\": [{\"key\": {\"order_id\": 1}, \"name\": \"order_id_1\", \"ns\": \"lab.order_items\"}, {\"key\": {\"product_id\": 1}, \"name\": \"produc",
+            "planSummary": null,
+            "docsExamined": null,
+            "keysExamined": null
+          },
+          {
+            "ms": 1237,
+            "text": "command lab.scratch {\"createIndexes\": \"scratch\", \"indexes\": [{\"key\": {\"expires_at\": 1}, \"name\": \"expires_at_1\", \"expireAfterSeconds\": 0, \"ns\": \"lab.scratch\"}], \"ignoreUnknownIndexO",
+            "planSummary": null,
+            "docsExamined": null,
+            "keysExamined": null
+          },
+          {
+            "ms": 1958,
+            "text": "command lab.orders {\"createIndexes\": \"orders\", \"indexes\": [{\"key\": {\"ordered_at\": 1, \"_id\": 1}, \"name\": \"ordered_at_1__id_1\", \"ns\": \"lab.orders\"}, {\"key\": {\"customer_id\": 1}, \"nam",
+            "planSummary": null,
+            "docsExamined": null,
+            "keysExamined": null
+          },
+          {
+            "ms": 726,
+            "text": "command lab.products {\"createIndexes\": \"products\", \"indexes\": [{\"key\": {\"category_id\": 1, \"price\": -1}, \"name\": \"category_id_1_price_-1\", \"ns\": \"lab.products\"}, {\"key\": {\"sku\": 1}, ",
+            "planSummary": null,
+            "docsExamined": null,
+            "keysExamined": null
+          },
+          {
+            "ms": 433,
+            "text": "command lab.customers {\"createIndexes\": \"customers\", \"indexes\": [{\"key\": {\"email\": 1}, \"name\": \"email_1\", \"unique\": true, \"ns\": \"lab.customers\"}, {\"key\": {\"country_code\": 1, \"tier\": ",
+            "planSummary": null,
+            "docsExamined": null,
+            "keysExamined": null
+          },
+          {
+            "ms": 159,
+            "text": "command lab.inventory {\"createIndexes\": \"inventory\", \"indexes\": [{\"key\": {\"product_id\": 1, \"warehouse_id\": 1}, \"name\": \"product_id_1_warehouse_id_1\", \"ns\": \"lab.inventory\"}], \"ignore",
+            "planSummary": null,
+            "docsExamined": null,
+            "keysExamined": null
+          },
+          {
+            "ms": 109,
+            "text": "insert lab.events {\"insert\": \"events\", \"ordered\": false, \"bypassEmptyTsReplacement\": true, \"writeConcern\": {\"w\": \"majority\"}, \"txnNumber\": 466}",
+            "planSummary": null,
+            "docsExamined": null,
+            "keysExamined": null
+          }
+        ],
+        "entries_status": "ok",
+        "entries_error": null,
+        "slow_op_logged": true,
+        "logged_ms": 1097,
+        "fast_op_logged": false,
+        "verified": true
+      },
+      "audit": {
+        "setup": {
+          "status": "unsupported",
+          "detail": "auditLog is MongoDB Enterprise / Percona Server for MongoDB (auditLog.destination file|syslog|console + filter); Community has the profiler + JSON log",
+          "ms": 0.0
+        }
+      },
+      "runtime_log_level": {
+        "status": "ok",
+        "value": "setParameter logComponentVerbosity.command -1 -> 1 -> -1 (no restart; every command logged at 1)",
+        "ms": 4.9
+      },
+      "log_volume_this_phase": {
+        "nslab-mongo1": {
+          "bytes": 11094,
+          "lines": 20
+        },
+        "nslab-mongo2": {
+          "bytes": 8369,
+          "lines": 23
+        },
+        "nslab-mongo3": {
+          "bytes": 8363,
+          "lines": 23
+        }
+      },
+      "_seconds": 3.1
+    }
+  },
+  "server_version": "MongoDB 7.0.37",
+  "finished": "2026-09-14T09:31:06+00:00"
+}

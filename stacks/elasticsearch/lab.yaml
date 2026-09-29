@@ -1,0 +1,48 @@
+display: Elasticsearch 9
+family: search
+category: search / analytics engine (Lucene, inverted index)
+driver: es
+image: elasticsearch:9.5.3
+project: nslab-elasticsearch
+scale: 1
+notes: >-
+  Elasticsearch 9, 3-node cluster (all master-eligible + data), security disabled. One index per collection with
+  1 primary shard + 2 replicas, so every node holds every shard (the RF=3 equivalent of the other clustered stacks).
+  Every field indexed at mapping time (inverted index for keyword/text, BKD tree for numeric/geo, HNSW for
+  dense_vector). Eventually consistent for search (30 s refresh; the harness refreshes after load). No multi-document
+  transactions, no server-side joins across indices, no per-document TTL. Any node coordinates writes; the master is
+  re-elected by the remaining quorum when a node dies.
+docs:
+  - https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html
+  - https://www.elastic.co/guide/en/elasticsearch/reference/current/knn-search.html
+  - https://www.elastic.co/guide/en/elasticsearch/reference/current/modules-discovery.html
+targets:
+  - name: primary
+    role: primary
+    host: 127.0.0.1
+    port: 19200
+    container: nslab-es1
+  - name: node2
+    role: node
+    host: 127.0.0.1
+    port: 19201
+    container: nslab-es2
+  - name: node3
+    role: node
+    host: 127.0.0.1
+    port: 19202
+    container: nslab-es3
+replication:
+  kind: primary + replica shards (number_of_replicas 2) over 3 nodes; master election by quorum
+  read_targets: [node2, node3]
+  verify_target: node2
+  promote:
+    method: auto
+    target: node2
+features:
+  index_prefix: "lab_"
+  shards: 1
+  replicas: 2
+  settle_seconds: 3
+  connection_storm: false
+  loadtest_workers: [4, 16, 32]

@@ -1,0 +1,48 @@
+display: Cassandra 5.0
+family: widecolumn
+category: wide-column (leaderless, tunable consistency)
+driver: cql
+image: cassandra:5
+project: nslab-cassandra
+scale: 1
+notes: >-
+  Official cassandra:5 image, 3 nodes RF=3, LOCAL_QUORUM by default. Query-first schema (one table per access path),
+  SAI indexes for vector (ANN) and analyzed text search, LWT for compare-and-set, counter table for increments.
+  Nodes are addressed by static container IPs (10.99.1.11-13); the client is pinned to one node per target.
+docs:
+  - https://hub.docker.com/_/cassandra
+  - https://cassandra.apache.org/doc/latest/cassandra/developing/cql/indexing/sai/sai-overview.html
+  - https://cassandra.apache.org/doc/latest/cassandra/developing/cql/dml.html#lightweight-transactions
+targets:
+  - name: primary
+    role: primary
+    host: 10.99.1.11
+    port: 9042
+    container: nslab-cassandra1
+  - name: node2
+    role: node
+    host: 10.99.1.12
+    port: 9042
+    container: nslab-cassandra2
+  - name: node3
+    role: node
+    host: 10.99.1.13
+    port: 9042
+    container: nslab-cassandra3
+k8s_targets:                 # NSLAB_PLATFORM=k3s: nodes are reached on 127.0.0.1:<nodePort of these pseudo host ports> (k8s/ports.json)
+  primary: {host: 127.0.0.1, port: 19042}
+  node2: {host: 127.0.0.1, port: 19043}
+  node3: {host: 127.0.0.1, port: 19044}
+replication:
+  kind: leaderless replication, RF=3, tunable consistency (LOCAL_QUORUM)
+  verify_target: node2
+  promote:
+    method: none
+features:
+  flavor: cassandra
+  text_index: false          # 5.0.9 SAI has no index_analyzer option (analyzed text search is 5.1+); text_search scans client-side
+  consistency: LOCAL_QUORUM
+  replication_factor: 3
+  settle_seconds: 5
+  slowlog_settle_seconds: 6     # MonitoringTask reports slow reads every monitoring_report_interval (5 s)
+  loadtest_workers: [4, 16, 32]

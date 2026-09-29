@@ -1,0 +1,39 @@
+{
+ "_comment": "source image -> what the cluster pulls (digest recorded after push by k8s/push-images.sh)",
+ "registry": "10.10.2.51:8443",
+ "pushed": "2026-09-14T11:15:20+00:00",
+ "images": {
+  "busybox:1.37": {
+   "harbor": "10.10.2.51:8443/nslab/busybox:1.37",
+   "digest": "sha256:9db7b59979c38555a39def84a31fb98b5296952f9e3afd4f6f11f05b07adfab0"
+  },
+  "cassandra:5": {
+   "harbor": "10.10.2.51:8443/nslab/cassandra:5",
+   "digest": "sha256:da9dad3aaf67c4e5126c6aafa769460d75f27c1716951c48896ff5c4e97d2af3"
+  },
+  "elasticsearch:9.5.3": {
+   "harbor": "10.10.2.51:8443/nslab/elasticsearch:9.5.3",
+   "digest": "sha256:78728a98651ede4b5240bc97a29c8bc2d8838c6e161d977137057cc4d2a22694"
+  },
+  "haproxy:lts": {
+   "harbor": "10.10.2.51:8443/nslab/haproxy:lts",
+   "digest": "sha256:0e81cf4a7fac4f689289ae2afd29e1153e9e6d69ae3fb0c1f0345f998643c258"
+  },
+  "mongo:7": {
+   "harbor": "10.10.2.51:8443/nslab/mongo:7",
+   "digest": "sha256:8ecb514b00bdcc0bde67ef4e6c330385377a9dc68e24ee94e28c07c891647348"
+  },
+  "neo4j:5-community": {
+   "harbor": "10.10.2.51:8443/nslab/neo4j:5-community",
+   "digest": "sha256:22ec5cd05a8cbb372fc4bed5e384c30bc75fd92504c72be4462039761b105f61"
+  },
+  "neo4j:5-enterprise": {
+   "harbor": "10.10.2.51:8443/nslab/neo4j:5-enterprise",
+   "digest": "sha256:7e168abc2c90bac4eaddc899170e0efc5dd793f9241f994d72870fd23e946acd"
+  },
+  "redis:8": {
+   "harbor": "10.10.2.51:8443/nslab/redis:8",
+   "digest": "sha256:298e5b3bc566bade82f46ad5511777a4a07a294097ce16ada2f6a42be5239df5"
+  }
+ }
+}

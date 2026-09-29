@@ -1,0 +1,321 @@
+{
+  "engine": "redis",
+  "display": "Redis 8",
+  "category": "in-memory key-value (data structures, Query Engine, JSON)",
+  "family": "keyvalue",
+  "driver": "resp",
+  "image": "redis:8",
+  "run_id": "20260914-182120-b5effb",
+  "started": "2026-09-14T15:21:20+00:00",
+  "scale": 1.0,
+  "notes": "Redis Open Source 8 (RediSearch/JSON/TimeSeries/probabilistic modules built in). Async primary->replica replication with diskless sync, AOF everysec on both; 3 Sentinels (quorum 2, down-after 2 s) elect a new primary; HAProxy round-robins reads over primary+replica. Documents are hashes with application-maintained index sets/zsets; FT.CREATE on products for text + vector.",
+  "phases": {
+    "load": {
+      "scale": 1.0,
+      "collections": {
+        "customers": {
+          "rows": 20000,
+          "counted": 20000,
+          "expected": 20000,
+          "seconds": 1.52,
+          "rows_per_s": 13143,
+          "method": "pipeline HSET (2000/batch) + index sets",
+          "ok": true
+        },
+        "categories": {
+          "rows": 200,
+          "counted": 200,
+          "expected": 200,
+          "seconds": 0.01,
+          "rows_per_s": 28419,
+          "method": "pipeline HSET (2000/batch) + index sets",
+          "ok": true
+        },
+        "products": {
+          "rows": 5000,
+          "counted": 5000,
+          "expected": 5000,
+          "seconds": 0.87,
+          "rows_per_s": 5732,
+          "method": "pipeline HSET (2000/batch) + index sets",
+          "ok": true
+        },
+        "orders": {
+          "rows": 200000,
+          "counted": 200000,
+          "expected": 200000,
+          "seconds": 7.06,
+          "rows_per_s": 28315,
+          "method": "pipeline HSET (2000/batch) + index sets x4 connections",
+          "ok": true
+        },
+        "order_items": {
+          "rows": 487606,
+          "counted": 487606,
+          "expected": 487606,
+          "seconds": 8.49,
+          "rows_per_s": 57452,
+          "method": "pipeline HSET (2000/batch) + index sets x4 connections",
+          "ok": true
+        },
+        "events": {
+          "rows": 1000000,
+          "counted": 1000000,
+          "expected": 1000000,
+          "seconds": 23.81,
+          "rows_per_s": 41993,
+          "method": "pipeline HSET (2000/batch) + index sets x4 connections",
+          "ok": true
+        },
+        "inventory": {
+          "rows": 20000,
+          "counted": 20000,
+          "expected": 20000,
+          "seconds": 0.68,
+          "rows_per_s": 29417,
+          "method": "pipeline HSET (2000/batch) + index sets",
+          "ok": true
+        }
+      },
+      "schema": [
+        "hash per document, keys:<coll> sets, application-maintained index sets/zsets, GEOADD geo:customers",
+        "FT.CREATE ft:products ON HASH PREFIX products: (description TEXT, embedding VECTOR HNSW cosine)"
+      ],
+      "errors": [],
+      "schema_seconds": 0.01,
+      "load_seconds": 42.46,
+      "after_load": [
+        "ft:products indexed 5000 docs"
+      ],
+      "post_seconds": 0.0,
+      "server_version": "redis 8.10.1",
+      "_seconds": 42.5
+    },
+    "replication": {
+      "kind": "async primary/replica (diskless sync, AOF everysec) + Sentinel failover",
+      "topology": {
+        "primary": {
+          "role_reported": "primary",
+          "role_configured": "primary",
+          "version": "redis 8.10.1",
+          "status": {
+            "role": "master",
+            "connected_slaves": 1,
+            "master_repl_offset": 616953408,
+            "replicas": [
+              {
+                "ip": "10.42.0.85",
+                "port": 6379,
+                "state": "online",
+                "offset": 612241847,
+                "lag": 1,
+                "io-thread": 1
+              }
+            ]
+          }
+        },
+        "replica": {
+          "role_reported": "replica",
+          "role_configured": "replica",
+          "version": "redis 8.10.1",
+          "status": {
+            "role": "slave",
+            "master_host": "primary",
+            "master_link_status": "up",
+            "master_last_io_seconds_ago": 0,
+            "slave_repl_offset": 616953408,
+            "slave_read_only": 1,
+            "connected_slaves": 0,
+            "master_repl_offset": 616953408,
+            "replicas": []
+          }
+        },
+        "haproxy-ro": {
+          "role_reported": "primary",
+          "role_configured": "proxy",
+          "version": "redis 8.10.1",
+          "status": {
+            "role": "master",
+            "connected_slaves": 1,
+            "master_repl_offset": 616953408,
+            "replicas": [
+              {
+                "ip": "10.42.0.85",
+                "port": 6379,
+                "state": "online",
+                "offset": 612241847,
+                "lag": 1,
+                "io-thread": 1
+              }
+            ]
+          }
+        }
+      },
+      "visibility_lag": {
+        "replica": {
+          "replica": "replica",
+          "n": 30,
+          "visible": 30,
+          "timeouts": 0,
+          "lag_ms": {
+            "n": 30,
+            "min": 0.38938201032578945,
+            "p50": 0.7859955367166549,
+            "p90": 0.8942569431383163,
+            "p95": 0.9413955442141739,
+            "p99": 2.006548778736034,
+            "max": 2.4297889904119074,
+            "mean": 0.8044750041638812,
+            "stdev": 0.3275173483518883
+          }
+        }
+      },
+      "write_rejection": {
+        "replica": {
+          "replica": "replica",
+          "writes_rejected": true,
+          "error_code": "READONLY",
+          "error": "ReadOnlyError: Command # 1 (HSET repl_probe:999999 id 999999 ts_ms 1789399329385) of pipeline caused error: You can't write against a read only replica."
+        }
+      },
+      "lag_under_load": {
+        "rows": 20000,
+        "batch": 500,
+        "write_seconds": 0.46,
+        "rows_per_s": 43348,
+        "catchup_ms_after_last_write": {
+          "replica": 7.5
+        },
+        "samples": [
+          {
+            "t": 353445.546,
+            "primary": {
+              "role": "master",
+              "connected_slaves": 1,
+              "master_repl_offset": 616958886,
+              "replicas": [
+                {
+                  "ip": "10.42.0.85",
+                  "port": 6379,
+                  "state": "online",
+                  "offset": 616956312,
+                  "lag": 1,
+                  "io-thread": 1
+                }
+              ]
+            },
+            "replica": {
+              "role": "slave",
+              "master_host": "primary",
+              "master_link_status": "up",
+              "master_last_io_seconds_ago": 0,
+              "slave_repl_offset": 616958886,
+              "slave_read_only": 1,
+              "connected_slaves": 0,
+              "master_repl_offset": 616958886,
+              "replicas": []
+            }
+          },
+          {
+            "t": 353445.812,
+            "primary": {
+              "role": "master",
+              "connected_slaves": 1,
+              "master_repl_offset": 618140030,
+              "replicas": [
+                {
+                  "ip": "10.42.0.85",
+                  "port": 6379,
+                  "state": "online",
+                  "offset": 617074962,
+                  "lag": 0,
+                  "io-thread": 1
+                }
+              ]
+            },
+            "replica": {
+              "role": "slave",
+              "master_host": "primary",
+              "master_link_status": "up",
+              "master_last_io_seconds_ago": 0,
+              "slave_repl_offset": 618160505,
+              "slave_read_only": 1,
+              "connected_slaves": 0,
+              "master_repl_offset": 618160505,
+              "replicas": []
+            }
+          }
+        ]
+      },
+      "read_scaling": {
+        "primary_only": {
+          "targets": [
+            "primary"
+          ],
+          "workers": 32,
+          "ops": 256404,
+          "ops_per_s": 64101,
+          "errors": 0,
+          "latency_ms": {
+            "n": 256404,
+            "min": 0.171401,
+            "p50": 0.4726555,
+            "p90": 0.6826098,
+            "p95": 0.766659,
+            "p99": 0.98693591,
+            "max": 7.416156,
+            "mean": 0.49775166258326703,
+            "stdev": 0.1620859189192639
+          }
+        },
+        "primary_plus_replicas": {
+          "targets": [
+            "primary",
+            "replica"
+          ],
+          "workers": 32,
+          "ops": 259890,
+          "ops_per_s": 64972,
+          "errors": 0,
+          "latency_ms": {
+            "n": 259890,
+            "min": 0.196547,
+            "p50": 0.46488,
+            "p90": 0.6747727000000001,
+            "p95": 0.7552941,
+            "p99": 0.9402166499999998,
+            "max": 5.094478,
+            "mean": 0.4910279141329024,
+            "stdev": 0.14925804823277367
+          }
+        },
+        "gain": 1.01
+      },
+      "failover": {
+        "kind": "async primary/replica (diskless sync, AOF everysec) + Sentinel failover",
+        "killed": "primary",
+        "killed_container": "nslab-redis-primary",
+        "write_error_after_kill": "ReadOnlyError: Command # 1 (HSET repl_probe:7000000 id 7000000 ts_ms 1789399345719) of pipeline caused error: You can't write against a read only replica.",
+        "write_attempts_until_success": 12,
+        "last_error_before_success": "ReadOnlyError: Command # 1 (HSET repl_probe:7100011 id 7100011 ts_ms 1789399347771) of pipeline caused error: You can't write against a read only replica.",
+        "downtime_ms": 3181.1,
+        "new_primary": "replica",
+        "verified_via": "replica",
+        "new_primary_role": "primary",
+        "new_primary_status": {
+          "role": "master",
+          "connected_slaves": 0,
+          "master_repl_offset": 619283749,
+          "replicas": []
+        },
+        "old_primary_restarted": true,
+        "note": "old primary restarted; whether it rejoins depends on the engine (stack should be recreated for reuse)"
+      },
+      "_seconds": 29.1
+    }
+  },
+  "partial": false,
+  "platform": "k3s",
+  "server_version": "redis 8.10.1",
+  "finished": "2026-09-14T15:22:32+00:00"
+}

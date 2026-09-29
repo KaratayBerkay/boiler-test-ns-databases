@@ -1,0 +1,67 @@
+{
+  "engine": "rocksdb",
+  "display": "RocksDB",
+  "category": "embedded ordered key-value (LSM tree)",
+  "family": "embedded",
+  "driver": "rocksdb",
+  "image": "(embedded, python rocksdict/RocksDB)",
+  "run_id": "20260914-115352-bc0d85",
+  "started": "2026-09-14T08:53:52+00:00",
+  "scale": 1.0,
+  "notes": "RocksDB (Facebook LSM-tree) via rocksdict, in-process, thread-safe. Same modelling as LMDB (ordered key-value + hand-maintained index keyspaces, WriteBatch for atomic multi-key writes). Write-optimised (LSM) vs LMDB's read-optimised B+tree. No server, no network, no replication.",
+  "phases": {
+    "logging": {
+      "strategy": {
+        "server_log": "no server process: the host application logs (Python logging / structlog) \u2014 the harness writes results/logs/nslab-*.jsonl",
+        "slow_query": "instrument the call site (timing decorator, OpenTelemetry span per transaction)",
+        "audit": "application-level",
+        "runtime": "application-level"
+      },
+      "threshold_ms": 100,
+      "containers": {},
+      "server_log": {
+        "status": "ok",
+        "value": {
+          "format": "text (RocksDB info LOG in the DB dir)",
+          "where": "data/rocksdb/lab.rocks/LOG",
+          "info_log_files": [
+            "LOG",
+            "LOG.old.1789376032658492"
+          ],
+          "info_log_bytes": 56844,
+          "rotation": "max_log_file_size 50 MB, keep_log_file_num 3, stats dump every 60 s",
+          "sample": [
+            "",
+            "** File Read Latency Histogram By Level [default] **"
+          ]
+        },
+        "ms": 0.7
+      },
+      "slow_query": {
+        "setup": {
+          "status": "unsupported",
+          "detail": "no server: time the calls in the application (decorator / OpenTelemetry span per transaction)",
+          "ms": 0.0
+        },
+        "effective_threshold_ms": 100
+      },
+      "audit": {
+        "setup": {
+          "status": "unsupported",
+          "detail": "no server: audit in the application",
+          "ms": 0.0
+        }
+      },
+      "runtime_log_level": {
+        "status": "unsupported",
+        "detail": "no server log level (RocksDB info_log_level is an open-time option; LMDB has no log)",
+        "ms": 0.0
+      },
+      "log_volume_this_phase": {},
+      "_seconds": 0.0
+    }
+  },
+  "partial": false,
+  "server_version": "RocksDB via rocksdict ?",
+  "finished": "2026-09-14T08:53:52+00:00"
+}

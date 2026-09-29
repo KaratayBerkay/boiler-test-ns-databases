@@ -1,0 +1,2657 @@
+{
+  "engine": "redis",
+  "display": "Redis 8",
+  "category": "in-memory key-value (data structures, Query Engine, JSON)",
+  "family": "keyvalue",
+  "driver": "resp",
+  "image": "redis:8",
+  "run_id": "20260914-182120-b5effb",
+  "started": "2026-09-14T15:21:20+00:00",
+  "scale": 1.0,
+  "notes": "Redis Open Source 8 (RediSearch/JSON/TimeSeries/probabilistic modules built in). Async primary->replica replication with diskless sync, AOF everysec on both; 3 Sentinels (quorum 2, down-after 2 s) elect a new primary; HAProxy round-robins reads over primary+replica. Documents are hashes with application-maintained index sets/zsets; FT.CREATE on products for text + vector.",
+  "phases": {
+    "load": {
+      "scale": 1.0,
+      "collections": {
+        "customers": {
+          "rows": 20000,
+          "counted": 20000,
+          "expected": 20000,
+          "seconds": 1.52,
+          "rows_per_s": 13143,
+          "method": "pipeline HSET (2000/batch) + index sets",
+          "ok": true
+        },
+        "categories": {
+          "rows": 200,
+          "counted": 200,
+          "expected": 200,
+          "seconds": 0.01,
+          "rows_per_s": 28419,
+          "method": "pipeline HSET (2000/batch) + index sets",
+          "ok": true
+        },
+        "products": {
+          "rows": 5000,
+          "counted": 5000,
+          "expected": 5000,
+          "seconds": 0.87,
+          "rows_per_s": 5732,
+          "method": "pipeline HSET (2000/batch) + index sets",
+          "ok": true
+        },
+        "orders": {
+          "rows": 200000,
+          "counted": 200000,
+          "expected": 200000,
+          "seconds": 7.06,
+          "rows_per_s": 28315,
+          "method": "pipeline HSET (2000/batch) + index sets x4 connections",
+          "ok": true
+        },
+        "order_items": {
+          "rows": 487606,
+          "counted": 487606,
+          "expected": 487606,
+          "seconds": 8.49,
+          "rows_per_s": 57452,
+          "method": "pipeline HSET (2000/batch) + index sets x4 connections",
+          "ok": true
+        },
+        "events": {
+          "rows": 1000000,
+          "counted": 1000000,
+          "expected": 1000000,
+          "seconds": 23.81,
+          "rows_per_s": 41993,
+          "method": "pipeline HSET (2000/batch) + index sets x4 connections",
+          "ok": true
+        },
+        "inventory": {
+          "rows": 20000,
+          "counted": 20000,
+          "expected": 20000,
+          "seconds": 0.68,
+          "rows_per_s": 29417,
+          "method": "pipeline HSET (2000/batch) + index sets",
+          "ok": true
+        }
+      },
+      "schema": [
+        "hash per document, keys:<coll> sets, application-maintained index sets/zsets, GEOADD geo:customers",
+        "FT.CREATE ft:products ON HASH PREFIX products: (description TEXT, embedding VECTOR HNSW cosine)"
+      ],
+      "errors": [],
+      "schema_seconds": 0.01,
+      "load_seconds": 42.46,
+      "after_load": [
+        "ft:products indexed 5000 docs"
+      ],
+      "post_seconds": 0.0,
+      "server_version": "redis 8.10.1",
+      "_seconds": 42.5
+    },
+    "capabilities": {
+      "secondary_index": {
+        "title": "Create a secondary index on a non-key field and use it",
+        "group": "indexing",
+        "status": "unsupported",
+        "detail": "no server-side secondary indexes; application-maintained sets/zsets (or RediSearch FT.CREATE)",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "compound_index": {
+        "title": "Compound / composite index over two fields",
+        "group": "indexing",
+        "status": "unsupported",
+        "detail": "application-maintained composite keys / zset scores",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "unique_constraint": {
+        "title": "Unique constraint on a non-key field (duplicate rejected)",
+        "group": "indexing",
+        "status": "unsupported",
+        "detail": "keys are unique by definition; no constraint on hash fields (SETNX/HSETNX for keys)",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "ttl_expiry": {
+        "title": "Native per-document/key expiry",
+        "group": "indexing",
+        "status": "supported",
+        "detail": "SET EX / EXPIRE; hash-field TTL (HEXPIRE) in Redis 7.4+/Valkey 9",
+        "ms": 1359.7
+      },
+      "text_index": {
+        "title": "Full-text index with tokenised search",
+        "group": "indexing",
+        "status": "supported",
+        "detail": "FT.CREATE ... TEXT + FT.SEARCH",
+        "ms": 2.7
+      },
+      "geo_index": {
+        "title": "Geospatial index and radius query",
+        "group": "indexing",
+        "status": "supported",
+        "detail": "GEOADD + GEOSEARCH (geohash in a sorted set)",
+        "ms": 1.0
+      },
+      "vector_index": {
+        "title": "Vector (ANN) index and kNN query",
+        "group": "indexing",
+        "status": "supported",
+        "detail": "FT.CREATE ... VECTOR HNSW + FT.SEARCH KNN",
+        "ms": 1.5
+      },
+      "partial_update": {
+        "title": "Update a single field without rewriting the document",
+        "group": "model",
+        "status": "supported",
+        "detail": "HSET one field of a hash",
+        "ms": 1.3
+      },
+      "atomic_increment": {
+        "title": "Server-side atomic numeric increment",
+        "group": "consistency",
+        "status": "supported",
+        "detail": "HINCRBY -> 1",
+        "ms": 1.0
+      },
+      "optimistic_concurrency": {
+        "title": "Compare-and-set / version or ETag-guarded write",
+        "group": "consistency",
+        "status": "supported",
+        "detail": "Lua compare-and-set (EVAL) or WATCH/MULTI/EXEC; Valkey 9: SET IFEQ",
+        "ms": 2.3
+      },
+      "multi_doc_transaction": {
+        "title": "Multi-document / multi-key ACID transaction with rollback",
+        "group": "consistency",
+        "status": "supported",
+        "detail": "MULTI/EXEC: atomic + isolated batch, but no rollback after a failed command (not ACID in the SQL sense)",
+        "ms": 3.1
+      },
+      "tunable_consistency": {
+        "title": "Per-request consistency / write concern / read preference",
+        "group": "consistency",
+        "status": "supported",
+        "detail": "WAIT numreplicas timeout -> 0 replicas acked (async replication; WAIT gives per-write synchronous ack)",
+        "ms": 213.6
+      },
+      "nested_query": {
+        "title": "Filter on a field inside a nested object",
+        "group": "model",
+        "status": "unsupported",
+        "detail": "flattened hash fields; filtering is client-side (or RediSearch)",
+        "ms": 0.0
+      },
+      "array_operators": {
+        "title": "Query and update array-valued fields (contains, push)",
+        "group": "model",
+        "status": "supported",
+        "detail": "native list/set types (RPUSH/LPOS/SISMEMBER) rather than arrays inside documents; LPOS -> 1",
+        "ms": 1.7
+      },
+      "aggregation": {
+        "title": "Server-side group-by aggregation",
+        "group": "model",
+        "status": "unsupported",
+        "detail": "no GROUP BY; client-side, Lua, or FT.AGGREGATE with RediSearch",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "server_side_join": {
+        "title": "Join / lookup between two collections inside the engine",
+        "group": "model",
+        "status": "unsupported",
+        "detail": "no joins; client-side or Lua",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "graph_traversal": {
+        "title": "Variable-depth traversal over references",
+        "group": "model",
+        "status": "unsupported",
+        "detail": "client-side loop over parent pointers",
+        "ms": 0.0
+      },
+      "schema_validation": {
+        "title": "Server-enforced document schema / constraints",
+        "group": "model",
+        "status": "unsupported",
+        "detail": "schemaless",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "change_streams": {
+        "title": "Change feed / watch / keyspace notifications",
+        "group": "operations",
+        "status": "supported",
+        "detail": "keyspace notifications (notify-keyspace-events) over Pub/Sub",
+        "ms": 4.5
+      },
+      "server_side_scripting": {
+        "title": "Stored procedures / Lua / JS / UDF executed by the server",
+        "group": "operations",
+        "status": "supported",
+        "detail": "Lua EVAL -> luax; functions (FUNCTION LOAD) in Redis 7+",
+        "ms": 0.5
+      },
+      "pubsub": {
+        "title": "Publish/subscribe messaging built into the engine",
+        "group": "operations",
+        "status": "supported",
+        "detail": "PUBLISH/SUBSCRIBE (fire-and-forget) + Streams (XADD/XREADGROUP) for durable queues",
+        "ms": 1.1
+      },
+      "explain_plan": {
+        "title": "Query plan / profile output for a query",
+        "group": "operations",
+        "status": "supported",
+        "detail": "FT.EXPLAIN for search queries; plain commands have documented O() complexity, no planner",
+        "ms": 1.5
+      },
+      "bulk_import": {
+        "title": "Native bulk import path (bulk API, batch, COPY-like tool)",
+        "group": "operations",
+        "status": "supported",
+        "detail": "pipelining / redis-cli --pipe (RESP protocol file)",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "large_document": {
+        "title": "Store and read back a 15 MB document / value",
+        "group": "limits",
+        "status": "supported",
+        "detail": "15 MB string round-trip ok (limit: proto-max-bulk-len 512 MB)",
+        "ms": 250.1
+      },
+      "many_fields": {
+        "title": "Document with 5000 top-level fields",
+        "group": "limits",
+        "status": "supported",
+        "detail": "hash with 5000 fields",
+        "ms": 17.5
+      },
+      "read_from_replica": {
+        "title": "Client can direct reads to a replica / secondary",
+        "group": "operations",
+        "status": "supported",
+        "detail": "connect to the replica directly (replica-read-only yes); Sentinel clients expose slave_for()",
+        "ms": 66.0
+      },
+      "snapshot_backup": {
+        "title": "Online snapshot / backup command available",
+        "group": "operations",
+        "status": "supported",
+        "detail": "BGSAVE (RDB snapshot) / AOF; Dragonfly: SAVE DF",
+        "ms": 0.8
+      },
+      "incremental_backup": {
+        "title": "Incremental / differential backup (file- or segment-level)",
+        "group": "operations",
+        "status": "unsupported",
+        "detail": "RDB is always a full snapshot; AOF (everysec) is the continuous log between snapshots",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "pitr": {
+        "title": "Point-in-time recovery from a continuous change log",
+        "group": "operations",
+        "status": "unsupported",
+        "detail": "AOF replays to the last fsync only \u2014 no timestamp-based replay; copy RDBs at the RPO you need",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "slow_query_log": {
+        "title": "Server-side slow-query log with a configurable threshold",
+        "group": "logging",
+        "status": "supported",
+        "detail": "SLOWLOG (in-memory ring, slowlog-log-slower-than=10000 \u00b5s) + LATENCY MONITOR",
+        "ms": 1.0
+      },
+      "audit_log": {
+        "title": "Audit / full-query log of statements or auth events",
+        "group": "logging",
+        "status": "supported",
+        "detail": "ACL LOG (denied AUTH / NOPERM attempts, in memory); no persistent statement audit in OSS (MONITOR is a live stream)",
+        "ms": 0.4
+      },
+      "structured_logs": {
+        "title": "JSON-structured server log out of the box",
+        "group": "logging",
+        "status": "unsupported",
+        "detail": "plain-text server log (pid:role date level message); wrap with the docker log driver / a shipper",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "runtime_log_level": {
+        "title": "Change log verbosity at run time (no restart)",
+        "group": "logging",
+        "status": "supported",
+        "detail": "CONFIG SET loglevel (current notice), slowlog-*, latency-monitor-threshold apply immediately",
+        "ms": 0.7
+      },
+      "_seconds": 2.0
+    },
+    "backup": {
+      "tag": "nslab-20260914-145516",
+      "strategy": {
+        "tool": "BGSAVE (fork, point-in-time RDB) then copy dump.rdb off the box; AOF everysec keeps the gap between snapshots small",
+        "consistency": "point-in-time (fork + copy-on-write); one file per instance",
+        "restore": "offline: stop, install the RDB as the multipart-AOF base file (appendonlydir/ + manifest) so an AOF-enabled server loads it, start; replicas full-resync",
+        "incremental": "none \u2014 RDB is always full; BGREWRITEAOF compacts the AOF",
+        "pitr": "no (AOF replays to the last fsync only)",
+        "schedule": "`save <seconds> <changes>` rules or a cron job calling BGSAVE + copy (Sentinel/replica-aware)",
+        "retention": "external: rotate the copied RDB files"
+      },
+      "data_bytes": 1600252219,
+      "fingerprint_before": {
+        "counts": {
+          "customers": 20000,
+          "categories": 200,
+          "products": 5000,
+          "inventory": 20000
+        },
+        "customers_present": 50,
+        "probe_count": 100,
+        "post_probe_present": false
+      },
+      "reads_baseline": {
+        "reads": 715,
+        "errors": 0,
+        "latency_ms": {
+          "n": 715,
+          "min": 0.2753550070337951,
+          "p50": 0.7273199735209346,
+          "p90": 0.8240099996328354,
+          "p95": 0.8491466927807778,
+          "p99": 0.909006365109235,
+          "max": 2.3212789674289525,
+          "mean": 0.6903686072234507,
+          "stdev": 0.15844927371438539
+        }
+      },
+      "backup": {
+        "method": "BGSAVE + copy dump.rdb",
+        "online": true,
+        "artifact": "/backups/nslab-20260914-145516.rdb",
+        "artifact_bytes": 411214947,
+        "fork_ms": 49.5,
+        "rdb_last_cow_size": 5644288,
+        "aof_current_size": 484245967,
+        "used_memory": 875800280,
+        "seconds": 7.26,
+        "status": "ok",
+        "reads_during": {
+          "reads": 2630,
+          "errors": 0,
+          "latency_ms": {
+            "n": 2630,
+            "min": 0.2772579900920391,
+            "p50": 0.6914680125191808,
+            "p90": 0.7880702847614884,
+            "p95": 0.8135328011121601,
+            "p99": 0.8775137079646811,
+            "max": 54.00729499524459,
+            "mean": 0.6625113594912333,
+            "stdev": 1.0502883303035173
+          }
+        },
+        "artifact_pct_of_data": 25.7
+      },
+      "fingerprint_after_mutation": {
+        "counts": {
+          "customers": 19950,
+          "categories": 200,
+          "products": 5000,
+          "inventory": 20000
+        },
+        "customers_present": 0,
+        "probe_count": 600,
+        "post_probe_present": true
+      },
+      "restore": {
+        "method": "stop; RDB -> appendonlydir base + manifest; start; replicas full-resync",
+        "online": false,
+        "downtime_ms": 20089.8,
+        "replica_resync_ms": {
+          "replica": 60280.5
+        },
+        "sentinel": "down-after-milliseconds raised to 600000 on 3 sentinels during the restore, then reset",
+        "seconds": 84.29,
+        "status": "ok",
+        "availability": {
+          "downtime_ms": 20089.8,
+          "outages": 1
+        },
+        "checks": {
+          "counts_match": true,
+          "deleted_customers_back": true,
+          "probe_count_back_to_pre": true,
+          "post_backup_writes_gone": true
+        },
+        "verified": true
+      },
+      "fingerprint_after_restore": {
+        "counts": {
+          "customers": 20000,
+          "categories": 200,
+          "products": 5000,
+          "inventory": 20000
+        },
+        "customers_present": 50,
+        "probe_count": 100,
+        "post_probe_present": false
+      },
+      "incremental": {
+        "status": "unsupported",
+        "detail": "resp: no incremental backup"
+      },
+      "_seconds": 103.9,
+      "dr": {
+        "tag": "nslab-dr-20260914-165255",
+        "fingerprint_before": {
+          "counts": {
+            "customers": 20000,
+            "categories": 200,
+            "products": 5000,
+            "inventory": 20000
+          },
+          "customers_present": 50,
+          "probe_count": 100,
+          "post_probe_present": false
+        },
+        "backup": {
+          "method": "BGSAVE + copy dump.rdb",
+          "online": true,
+          "artifact": "/backups/nslab-dr-20260914-165255.rdb",
+          "artifact_bytes": 335772658,
+          "fork_ms": 39.1,
+          "rdb_last_cow_size": 4489216,
+          "aof_current_size": 446367536,
+          "used_memory": 590280664,
+          "seconds": 5.85
+        },
+        "export": {
+          "dir": "/home/berkay-server/repos/boilers/raw-codes/databases/ns-databases/data/backups/redis/nslab-dr-20260914-165255",
+          "files": [
+            "/home/berkay-server/repos/boilers/raw-codes/databases/ns-databases/data/backups/redis/nslab-dr-20260914-165255/nslab-dr-20260914-165255.rdb"
+          ],
+          "bytes": 335772658,
+          "seconds": 2.1
+        },
+        "destroy": {
+          "method": "docker compose down -v (data + backups volumes removed)",
+          "seconds": 55.3
+        },
+        "fresh_up": {
+          "seconds": 22.5,
+          "services": [
+            "haproxy",
+            "primary",
+            "replica",
+            "sentinel1",
+            "sentinel2",
+            "sentinel3"
+          ]
+        },
+        "after_destroy": {
+          "customers": 0,
+          "repl_probe": 0
+        },
+        "import": {
+          "placed": [
+            "nslab-redis-primary:/backups/nslab-dr-20260914-165255.rdb"
+          ],
+          "seconds": 6.63
+        },
+        "restore": {
+          "method": "stop; RDB -> appendonlydir base + manifest; start; replicas full-resync",
+          "online": false,
+          "downtime_ms": 15990.7,
+          "replica_resync_ms": {
+            "replica": 37549.4
+          },
+          "sentinel": "down-after-milliseconds raised to 600000 on 3 sentinels during the restore, then reset",
+          "seconds": 57.31,
+          "checks": {
+            "counts_match": true,
+            "customers_present": true,
+            "probe_count_match": true
+          },
+          "verified": true
+        },
+        "fingerprint_after_restore": {
+          "counts": {
+            "customers": 20000,
+            "categories": 200,
+            "products": 5000,
+            "inventory": 20000
+          },
+          "customers_present": 50,
+          "probe_count": 100,
+          "post_probe_present": false
+        },
+        "_seconds": 163.4
+      }
+    },
+    "logging": {
+      "strategy": {
+        "server_log": "plain text on stdout (`pid:role date level message`), loglevel notice; the docker json-file driver rotates it",
+        "slow_query": "SLOWLOG (in-memory ring: slowlog-log-slower-than \u00b5s, slowlog-max-len) + LATENCY MONITOR (latency-monitor-threshold ms) + LATENCY DOCTOR",
+        "audit": "ACL LOG for denied AUTH / NOPERM attempts (in memory, acllog-max-len); MONITOR is a live debug stream, not a log; persistent audit is Redis Enterprise",
+        "runtime": "CONFIG SET loglevel / slowlog-* / latency-monitor-threshold apply immediately (CONFIG REWRITE persists them)"
+      },
+      "threshold_ms": 100,
+      "containers": {
+        "nslab-redis-haproxy": {
+          "driver": "kubelet (container-log-max-size/-files via k3d.yaml)",
+          "options": {
+            "max-size": "50Mi",
+            "max-file": "3"
+          },
+          "log_path": "/var/log/pods/nslab-redis_haproxy-bfd99bb7c-bswqc_d933f647-e99d-4602-8182-fc8080410619/",
+          "user": "root",
+          "started": "2026-09-14T11:46:25Z",
+          "bytes": 899,
+          "lines": 7,
+          "json_lines_pct": 0.0,
+          "format": "text",
+          "sample": [
+            "[ALERT]    (8) : proxy 'redis_read' has no server available!",
+            "[WARNING]  (8) : Server redis_read/replica is UP, reason: Layer7 check passed, code: 0, info: \"(tcp-check)\", check duration: 0ms. 1 active and 0 backup servers online. 0 sessions requeued, 0 total in queue.",
+            "Defaulted container \"haproxy\" out of: haproxy, wait-replica (init)"
+          ]
+        },
+        "nslab-redis-primary": {
+          "driver": "kubelet (container-log-max-size/-files via k3d.yaml)",
+          "options": {
+            "max-size": "50Mi",
+            "max-file": "3"
+          },
+          "log_path": "/var/log/pods/nslab-redis_primary-64986966b-ws26q_dc584700-28b5-48b8-8c03-7f833603b904/",
+          "user": "root",
+          "started": "2026-09-14T11:55:45Z",
+          "bytes": 16062,
+          "lines": 181,
+          "json_lines_pct": 0.0,
+          "format": "text",
+          "sample": [
+            "1:M 14 Sep 2026 11:56:42.910 * Streamed RDB transfer with replica 10.42.0.30:6379 succeeded (socket). Waiting for REPLCONF ACK from replica to enable streaming",
+            "1:M 14 Sep 2026 11:56:42.910 * RDB transfer completed, rdb only replica (10.42.0.30:6379) should be disconnected asap",
+            "1:M 14 Sep 2026 11:56:42.910 * Connection with replica (rdbchannel) 10.42.0.30:6379 lost."
+          ]
+        },
+        "nslab-redis-replica": {
+          "driver": "kubelet (container-log-max-size/-files via k3d.yaml)",
+          "options": {
+            "max-size": "50Mi",
+            "max-file": "3"
+          },
+          "log_path": "/var/log/pods/nslab-redis_replica-7d96d6cb94-fxc9q_a6f97167-4939-4f23-bbd4-f2a6e6e81b73/",
+          "user": "root",
+          "started": "2026-09-14T11:46:39Z",
+          "bytes": 28621,
+          "lines": 317,
+          "json_lines_pct": 0.0,
+          "format": "text",
+          "sample": [
+            "1:S 14 Sep 2026 11:56:58.279 * Removing the history file appendonly.aof.8.base.rdb in the background",
+            "1:S 14 Sep 2026 11:56:58.283 * Background AOF rewrite finished successfully",
+            "Defaulted container \"replica\" out of: replica, wait-primary (init)"
+          ]
+        },
+        "nslab-redis-sentinel1": {
+          "driver": "kubelet (container-log-max-size/-files via k3d.yaml)",
+          "options": {
+            "max-size": "50Mi",
+            "max-file": "3"
+          },
+          "log_path": "/var/log/pods/nslab-redis_sentinel1-7d568ff946-wb74t_87022c9d-2785-4aab-888a-486d73725ce2/",
+          "user": "root",
+          "started": "2026-09-14T11:46:25Z",
+          "bytes": 1909,
+          "lines": 22,
+          "json_lines_pct": 0.0,
+          "format": "text",
+          "sample": [
+            "11:X 14 Sep 2026 11:56:55.311 # +set master mymaster primary 6379 down-after-milliseconds 2000",
+            "11:X 14 Sep 2026 11:56:55.314 * Sentinel new configuration saved on disk",
+            "Defaulted container \"sentinel1\" out of: sentinel1, wait-replica (init)"
+          ]
+        },
+        "nslab-redis-sentinel2": {
+          "driver": "kubelet (container-log-max-size/-files via k3d.yaml)",
+          "options": {
+            "max-size": "50Mi",
+            "max-file": "3"
+          },
+          "log_path": "/var/log/pods/nslab-redis_sentinel2-64595cbc8-6zg7b_a1d12f3a-bb4f-4d6e-a316-85e516e4d93e/",
+          "user": "root",
+          "started": "2026-09-14T11:46:25Z",
+          "bytes": 2021,
+          "lines": 23,
+          "json_lines_pct": 0.0,
+          "format": "text",
+          "sample": [
+            "11:X 14 Sep 2026 11:56:55.705 # +set master mymaster primary 6379 down-after-milliseconds 2000",
+            "11:X 14 Sep 2026 11:56:55.707 * Sentinel new configuration saved on disk",
+            "Defaulted container \"sentinel2\" out of: sentinel2, wait-replica (init)"
+          ]
+        },
+        "nslab-redis-sentinel3": {
+          "driver": "kubelet (container-log-max-size/-files via k3d.yaml)",
+          "options": {
+            "max-size": "50Mi",
+            "max-file": "3"
+          },
+          "log_path": "/var/log/pods/nslab-redis_sentinel3-65f9c8b6c8-qlfp6_da22aef6-a845-4457-bc72-9843890aecdc/",
+          "user": "root",
+          "started": "2026-09-14T11:46:25Z",
+          "bytes": 2133,
+          "lines": 24,
+          "json_lines_pct": 0.0,
+          "format": "text",
+          "sample": [
+            "11:X 14 Sep 2026 11:56:56.237 # +set master mymaster primary 6379 down-after-milliseconds 2000",
+            "11:X 14 Sep 2026 11:56:56.240 * Sentinel new configuration saved on disk",
+            "Defaulted container \"sentinel3\" out of: sentinel3, wait-replica (init)"
+          ]
+        }
+      },
+      "server_log": {
+        "status": "ok",
+        "value": {
+          "format": "text",
+          "where": "stdout (docker logs) \u2014 `logfile` when set",
+          "loglevel": "notice",
+          "sample": [
+            "1:M 14 Sep 2026 11:56:42.910 * Streamed RDB transfer with replica 10.42.0.30:6379 succeeded (socket). Waiting for REPLCONF ACK from replica to enable streaming",
+            "1:M 14 Sep 2026 11:56:42.910 * RDB transfer completed, rdb only replica (10.42.0.30:6379) should be disconnected asap",
+            "1:M 14 Sep 2026 11:56:42.910 * Connection with replica (rdbchannel) 10.42.0.30:6379 lost."
+          ]
+        },
+        "ms": 195.1
+      },
+      "slow_query": {
+        "setup": {
+          "status": "ok",
+          "value": "CONFIG SET slowlog-log-slower-than 100000 (\u00b5s) + SLOWLOG RESET; latency-monitor-threshold 100 ms",
+          "ms": 2.2
+        },
+        "effective_threshold_ms": 100,
+        "fast_op": {
+          "desc": "HGET customers:1 name",
+          "ms": 0.5,
+          "status": "ok",
+          "error": null
+        },
+        "slow_op": {
+          "desc": "KEYS customers:* (scans the whole keyspace \u2014 the anti-pattern SLOWLOG exists to catch)",
+          "ms": 232.2,
+          "status": "ok",
+          "error": null
+        },
+        "entries": [
+          {
+            "id": 1,
+            "ts": 1789387023,
+            "ms": 220.71,
+            "text": "KEYS customers:*",
+            "client": "10.42.0.1:32150"
+          },
+          {
+            "ms": 220.0,
+            "text": "LATENCY LATEST event=command latest=220 ms max=220 ms",
+            "kind": "latency-monitor"
+          }
+        ],
+        "entries_status": "ok",
+        "entries_error": null,
+        "slow_op_logged": true,
+        "logged_ms": 220.71,
+        "fast_op_logged": false,
+        "verified": true
+      },
+      "audit": {
+        "setup": {
+          "status": "ok",
+          "value": "ACL LOG RESET; ACL SETUSER nslab_auditor on >s3cret ~* +@read (read-only user to provoke denials)",
+          "ms": 2.0
+        },
+        "exercise": [
+          "AUTH nslab_auditor <wrong> -> AuthenticationError: invalid username-password pair or user is disabled.",
+          "SET as read-only nslab_auditor -> NoPermissionError: User nslab_auditor has no permissions to run the 'set' comma"
+        ],
+        "entries": [
+          "reason=command context=toplevel object=set user=nslab_auditor count=1",
+          "reason=auth context=toplevel object=AUTH user=nslab_auditor count=1"
+        ],
+        "entries_count": 2,
+        "entries_status": "ok",
+        "entries_error": null,
+        "verified": true
+      },
+      "runtime_log_level": {
+        "status": "ok",
+        "value": "CONFIG SET loglevel debug -> verified -> back to notice (no restart)",
+        "ms": 2.1
+      },
+      "log_volume_this_phase": {
+        "nslab-redis-haproxy": {
+          "bytes": 0,
+          "lines": 0
+        },
+        "nslab-redis-primary": {
+          "bytes": 0,
+          "lines": 0
+        },
+        "nslab-redis-replica": {
+          "bytes": 0,
+          "lines": 0
+        },
+        "nslab-redis-sentinel1": {
+          "bytes": 0,
+          "lines": 0
+        },
+        "nslab-redis-sentinel2": {
+          "bytes": 0,
+          "lines": 0
+        },
+        "nslab-redis-sentinel3": {
+          "bytes": 0,
+          "lines": 0
+        }
+      },
+      "_seconds": 6.9
+    },
+    "replication": {
+      "kind": "async primary/replica (diskless sync, AOF everysec) + Sentinel failover",
+      "topology": {
+        "primary": {
+          "role_reported": "primary",
+          "role_configured": "primary",
+          "version": "redis 8.10.1",
+          "status": {
+            "role": "master",
+            "connected_slaves": 1,
+            "master_repl_offset": 616953408,
+            "replicas": [
+              {
+                "ip": "10.42.0.85",
+                "port": 6379,
+                "state": "online",
+                "offset": 612241847,
+                "lag": 1,
+                "io-thread": 1
+              }
+            ]
+          }
+        },
+        "replica": {
+          "role_reported": "replica",
+          "role_configured": "replica",
+          "version": "redis 8.10.1",
+          "status": {
+            "role": "slave",
+            "master_host": "primary",
+            "master_link_status": "up",
+            "master_last_io_seconds_ago": 0,
+            "slave_repl_offset": 616953408,
+            "slave_read_only": 1,
+            "connected_slaves": 0,
+            "master_repl_offset": 616953408,
+            "replicas": []
+          }
+        },
+        "haproxy-ro": {
+          "role_reported": "primary",
+          "role_configured": "proxy",
+          "version": "redis 8.10.1",
+          "status": {
+            "role": "master",
+            "connected_slaves": 1,
+            "master_repl_offset": 616953408,
+            "replicas": [
+              {
+                "ip": "10.42.0.85",
+                "port": 6379,
+                "state": "online",
+                "offset": 612241847,
+                "lag": 1,
+                "io-thread": 1
+              }
+            ]
+          }
+        }
+      },
+      "visibility_lag": {
+        "replica": {
+          "replica": "replica",
+          "n": 30,
+          "visible": 30,
+          "timeouts": 0,
+          "lag_ms": {
+            "n": 30,
+            "min": 0.38938201032578945,
+            "p50": 0.7859955367166549,
+            "p90": 0.8942569431383163,
+            "p95": 0.9413955442141739,
+            "p99": 2.006548778736034,
+            "max": 2.4297889904119074,
+            "mean": 0.8044750041638812,
+            "stdev": 0.3275173483518883
+          }
+        }
+      },
+      "write_rejection": {
+        "replica": {
+          "replica": "replica",
+          "writes_rejected": true,
+          "error_code": "READONLY",
+          "error": "ReadOnlyError: Command # 1 (HSET repl_probe:999999 id 999999 ts_ms 1789399329385) of pipeline caused error: You can't write against a read only replica."
+        }
+      },
+      "lag_under_load": {
+        "rows": 20000,
+        "batch": 500,
+        "write_seconds": 0.46,
+        "rows_per_s": 43348,
+        "catchup_ms_after_last_write": {
+          "replica": 7.5
+        },
+        "samples": [
+          {
+            "t": 353445.546,
+            "primary": {
+              "role": "master",
+              "connected_slaves": 1,
+              "master_repl_offset": 616958886,
+              "replicas": [
+                {
+                  "ip": "10.42.0.85",
+                  "port": 6379,
+                  "state": "online",
+                  "offset": 616956312,
+                  "lag": 1,
+                  "io-thread": 1
+                }
+              ]
+            },
+            "replica": {
+              "role": "slave",
+              "master_host": "primary",
+              "master_link_status": "up",
+              "master_last_io_seconds_ago": 0,
+              "slave_repl_offset": 616958886,
+              "slave_read_only": 1,
+              "connected_slaves": 0,
+              "master_repl_offset": 616958886,
+              "replicas": []
+            }
+          },
+          {
+            "t": 353445.812,
+            "primary": {
+              "role": "master",
+              "connected_slaves": 1,
+              "master_repl_offset": 618140030,
+              "replicas": [
+                {
+                  "ip": "10.42.0.85",
+                  "port": 6379,
+                  "state": "online",
+                  "offset": 617074962,
+                  "lag": 0,
+                  "io-thread": 1
+                }
+              ]
+            },
+            "replica": {
+              "role": "slave",
+              "master_host": "primary",
+              "master_link_status": "up",
+              "master_last_io_seconds_ago": 0,
+              "slave_repl_offset": 618160505,
+              "slave_read_only": 1,
+              "connected_slaves": 0,
+              "master_repl_offset": 618160505,
+              "replicas": []
+            }
+          }
+        ]
+      },
+      "read_scaling": {
+        "primary_only": {
+          "targets": [
+            "primary"
+          ],
+          "workers": 32,
+          "ops": 256404,
+          "ops_per_s": 64101,
+          "errors": 0,
+          "latency_ms": {
+            "n": 256404,
+            "min": 0.171401,
+            "p50": 0.4726555,
+            "p90": 0.6826098,
+            "p95": 0.766659,
+            "p99": 0.98693591,
+            "max": 7.416156,
+            "mean": 0.49775166258326703,
+            "stdev": 0.1620859189192639
+          }
+        },
+        "primary_plus_replicas": {
+          "targets": [
+            "primary",
+            "replica"
+          ],
+          "workers": 32,
+          "ops": 259890,
+          "ops_per_s": 64972,
+          "errors": 0,
+          "latency_ms": {
+            "n": 259890,
+            "min": 0.196547,
+            "p50": 0.46488,
+            "p90": 0.6747727000000001,
+            "p95": 0.7552941,
+            "p99": 0.9402166499999998,
+            "max": 5.094478,
+            "mean": 0.4910279141329024,
+            "stdev": 0.14925804823277367
+          }
+        },
+        "gain": 1.01
+      },
+      "failover": {
+        "kind": "async primary/replica (diskless sync, AOF everysec) + Sentinel failover",
+        "killed": "primary",
+        "killed_container": "nslab-redis-primary",
+        "write_error_after_kill": "ReadOnlyError: Command # 1 (HSET repl_probe:7000000 id 7000000 ts_ms 1789399345719) of pipeline caused error: You can't write against a read only replica.",
+        "write_attempts_until_success": 12,
+        "last_error_before_success": "ReadOnlyError: Command # 1 (HSET repl_probe:7100011 id 7100011 ts_ms 1789399347771) of pipeline caused error: You can't write against a read only replica.",
+        "downtime_ms": 3181.1,
+        "new_primary": "replica",
+        "verified_via": "replica",
+        "new_primary_role": "primary",
+        "new_primary_status": {
+          "role": "master",
+          "connected_slaves": 0,
+          "master_repl_offset": 619283749,
+          "replicas": []
+        },
+        "old_primary_restarted": true,
+        "note": "old primary restarted; whether it rejoins depends on the engine (stack should be recreated for reuse)"
+      },
+      "_seconds": 29.1
+    },
+    "bench": {
+      "ping": {
+        "title": "Round trip: cheapest server call",
+        "tags": [
+          "connection"
+        ],
+        "kind": "read",
+        "params_sample": "{}",
+        "status": "ok",
+        "timing": {
+          "n": 30,
+          "min": 0.321,
+          "p50": 0.466,
+          "p90": 0.765,
+          "p95": 0.818,
+          "p99": 69.122,
+          "max": 97.018,
+          "mean": 3.712,
+          "stdev": 17.327,
+          "first_ms": 2.232
+        },
+        "rows": null,
+        "checksum": null,
+        "error": null,
+        "error_code": null
+      },
+      "get_by_key": {
+        "title": "Point read: customer by primary key",
+        "tags": [
+          "kv",
+          "read"
+        ],
+        "kind": "read",
+        "params_sample": "{'id': 14824}",
+        "status": "ok",
+        "timing": {
+          "n": 30,
+          "min": 0.388,
+          "p50": 0.5,
+          "p90": 0.648,
+          "p95": 0.713,
+          "p99": 0.781,
+          "max": 0.79,
+          "mean": 0.526,
+          "stdev": 0.1,
+          "first_ms": 0.725
+        },
+        "rows": 1,
+        "checksum": "6fd6c2fc65d6b71d6b168c58",
+        "error": null,
+        "error_code": null
+      },
+      "multi_get": {
+        "title": "Batch point read: 100 customers by key in one request",
+        "tags": [
+          "kv",
+          "read",
+          "batch"
+        ],
+        "kind": "read",
+        "params_sample": "{'ids': [18, 151, 359, 492, 497, 554, 975, 986, 1169, 1373, 1715, 1952, 1963, 2070, 2190, 2302, 2394, 2727, 2785, 2856, 2972, 3085, 3312, 3533, 3537, 3818, 3867",
+        "status": "ok",
+        "timing": {
+          "n": 20,
+          "min": 3.311,
+          "p50": 3.617,
+          "p90": 3.813,
+          "p95": 3.964,
+          "p99": 4.036,
+          "max": 4.054,
+          "mean": 3.607,
+          "stdev": 0.198,
+          "first_ms": 3.518
+        },
+        "rows": 100,
+        "checksum": "655e0c701b1171ed48085c10",
+        "error": null,
+        "error_code": null
+      },
+      "insert_one": {
+        "title": "Single document insert (event)",
+        "tags": [
+          "write"
+        ],
+        "kind": "write",
+        "params_sample": "{'id': 50000000, 'customer_id': 14824, 'event_type': 'bench_insert', 'occurred_at': datetime.datetime(2026, 1, 1, 0, 0), 'payload': {'page': '/bench', 'ref': 'd",
+        "status": "ok",
+        "timing": {
+          "n": 30,
+          "min": 0.68,
+          "p50": 0.972,
+          "p90": 1.05,
+          "p95": 1.087,
+          "p99": 1.136,
+          "max": 1.152,
+          "mean": 0.931,
+          "stdev": 0.115,
+          "first_ms": 1.116
+        },
+        "rows": null,
+        "checksum": null,
+        "error": null,
+        "error_code": null
+      },
+      "update_field": {
+        "title": "Partial update: set one field of a customer",
+        "tags": [
+          "write",
+          "partial"
+        ],
+        "kind": "write",
+        "params_sample": "{'id': 14824, 'value': '2026-01-01T00:00:00Z'}",
+        "status": "ok",
+        "timing": {
+          "n": 30,
+          "min": 0.468,
+          "p50": 0.615,
+          "p90": 0.712,
+          "p95": 0.722,
+          "p99": 0.738,
+          "max": 0.745,
+          "mean": 0.611,
+          "stdev": 0.076,
+          "first_ms": 0.814
+        },
+        "rows": null,
+        "checksum": null,
+        "error": null,
+        "error_code": null
+      },
+      "upsert": {
+        "title": "Upsert inventory row by composite key",
+        "tags": [
+          "write"
+        ],
+        "kind": "write",
+        "params_sample": "{'product_id': 3706, 'warehouse_id': 4, 'qty': 331}",
+        "status": "ok",
+        "timing": {
+          "n": 30,
+          "min": 0.55,
+          "p50": 0.786,
+          "p90": 0.918,
+          "p95": 0.936,
+          "p99": 0.943,
+          "max": 0.945,
+          "mean": 0.78,
+          "stdev": 0.112,
+          "first_ms": 0.956
+        },
+        "rows": null,
+        "checksum": null,
+        "error": null,
+        "error_code": null
+      },
+      "delete_one": {
+        "title": "Delete one document by key",
+        "tags": [
+          "write"
+        ],
+        "kind": "write",
+        "params_sample": "{'id': 60000000, 'customer_id': 14824, 'event_type': 'bench_delete', 'occurred_at': datetime.datetime(2026, 1, 2, 0, 0), 'payload': None, 'value_num': 1.0}",
+        "status": "ok",
+        "timing": {
+          "n": 30,
+          "min": 0.48,
+          "p50": 0.655,
+          "p90": 0.789,
+          "p95": 0.857,
+          "p99": 0.884,
+          "max": 0.891,
+          "mean": 0.67,
+          "stdev": 0.103,
+          "first_ms": 0.868
+        },
+        "rows": null,
+        "checksum": null,
+        "error": null,
+        "error_code": null
+      },
+      "atomic_increment": {
+        "title": "Server-side atomic increment of a numeric field",
+        "tags": [
+          "write",
+          "atomic"
+        ],
+        "kind": "write",
+        "params_sample": "{'product_id': 3706, 'warehouse_id': 4, 'qty': 331}",
+        "status": "ok",
+        "timing": {
+          "n": 30,
+          "min": 0.403,
+          "p50": 0.493,
+          "p90": 0.666,
+          "p95": 0.686,
+          "p99": 0.712,
+          "max": 0.716,
+          "mean": 0.513,
+          "stdev": 0.086,
+          "first_ms": 0.882
+        },
+        "rows": 1,
+        "checksum": "198dac8425ff655c276be095",
+        "error": null,
+        "error_code": null
+      },
+      "conditional_update": {
+        "title": "Compare-and-set on a version field",
+        "tags": [
+          "write",
+          "atomic",
+          "cas"
+        ],
+        "kind": "write",
+        "params_sample": "{'product_id': 3706, 'warehouse_id': 4}",
+        "status": "ok",
+        "timing": {
+          "n": 30,
+          "min": 0.927,
+          "p50": 1.294,
+          "p90": 1.451,
+          "p95": 1.495,
+          "p99": 1.54,
+          "max": 1.551,
+          "mean": 1.229,
+          "stdev": 0.181,
+          "first_ms": 1.626
+        },
+        "rows": 1,
+        "checksum": "4a520767a593e2aaa486f609",
+        "error": null,
+        "error_code": null
+      },
+      "batch_insert_1000": {
+        "title": "Bulk write: 1000 events in one request",
+        "tags": [
+          "write",
+          "batch"
+        ],
+        "kind": "write",
+        "params_sample": "{'base': 70000000, 'docs': [{'id': 70000000, 'customer_id': 14824, 'event_type': 'bench_batch', 'occurred_at': datetime.datetime(2026, 1, 3, 0, 0), 'payload': N",
+        "status": "ok",
+        "timing": {
+          "n": 8,
+          "min": 45.093,
+          "p50": 50.05,
+          "p90": 75.063,
+          "p95": 77.607,
+          "p99": 79.641,
+          "max": 80.15,
+          "mean": 56.321,
+          "stdev": 12.027,
+          "first_ms": 52.959
+        },
+        "rows": null,
+        "checksum": null,
+        "error": null,
+        "error_code": null
+      },
+      "range_by_secondary": {
+        "title": "Secondary lookup: orders of one customer",
+        "tags": [
+          "read",
+          "index"
+        ],
+        "kind": "read",
+        "params_sample": "{'customer_id': 14824}",
+        "status": "ok",
+        "timing": {
+          "n": 20,
+          "min": 0.529,
+          "p50": 0.639,
+          "p90": 0.768,
+          "p95": 0.861,
+          "p99": 0.907,
+          "max": 0.918,
+          "mean": 0.665,
+          "stdev": 0.093,
+          "first_ms": 1.404
+        },
+        "rows": 7,
+        "checksum": "28011086de01faf9ceced703",
+        "error": null,
+        "error_code": null
+      },
+      "range_by_time": {
+        "title": "Range scan: events of one type in a 3-day window",
+        "tags": [
+          "read",
+          "range",
+          "time"
+        ],
+        "kind": "read",
+        "params_sample": "{'event_type': 'checkout', 'start': datetime.datetime(2025, 8, 28, 0, 0), 'end': datetime.datetime(2025, 8, 31, 0, 0), 'limit': 100}",
+        "status": "ok",
+        "timing": {
+          "n": 10,
+          "min": 2.635,
+          "p50": 2.783,
+          "p90": 4.123,
+          "p95": 8.38,
+          "p99": 11.787,
+          "max": 12.638,
+          "mean": 3.805,
+          "stdev": 2.949,
+          "first_ms": 2.751
+        },
+        "rows": 100,
+        "checksum": "706ac8b4bf31cce133e30d69",
+        "error": null,
+        "error_code": null
+      },
+      "filter_nested": {
+        "title": "Filter on a nested field + top-level field",
+        "tags": [
+          "read",
+          "nested"
+        ],
+        "kind": "read",
+        "params_sample": "{}",
+        "status": "ok",
+        "timing": {
+          "n": 10,
+          "min": 17.119,
+          "p50": 17.473,
+          "p90": 17.958,
+          "p95": 18.058,
+          "p99": 18.138,
+          "max": 18.158,
+          "mean": 17.58,
+          "stdev": 0.322,
+          "first_ms": 18.893
+        },
+        "rows": 1,
+        "checksum": "a37e4981ca422ff62b38fee7",
+        "error": null,
+        "error_code": null
+      },
+      "array_contains": {
+        "title": "Filter on array membership",
+        "tags": [
+          "read",
+          "array"
+        ],
+        "kind": "read",
+        "params_sample": "{}",
+        "status": "ok",
+        "timing": {
+          "n": 10,
+          "min": 11.217,
+          "p50": 12.397,
+          "p90": 12.773,
+          "p95": 12.984,
+          "p99": 13.154,
+          "max": 13.196,
+          "mean": 12.299,
+          "stdev": 0.511,
+          "first_ms": 12.122
+        },
+        "rows": 1,
+        "checksum": "855c097b08a3ac4fd8a9ee27",
+        "error": null,
+        "error_code": null
+      },
+      "top_n_sorted": {
+        "title": "Top-N with sort: 10 most expensive active products of a category",
+        "tags": [
+          "read",
+          "sort"
+        ],
+        "kind": "read",
+        "params_sample": "{'category_id': 116, 'n': 10}",
+        "status": "ok",
+        "timing": {
+          "n": 20,
+          "min": 0.624,
+          "p50": 0.923,
+          "p90": 1.099,
+          "p95": 1.124,
+          "p99": 1.173,
+          "max": 1.186,
+          "mean": 0.942,
+          "stdev": 0.131,
+          "first_ms": 1.705
+        },
+        "rows": 10,
+        "checksum": "a26dab79ede7f4d5249c5cb5",
+        "error": null,
+        "error_code": null
+      },
+      "pagination_offset": {
+        "title": "Deep page via offset (skip 10000)",
+        "tags": [
+          "read",
+          "pagination"
+        ],
+        "kind": "read",
+        "params_sample": "{'offset': 10000, 'page': 50}",
+        "status": "ok",
+        "timing": {
+          "n": 8,
+          "min": 1.103,
+          "p50": 1.277,
+          "p90": 1.416,
+          "p95": 1.418,
+          "p99": 1.418,
+          "max": 1.419,
+          "mean": 1.291,
+          "stdev": 0.103,
+          "first_ms": 1.585
+        },
+        "rows": 50,
+        "checksum": "e46e41f3a92752684bbeda77",
+        "error": null,
+        "error_code": null
+      },
+      "pagination_keyset": {
+        "title": "Deep page via keyset / cursor",
+        "tags": [
+          "read",
+          "pagination"
+        ],
+        "kind": "read",
+        "params_sample": "{'offset': 10000, 'page': 50}",
+        "status": "ok",
+        "timing": {
+          "n": 10,
+          "min": 1.354,
+          "p50": 1.567,
+          "p90": 1.741,
+          "p95": 1.745,
+          "p99": 1.748,
+          "max": 1.749,
+          "mean": 1.543,
+          "stdev": 0.16,
+          "first_ms": 1.608
+        },
+        "rows": 50,
+        "checksum": "e46e41f3a92752684bbeda77",
+        "error": null,
+        "error_code": null
+      },
+      "count_filtered": {
+        "title": "Count with equality filter",
+        "tags": [
+          "read",
+          "aggregate"
+        ],
+        "kind": "read",
+        "params_sample": "{}",
+        "status": "ok",
+        "timing": {
+          "n": 10,
+          "min": 0.239,
+          "p50": 0.249,
+          "p90": 0.296,
+          "p95": 0.302,
+          "p99": 0.307,
+          "max": 0.308,
+          "mean": 0.262,
+          "stdev": 0.024,
+          "first_ms": 0.547
+        },
+        "rows": 1,
+        "checksum": "462747c4825a83f70293e696",
+        "error": null,
+        "error_code": null
+      },
+      "aggregate_group": {
+        "title": "Group-by aggregate over 200k orders",
+        "tags": [
+          "read",
+          "aggregate"
+        ],
+        "kind": "read",
+        "params_sample": "{}",
+        "status": "ok",
+        "timing": {
+          "n": 8,
+          "min": 2542.338,
+          "p50": 2828.253,
+          "p90": 3894.764,
+          "p95": 4102.105,
+          "p99": 4267.977,
+          "max": 4309.445,
+          "mean": 3090.299,
+          "stdev": 593.787,
+          "first_ms": 2711.63
+        },
+        "rows": 13,
+        "checksum": "82a653fa5048bcc6289cad3d",
+        "error": null,
+        "error_code": null
+      },
+      "aggregate_time_bucket": {
+        "title": "Time-bucketed aggregate over 1M events",
+        "tags": [
+          "read",
+          "aggregate",
+          "time"
+        ],
+        "kind": "read",
+        "params_sample": "{}",
+        "status": "ok",
+        "timing": {
+          "n": 5,
+          "min": 947.236,
+          "p50": 959.944,
+          "p90": 992.799,
+          "p95": 999.701,
+          "p99": 1005.223,
+          "max": 1006.604,
+          "mean": 966.713,
+          "stdev": 21.942,
+          "first_ms": 1140.331
+        },
+        "rows": 24,
+        "checksum": "7c611891940b3812b8b36ca6",
+        "error": null,
+        "error_code": null
+      },
+      "join_lookup": {
+        "title": "Orders of a customer with the customer's name (server-side join if the engine has one)",
+        "tags": [
+          "read",
+          "join"
+        ],
+        "kind": "read",
+        "params_sample": "{'customer_id': 14824}",
+        "status": "ok",
+        "timing": {
+          "n": 20,
+          "min": 0.595,
+          "p50": 0.697,
+          "p90": 0.86,
+          "p95": 0.906,
+          "p99": 0.922,
+          "max": 0.926,
+          "mean": 0.714,
+          "stdev": 0.091,
+          "first_ms": 1.184
+        },
+        "rows": 7,
+        "checksum": "4c1b6f23a7e9d95af19b26c5",
+        "error": null,
+        "error_code": null
+      },
+      "graph_traversal": {
+        "title": "Category ancestor chain of a product (variable-depth traversal)",
+        "tags": [
+          "read",
+          "graph"
+        ],
+        "kind": "read",
+        "params_sample": "{'product_id': 3706}",
+        "status": "ok",
+        "timing": {
+          "n": 20,
+          "min": 0.482,
+          "p50": 1.018,
+          "p90": 1.256,
+          "p95": 1.286,
+          "p99": 1.33,
+          "max": 1.34,
+          "mean": 0.98,
+          "stdev": 0.249,
+          "first_ms": 1.624
+        },
+        "rows": 2,
+        "checksum": "f8df79f1ddf52e913fdd7bbf",
+        "error": null,
+        "error_code": null
+      },
+      "text_search": {
+        "title": "Full-text search on product descriptions",
+        "tags": [
+          "read",
+          "text"
+        ],
+        "kind": "read",
+        "params_sample": "{'words': ['wireless', 'charger'], 'limit': 20}",
+        "status": "ok",
+        "timing": {
+          "n": 10,
+          "min": 1.459,
+          "p50": 1.857,
+          "p90": 2.084,
+          "p95": 2.115,
+          "p99": 2.139,
+          "max": 2.145,
+          "mean": 1.836,
+          "stdev": 0.207,
+          "first_ms": 2.522
+        },
+        "rows": 20,
+        "checksum": "a235fed79befa7de480f1d5b",
+        "error": null,
+        "error_code": null
+      },
+      "geo_near": {
+        "title": "Geo radius query on customer locations",
+        "tags": [
+          "read",
+          "geo"
+        ],
+        "kind": "read",
+        "params_sample": "{'lat': 52.5, 'lon': 13.4, 'km': 200, 'limit': 20}",
+        "status": "ok",
+        "timing": {
+          "n": 10,
+          "min": 0.831,
+          "p50": 1.149,
+          "p90": 1.516,
+          "p95": 1.55,
+          "p99": 1.578,
+          "max": 1.585,
+          "mean": 1.171,
+          "stdev": 0.263,
+          "first_ms": 1.296
+        },
+        "rows": 20,
+        "checksum": "ef5985a217c590de050f108e",
+        "error": null,
+        "error_code": null
+      },
+      "vector_knn": {
+        "title": "k-nearest-neighbour search on 8-dim product embeddings",
+        "tags": [
+          "read",
+          "vector"
+        ],
+        "kind": "read",
+        "params_sample": "{'vector': [-0.16177, -0.22283, -0.59722, 0.1963, 0.07576, 0.45484, 0.05553, 0.5597], 'k': 10}",
+        "status": "ok",
+        "timing": {
+          "n": 20,
+          "min": 0.728,
+          "p50": 1.008,
+          "p90": 1.075,
+          "p95": 1.107,
+          "p99": 1.11,
+          "max": 1.111,
+          "mean": 0.952,
+          "stdev": 0.124,
+          "first_ms": 1.274
+        },
+        "rows": 10,
+        "checksum": "9dd41546cff4eeea5845f7c3",
+        "error": null,
+        "error_code": null
+      },
+      "transaction_transfer": {
+        "title": "Multi-document atomic transfer between two inventory rows",
+        "tags": [
+          "write",
+          "txn"
+        ],
+        "kind": "txn",
+        "params_sample": "{'product_id': 3706, 'from': 4, 'to': 2, 'amount': 1}",
+        "status": "ok",
+        "timing": {
+          "n": 20,
+          "min": 0.365,
+          "p50": 0.407,
+          "p90": 0.497,
+          "p95": 0.498,
+          "p99": 0.499,
+          "max": 0.499,
+          "mean": 0.424,
+          "stdev": 0.041,
+          "first_ms": 0.696
+        },
+        "rows": null,
+        "checksum": null,
+        "error": null,
+        "error_code": null
+      },
+      "ttl_set": {
+        "title": "Write with expiry",
+        "tags": [
+          "write",
+          "ttl"
+        ],
+        "kind": "write",
+        "params_sample": "{'key': 'ttl:0', 'seconds': 120, 'value': {'i': 0, 'note': 'bench'}}",
+        "status": "ok",
+        "timing": {
+          "n": 30,
+          "min": 0.322,
+          "p50": 0.388,
+          "p90": 0.406,
+          "p95": 0.42,
+          "p99": 0.427,
+          "max": 0.429,
+          "mean": 0.382,
+          "stdev": 0.026,
+          "first_ms": 0.504
+        },
+        "rows": null,
+        "checksum": null,
+        "error": null,
+        "error_code": null
+      },
+      "scan_full": {
+        "title": "Full scan: count all events",
+        "tags": [
+          "read",
+          "scan"
+        ],
+        "kind": "read",
+        "params_sample": "{}",
+        "status": "ok",
+        "timing": {
+          "n": 5,
+          "min": 1003.765,
+          "p50": 1143.842,
+          "p90": 1220.8,
+          "p95": 1224.919,
+          "p99": 1228.215,
+          "max": 1229.039,
+          "mean": 1134.091,
+          "stdev": 82.458,
+          "first_ms": 1266.869
+        },
+        "rows": 1,
+        "checksum": "3c61354c65cb9b97e3304b8e",
+        "error": null,
+        "error_code": null
+      },
+      "_seconds": 47.1
+    },
+    "optimize": {
+      "opt01_secondary_index": {
+        "title": "Range scan on events(event_type, occurred_at): no index vs secondary index (both column orders)",
+        "what": "an access path that is not indexed is a full scan; composite order matters on B-tree-like engines",
+        "variants": [
+          {
+            "name": "no_index",
+            "note": "",
+            "ok": true,
+            "error": null,
+            "p50_ms": 14172.056,
+            "p95_ms": 15548.647,
+            "n": 3,
+            "rows": 100
+          },
+          {
+            "name": "index_(event_type,occurred_at)",
+            "setup": "built idx:events:type:* zsets over 1000008 events (application-maintained index)",
+            "ok": true,
+            "error": null,
+            "p50_ms": 3.868,
+            "p95_ms": 4.017,
+            "n": 8,
+            "rows": 100
+          },
+          {
+            "name": "index_(occurred_at,event_type)",
+            "setup": "built idx:events:type:* zsets over 1000008 events (application-maintained index)",
+            "ok": true,
+            "error": null,
+            "p50_ms": 3.188,
+            "p95_ms": 3.352,
+            "n": 8,
+            "rows": 100
+          }
+        ],
+        "best_variant": "index_(occurred_at,event_type)",
+        "speedup_vs_first": 4445.44
+      },
+      "opt02_projection": {
+        "title": "Point read of an order: whole document (with embedded items) vs 3-field projection",
+        "what": "returning fewer fields saves serialisation and transfer; some engines still read the whole document",
+        "variants": [
+          {
+            "name": "full_document",
+            "ok": true,
+            "error": null,
+            "p50_ms": 0.308,
+            "p95_ms": 0.338,
+            "n": 30,
+            "rows": 1
+          },
+          {
+            "name": "projection_3_fields",
+            "ok": true,
+            "error": null,
+            "p50_ms": 0.298,
+            "p95_ms": 0.374,
+            "n": 30,
+            "rows": 1
+          }
+        ],
+        "best_variant": "projection_3_fields",
+        "speedup_vs_first": 1.03
+      },
+      "opt03_pagination": {
+        "title": "Deep pagination: offset/skip vs keyset (cursor) at depth 10k and 100k",
+        "what": "offset still walks and discards rows; a keyset cursor seeks directly into the sorted index",
+        "variants": [
+          {
+            "name": "offset_depth_10000",
+            "ok": true,
+            "error": null,
+            "p50_ms": 2.217,
+            "p95_ms": 2.334,
+            "n": 8,
+            "rows": 50
+          },
+          {
+            "name": "keyset_depth_10000",
+            "ok": true,
+            "error": null,
+            "p50_ms": 2.415,
+            "p95_ms": 2.515,
+            "n": 8,
+            "rows": 50
+          },
+          {
+            "name": "offset_depth_100000",
+            "ok": true,
+            "error": null,
+            "p50_ms": 2.328,
+            "p95_ms": 2.576,
+            "n": 8,
+            "rows": 50
+          },
+          {
+            "name": "keyset_depth_100000",
+            "ok": true,
+            "error": null,
+            "p50_ms": 2.596,
+            "p95_ms": 3.048,
+            "n": 8,
+            "rows": 50
+          }
+        ],
+        "best_variant": "offset_depth_10000",
+        "speedup_vs_first": 1.0
+      },
+      "opt04_batching": {
+        "title": "Write batching: 2000 events one-by-one vs 2 bulk requests of 1000",
+        "what": "round trips dominate small writes; every engine has a bulk path (insert_many, pipeline, batch, _bulk)",
+        "variants": [
+          {
+            "name": "single_put_x2000",
+            "rows": 2000,
+            "seconds": 1.334,
+            "rows_per_s": 1499,
+            "error": null,
+            "ok": true
+          },
+          {
+            "name": "bulk_put_1000_x2",
+            "rows": 2000,
+            "seconds": 0.096,
+            "rows_per_s": 20882,
+            "error": null,
+            "ok": true
+          }
+        ],
+        "speedup_vs_first": 13.93,
+        "best_variant": "bulk_put_1000_x2"
+      },
+      "opt05_multi_get": {
+        "title": "100 point reads: sequential round trips vs one multi-get request",
+        "what": "batched reads (MGET / $in / IN / mget / pipelining) amortise the network round trip",
+        "variants": [
+          {
+            "name": "sequential_100_gets",
+            "ok": true,
+            "error": null,
+            "p50_ms": 32.294,
+            "p95_ms": 42.648,
+            "n": 10,
+            "rows": 100
+          },
+          {
+            "name": "multi_get_100",
+            "ok": true,
+            "error": null,
+            "p50_ms": 3.119,
+            "p95_ms": 3.182,
+            "n": 10,
+            "rows": 100
+          }
+        ],
+        "best_variant": "multi_get_100",
+        "speedup_vs_first": 10.35
+      },
+      "opt06_embedding_vs_reference": {
+        "title": "Order with its items: embedded array (one document) vs referenced (order + items lookup)",
+        "what": "embedding what is read together avoids a second query / join; referencing keeps documents small and items independently addressable",
+        "variants": [
+          {
+            "name": "embedded_items",
+            "ok": true,
+            "error": null,
+            "p50_ms": 0.545,
+            "p95_ms": 0.821,
+            "n": 30,
+            "rows": 1
+          },
+          {
+            "name": "referenced_items",
+            "ok": true,
+            "error": null,
+            "p50_ms": 1.152,
+            "p95_ms": 1.479,
+            "n": 30,
+            "rows": 1
+          }
+        ],
+        "best_variant": "embedded_items",
+        "speedup_vs_first": 1.0
+      },
+      "opt07_write_durability": {
+        "title": "Single-document write at each durability / write-concern level the engine offers",
+        "what": "acknowledgement level (replica acks, fsync, refresh) is the biggest lever on write latency",
+        "variants": [
+          {
+            "name": "ack_primary",
+            "ok": true,
+            "error": null,
+            "p50_ms": 0.558,
+            "p95_ms": 0.744,
+            "n": 30,
+            "rows": null
+          },
+          {
+            "name": "wait_1_replica",
+            "ok": true,
+            "error": null,
+            "p50_ms": 23.915,
+            "p95_ms": 33.674,
+            "n": 30,
+            "rows": null
+          },
+          {
+            "name": "waitaof_local_fsync",
+            "ok": true,
+            "error": null,
+            "p50_ms": 1003.065,
+            "p95_ms": 1013.773,
+            "n": 20,
+            "rows": null
+          },
+          {
+            "name": "waitaof_local+1_replica",
+            "ok": true,
+            "error": null,
+            "p50_ms": 1003.682,
+            "p95_ms": 1035.357,
+            "n": 20,
+            "rows": null
+          }
+        ],
+        "best_variant": "ack_primary",
+        "speedup_vs_first": 1.0
+      },
+      "opt08_read_consistency": {
+        "title": "Point read at each read consistency level / read preference the engine offers",
+        "what": "linearizable / quorum reads cost extra round trips; replica reads trade freshness for offload",
+        "variants": [
+          {
+            "name": "primary",
+            "ok": true,
+            "error": null,
+            "p50_ms": 0.488,
+            "p95_ms": 0.723,
+            "n": 30,
+            "rows": 1
+          },
+          {
+            "name": "replica@replica",
+            "ok": true,
+            "error": null,
+            "p50_ms": 0.52,
+            "p95_ms": 0.646,
+            "n": 30,
+            "rows": 1
+          }
+        ],
+        "best_variant": "primary",
+        "speedup_vs_first": 1.0
+      },
+      "opt09_connection_reuse": {
+        "title": "Point read with a new connection per operation vs one persistent client",
+        "what": "handshakes (TCP, TLS, auth, topology discovery) dwarf a point read; always pool",
+        "variants": [
+          {
+            "name": "connect_per_operation",
+            "ok": true,
+            "error": null,
+            "p50_ms": 4.698,
+            "p95_ms": 5.514,
+            "n": 20,
+            "rows": 1
+          },
+          {
+            "name": "persistent_client",
+            "ok": true,
+            "error": null,
+            "p50_ms": 0.563,
+            "p95_ms": 0.596,
+            "n": 30,
+            "rows": 1
+          }
+        ],
+        "best_variant": "persistent_client",
+        "speedup_vs_first": 8.34
+      },
+      "_seconds": 243.4
+    },
+    "connections": {
+      "max_connections": 10000,
+      "connect_latency": {
+        "primary": {
+          "target": "primary",
+          "n": 30,
+          "ms": {
+            "n": 30,
+            "min": 2.662737,
+            "p50": 2.959239,
+            "p90": 3.5800054,
+            "p95": 3.60943345,
+            "p99": 3.78620682,
+            "max": 3.855326,
+            "mean": 3.112719466666667,
+            "stdev": 0.36441722377898417
+          },
+          "errors": [],
+          "error_count": 0
+        },
+        "haproxy-ro": {
+          "target": "haproxy-ro",
+          "n": 30,
+          "ms": {
+            "n": 30,
+            "min": 2.793211,
+            "p50": 3.0572715,
+            "p90": 3.6013089000000003,
+            "p95": 3.87034435,
+            "p99": 4.03856468,
+            "max": 4.103121,
+            "mean": 3.1677809,
+            "stdev": 0.31427614462648923
+          },
+          "errors": [],
+          "error_count": 0
+        }
+      },
+      "storm": {
+        "primary": [
+          {
+            "target": "primary",
+            "requested": 10,
+            "opened": 10,
+            "failed": 0,
+            "wall_ms_to_open_all": 50.2,
+            "connect_ms": {
+              "n": 10,
+              "min": 10.671077,
+              "p50": 17.2624335,
+              "p90": 18.4485725,
+              "p95": 19.07930825,
+              "p99": 19.58389685,
+              "max": 19.710044,
+              "mean": 16.3031182,
+              "stdev": 2.517952694655513
+            },
+            "error_codes": {},
+            "sample_error": null
+          },
+          {
+            "target": "primary",
+            "requested": 50,
+            "opened": 50,
+            "failed": 0,
+            "wall_ms_to_open_all": 100.3,
+            "connect_ms": {
+              "n": 50,
+              "min": 30.495687,
+              "p50": 67.762267,
+              "p90": 80.34339600000001,
+              "p95": 81.57715895,
+              "p99": 83.20428815,
+              "max": 83.630522,
+              "mean": 66.10033428,
+              "stdev": 11.972519409545313
+            },
+            "error_codes": {},
+            "sample_error": null
+          },
+          {
+            "target": "primary",
+            "requested": 100,
+            "opened": 100,
+            "failed": 0,
+            "wall_ms_to_open_all": 313.3,
+            "connect_ms": {
+              "n": 100,
+              "min": 69.753923,
+              "p50": 258.113608,
+              "p90": 292.5716615,
+              "p95": 294.3426076,
+              "p99": 298.63398987,
+              "max": 299.842866,
+              "mean": 247.08433434999998,
+              "stdev": 45.732427369758064
+            },
+            "error_codes": {},
+            "sample_error": null
+          },
+          {
+            "target": "primary",
+            "requested": 200,
+            "opened": 200,
+            "failed": 0,
+            "wall_ms_to_open_all": 494.3,
+            "connect_ms": {
+              "n": 200,
+              "min": 152.17618,
+              "p50": 432.88946799999997,
+              "p90": 473.2294388,
+              "p95": 481.68032425,
+              "p99": 490.26385275999996,
+              "max": 493.609059,
+              "mean": 421.31759016,
+              "stdev": 49.724279275514185
+            },
+            "error_codes": {},
+            "sample_error": null
+          },
+          {
+            "target": "primary",
+            "requested": 500,
+            "opened": 500,
+            "failed": 0,
+            "wall_ms_to_open_all": 1118.3,
+            "connect_ms": {
+              "n": 500,
+              "min": 151.436472,
+              "p50": 745.6350255,
+              "p90": 1000.5548964000001,
+              "p95": 1025.0582941999999,
+              "p99": 1060.33559815,
+              "max": 1075.674866,
+              "mean": 728.560915182,
+              "stdev": 207.7768329352235
+            },
+            "error_codes": {},
+            "sample_error": null
+          }
+        ],
+        "haproxy-ro": [
+          {
+            "target": "haproxy-ro",
+            "requested": 10,
+            "opened": 10,
+            "failed": 0,
+            "wall_ms_to_open_all": 50.1,
+            "connect_ms": {
+              "n": 10,
+              "min": 12.360239,
+              "p50": 16.519233,
+              "p90": 17.794647400000002,
+              "p95": 17.9132062,
+              "p99": 18.00805324,
+              "max": 18.031765,
+              "mean": 15.7945551,
+              "stdev": 1.9736517981627584
+            },
+            "error_codes": {},
+            "sample_error": null
+          },
+          {
+            "target": "haproxy-ro",
+            "requested": 50,
+            "opened": 50,
+            "failed": 0,
+            "wall_ms_to_open_all": 153.2,
+            "connect_ms": {
+              "n": 50,
+              "min": 63.727801,
+              "p50": 94.51871249999999,
+              "p90": 106.5451728,
+              "p95": 107.79863714999999,
+              "p99": 109.82675574999999,
+              "max": 110.141691,
+              "mean": 93.03810868000001,
+              "stdev": 11.826554983041024
+            },
+            "error_codes": {},
+            "sample_error": null
+          },
+          {
+            "target": "haproxy-ro",
+            "requested": 100,
+            "opened": 100,
+            "failed": 0,
+            "wall_ms_to_open_all": 304.9,
+            "connect_ms": {
+              "n": 100,
+              "min": 114.443887,
+              "p50": 225.40963599999998,
+              "p90": 247.0542207,
+              "p95": 249.73740174999998,
+              "p99": 254.48813995,
+              "max": 254.643763,
+              "mean": 216.64676866999997,
+              "stdev": 29.567876124424266
+            },
+            "error_codes": {},
+            "sample_error": null
+          },
+          {
+            "target": "haproxy-ro",
+            "requested": 200,
+            "opened": 200,
+            "failed": 0,
+            "wall_ms_to_open_all": 357.2,
+            "connect_ms": {
+              "n": 200,
+              "min": 93.635721,
+              "p50": 281.1388855,
+              "p90": 324.350403,
+              "p95": 329.69296799999995,
+              "p99": 334.8763734,
+              "max": 342.710997,
+              "mean": 275.490830525,
+              "stdev": 42.25978494232172
+            },
+            "error_codes": {},
+            "sample_error": null
+          },
+          {
+            "target": "haproxy-ro",
+            "requested": 500,
+            "opened": 500,
+            "failed": 0,
+            "wall_ms_to_open_all": 945.5,
+            "connect_ms": {
+              "n": 500,
+              "min": 114.827716,
+              "p50": 488.5027245,
+              "p90": 777.8620164,
+              "p95": 822.79889605,
+              "p99": 868.01424283,
+              "max": 885.361086,
+              "mean": 518.980839524,
+              "stdev": 173.09991412840466
+            },
+            "error_codes": {},
+            "sample_error": null
+          }
+        ]
+      },
+      "concurrency": {
+        "primary": [
+          {
+            "workers": 1,
+            "targets": [
+              "primary"
+            ],
+            "ops": 7581,
+            "errors": 0,
+            "seconds": 4.0,
+            "ops_per_s": 1895,
+            "latency_ms": {
+              "n": 7581,
+              "min": 0.156992,
+              "p50": 0.530586,
+              "p90": 0.805232,
+              "p95": 0.840719,
+              "p99": 0.8867946,
+              "max": 4.429216,
+              "mean": 0.525141375807941,
+              "stdev": 0.2158897575358273
+            },
+            "first_error": null,
+            "workers_reported": 1
+          },
+          {
+            "workers": 4,
+            "targets": [
+              "primary"
+            ],
+            "ops": 34088,
+            "errors": 0,
+            "seconds": 4.0,
+            "ops_per_s": 8522,
+            "latency_ms": {
+              "n": 34088,
+              "min": 0.153274,
+              "p50": 0.4582765,
+              "p90": 0.6735074,
+              "p95": 0.7268266,
+              "p99": 0.8283285199999977,
+              "max": 3.305604,
+              "mean": 0.4670170737796292,
+              "stdev": 0.1593407666294978
+            },
+            "first_error": null,
+            "workers_reported": 4
+          },
+          {
+            "workers": 16,
+            "targets": [
+              "primary"
+            ],
+            "ops": 205476,
+            "errors": 0,
+            "seconds": 4.0,
+            "ops_per_s": 51369,
+            "latency_ms": {
+              "n": 205476,
+              "min": 0.175416,
+              "p50": 0.297606,
+              "p90": 0.372524,
+              "p95": 0.419092,
+              "p99": 0.56897725,
+              "max": 5.078181,
+              "mean": 0.31001789003581925,
+              "stdev": 0.08046089385369444
+            },
+            "first_error": null,
+            "workers_reported": 16
+          },
+          {
+            "workers": 32,
+            "targets": [
+              "primary"
+            ],
+            "ops": 234931,
+            "errors": 0,
+            "seconds": 4.0,
+            "ops_per_s": 58733,
+            "latency_ms": {
+              "n": 234931,
+              "min": 0.20309,
+              "p50": 0.516051,
+              "p90": 0.747138,
+              "p95": 0.839243,
+              "p99": 1.0616729000000005,
+              "max": 9.369273,
+              "mean": 0.5433023811076444,
+              "stdev": 0.18335342333176366
+            },
+            "first_error": null,
+            "workers_reported": 32
+          },
+          {
+            "workers": 64,
+            "targets": [
+              "primary"
+            ],
+            "ops": 268807,
+            "errors": 0,
+            "seconds": 4.0,
+            "ops_per_s": 67202,
+            "latency_ms": {
+              "n": 268807,
+              "min": 0.230194,
+              "p50": 0.906315,
+              "p90": 1.3723084,
+              "p95": 1.537495899999999,
+              "p99": 1.90600608,
+              "max": 11.996367,
+              "mean": 0.9509557039139606,
+              "stdev": 0.34898528641498094
+            },
+            "first_error": null,
+            "workers_reported": 64
+          }
+        ],
+        "haproxy-ro": [
+          {
+            "workers": 1,
+            "targets": [
+              "haproxy-ro"
+            ],
+            "ops": 6250,
+            "errors": 0,
+            "seconds": 4.0,
+            "ops_per_s": 1562,
+            "latency_ms": {
+              "n": 6250,
+              "min": 0.19185,
+              "p50": 0.6406835,
+              "p90": 0.9472817000000002,
+              "p95": 0.9928369999999999,
+              "p99": 1.07493769,
+              "max": 5.08959,
+              "mean": 0.6376504000000001,
+              "stdev": 0.24714196900252908
+            },
+            "first_error": null,
+            "workers_reported": 1
+          },
+          {
+            "workers": 4,
+            "targets": [
+              "haproxy-ro"
+            ],
+            "ops": 27023,
+            "errors": 0,
+            "seconds": 4.0,
+            "ops_per_s": 6756,
+            "latency_ms": {
+              "n": 27023,
+              "min": 0.201666,
+              "p50": 0.607687,
+              "p90": 0.8176508,
+              "p95": 0.8697933999999999,
+              "p99": 0.9760176599999999,
+              "max": 5.349673,
+              "mean": 0.5896424988343263,
+              "stdev": 0.1975529377837226
+            },
+            "first_error": null,
+            "workers_reported": 4
+          },
+          {
+            "workers": 16,
+            "targets": [
+              "haproxy-ro"
+            ],
+            "ops": 146817,
+            "errors": 0,
+            "seconds": 4.0,
+            "ops_per_s": 36704,
+            "latency_ms": {
+              "n": 146817,
+              "min": 0.268458,
+              "p50": 0.413815,
+              "p90": 0.5245221999999999,
+              "p95": 0.5937007999999999,
+              "p99": 0.7917843599999999,
+              "max": 6.242236,
+              "mean": 0.43434336834971426,
+              "stdev": 0.1025272508402284
+            },
+            "first_error": null,
+            "workers_reported": 16
+          },
+          {
+            "workers": 32,
+            "targets": [
+              "haproxy-ro"
+            ],
+            "ops": 174391,
+            "errors": 0,
+            "seconds": 4.0,
+            "ops_per_s": 43598,
+            "latency_ms": {
+              "n": 174391,
+              "min": 0.295242,
+              "p50": 0.692926,
+              "p90": 1.007811,
+              "p95": 1.1263125,
+              "p99": 1.4342111000000015,
+              "max": 8.693198,
+              "mean": 0.7324219986065795,
+              "stdev": 0.247649958324696
+            },
+            "first_error": null,
+            "workers_reported": 32
+          },
+          {
+            "workers": 64,
+            "targets": [
+              "haproxy-ro"
+            ],
+            "ops": 200041,
+            "errors": 0,
+            "seconds": 4.0,
+            "ops_per_s": 50010,
+            "latency_ms": {
+              "n": 200041,
+              "min": 0.311181,
+              "p50": 1.20013,
+              "p90": 1.886557,
+              "p95": 2.144052,
+              "p99": 2.7536456000000005,
+              "max": 15.668872,
+              "mean": 1.278434996785659,
+              "stdev": 0.5018052531981445
+            },
+            "first_error": null,
+            "workers_reported": 64
+          }
+        ]
+      },
+      "pool_saturation": {
+        "pool_size": 8,
+        "workers": 32,
+        "ops": 13484,
+        "ops_per_s": 3359,
+        "checkout_wait_ms": {
+          "n": 13484,
+          "min": 0.001793,
+          "p50": 0.005355,
+          "p90": 0.007744500000000011,
+          "p95": 0.009213,
+          "p99": 0.011602290000000003,
+          "max": 4001.273001,
+          "mean": 7.088688506822901,
+          "stdev": 167.75308928355324
+        },
+        "exec_ms": {
+          "n": 13484,
+          "min": 0.217227,
+          "p50": 1.866854,
+          "p90": 4.6826603,
+          "p95": 5.814564899999995,
+          "p99": 8.52211647,
+          "max": 16.75519,
+          "mean": 2.3681962937555623,
+          "stdev": 1.7596332120099853
+        }
+      },
+      "write_contention": {
+        "threads": 4,
+        "iters_per_thread": 50,
+        "applied": 69,
+        "rejected": 131,
+        "errors": 0,
+        "version_before": 2,
+        "version_after": 71,
+        "version_delta": 69,
+        "atomic": true,
+        "seconds": 0.07,
+        "cas_ms": {
+          "n": 200,
+          "min": 0.620089,
+          "p50": 1.233446,
+          "p90": 1.6260225,
+          "p95": 1.8198256499999992,
+          "p99": 2.683135789999999,
+          "max": 3.939513,
+          "mean": 1.3014367050000002,
+          "stdev": 0.3960407684382354
+        },
+        "first_error": null,
+        "interpretation": "every accepted CAS advanced the version exactly once: atomic compare-and-set"
+      },
+      "rw_split": {
+        "haproxy-ro": {
+          "proxy": "haproxy-ro",
+          "connections": 40,
+          "roles_seen": {
+            "replica": 21,
+            "primary": 19
+          },
+          "writes_ok": 19,
+          "writes_rejected": 21,
+          "writes_rejected_on": {
+            "replica": 21
+          },
+          "write_error_codes": {
+            "READONLY": 21
+          },
+          "interpretation": "TCP-level balancing: 21/40 writes failed because the connection landed on a read-only replica"
+        }
+      },
+      "_seconds": 86.4
+    },
+    "loadtest": {
+      "batch_rows": 1000,
+      "seconds_per_run": 15.0,
+      "containers": [
+        "nslab-redis-haproxy",
+        "nslab-redis-primary",
+        "nslab-redis-replica",
+        "nslab-redis-sentinel1",
+        "nslab-redis-sentinel2",
+        "nslab-redis-sentinel3"
+      ],
+      "runs": [
+        {
+          "workers": 4,
+          "target": "primary",
+          "rows": 949000,
+          "batches": 949,
+          "errors": 0,
+          "seconds": 15.0,
+          "rows_per_s": 63267,
+          "batch_ms": {
+            "n": 949,
+            "min": 38.655515,
+            "p50": 57.187154,
+            "p90": 79.12515020000001,
+            "p95": 83.6544608,
+            "p99": 119.6729194799999,
+            "max": 189.416894,
+            "mean": 60.40363785985247,
+            "stdev": 16.329308356522823
+          },
+          "first_error": null,
+          "workers_reported": 4,
+          "cleanup_s": 7.1,
+          "container_usage": {}
+        },
+        {
+          "workers": 16,
+          "target": "primary",
+          "rows": 1298000,
+          "batches": 1298,
+          "errors": 0,
+          "seconds": 15.0,
+          "rows_per_s": 86533,
+          "batch_ms": {
+            "n": 1298,
+            "min": 56.895108,
+            "p50": 183.7610575,
+            "p90": 228.3823498,
+            "p95": 241.16357494999997,
+            "p99": 260.7149479099999,
+            "max": 292.90696,
+            "mean": 180.8913039414484,
+            "stdev": 38.46288206346455
+          },
+          "first_error": null,
+          "workers_reported": 16,
+          "cleanup_s": 8.4,
+          "container_usage": {}
+        },
+        {
+          "workers": 32,
+          "target": "primary",
+          "rows": 1344000,
+          "batches": 1344,
+          "errors": 0,
+          "seconds": 15.0,
+          "rows_per_s": 89600,
+          "batch_ms": {
+            "n": 1344,
+            "min": 254.728481,
+            "p50": 352.9467035,
+            "p90": 399.50899350000003,
+            "p95": 415.2882046,
+            "p99": 512.7262514299997,
+            "max": 549.016725,
+            "mean": 355.5683967924107,
+            "stdev": 39.5030306515433
+          },
+          "first_error": null,
+          "workers_reported": 32,
+          "cleanup_s": 7.8,
+          "container_usage": {}
+        }
+      ],
+      "best": {
+        "target": "primary",
+        "workers": 32,
+        "rows_per_s": 89600
+      },
+      "_seconds": 75.7
+    }
+  },
+  "partial": false,
+  "server_version": "redis 8.10.1",
+  "finished": "2026-09-14T15:22:32+00:00",
+  "platform": "k3s"
+}

@@ -1,0 +1,80 @@
+# Elasticsearch 9 — 3-node cluster (every node master-eligible + data), security disabled (lab), 3 GB heap each.
+# Every lab index is created with number_of_replicas=2, so each node holds a copy of every shard (the RF=3 equivalent of
+# the Cassandra/MongoDB stacks): reads are served locally on any node, a node loss never loses a shard, the master is
+# re-elected by the remaining quorum. text (BM25), dense_vector (HNSW kNN), geo_point all built in.
+name: nslab-elasticsearch
+# Logging strategy (shared by every stack): the json-file driver with rotation so a chatty engine cannot fill the
+# host disk, `compress` for rotated files. `docker logs <container>` still works; a shipper (promtail/fluent-bit/otel
+# collector) tails the same files. Engine-side slow-query / audit settings live in the service `command`/`environment`.
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "50m"
+    max-file: "3"
+    compress: "true"
+x-es: &es
+  image: elasticsearch:9.5.3
+  environment: &esenv
+    cluster.name: nslab
+    discovery.seed_hosts: es1,es2,es3
+    cluster.initial_master_nodes: es1,es2,es3
+    xpack.security.enabled: "false"
+    xpack.security.http.ssl.enabled: "false"
+    ES_JAVA_OPTS: "-Xms3g -Xmx3g"
+    bootstrap.memory_lock: "true"
+    cluster.routing.allocation.disk.threshold_enabled: "false"
+    path.repo: /backups                    # snapshot repositories (type fs) must live under path.repo — shared volume, same path on every node
+  logging: *logging
+  ulimits:
+    memlock: -1
+    nofile:
+      soft: 65536
+      hard: 65536
+  healthcheck:
+    test: ["CMD-SHELL", "curl -fs http://localhost:9200/_cluster/health | grep -qE '\"status\":\"(green|yellow)\"'"]
+    interval: 5s
+    timeout: 5s
+    retries: 60
+    start_period: 20s
+services:
+  es1:
+    <<: *es
+    container_name: nslab-es1
+    x-k8s: {env: {bootstrap.memory_lock: "false"}}     # no memlock ulimit in Kubernetes; the bootstrap check would refuse to start
+    environment:
+      <<: *esenv
+      node.name: es1
+    ports:
+      - "19200:9200"
+    volumes:
+      - es1:/usr/share/elasticsearch/data
+      - backups:/backups
+  es2:
+    <<: *es
+    container_name: nslab-es2
+    x-k8s: {env: {bootstrap.memory_lock: "false"}}     # no memlock ulimit in Kubernetes; the bootstrap check would refuse to start
+    environment:
+      <<: *esenv
+      node.name: es2
+    ports:
+      - "19201:9200"
+    volumes:
+      - es2:/usr/share/elasticsearch/data
+      - backups:/backups
+  es3:
+    <<: *es
+    container_name: nslab-es3
+    x-k8s: {env: {bootstrap.memory_lock: "false"}}     # no memlock ulimit in Kubernetes; the bootstrap check would refuse to start
+    environment:
+      <<: *esenv
+      node.name: es3
+    ports:
+      - "19202:9200"
+    volumes:
+      - es3:/usr/share/elasticsearch/data
+      - backups:/backups
+volumes:
+  es1:
+  es2:
+  es3:
+  backups:          # fs snapshot repository (backup phase) — one shared volume, mounted at /backups on every node; removed with `down -v`

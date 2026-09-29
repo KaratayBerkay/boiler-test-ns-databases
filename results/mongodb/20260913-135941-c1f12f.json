@@ -1,0 +1,216 @@
+{
+  "engine": "mongodb",
+  "display": "MongoDB 7.0",
+  "category": "document store (replica set)",
+  "family": "document",
+  "driver": "pymongo",
+  "image": "mongo:7",
+  "run_id": "20260913-135941-c1f12f",
+  "started": "2026-09-13T10:59:41+00:00",
+  "scale": 1.0,
+  "notes": "Official mongo:7 image (7.0.x). mongo:8 (8.3.9) refuses to start on this host's Linux 7.0.0 kernel (SERVER-121912: TCMalloc rseq incompatibility with kernels 6.19-7.0.13, exits at startup, no bypass) so the lab pins 7.0. 3-member replica set rs0 (priorities 3/2/1) initiated by a one-shot mongosh container; no auth. Per-node targets use directConnection=true; writes w=1 unless an experiment says otherwise. $vectorSearch is Atlas / mongot-only, so vector_knn is unsupported on Community.",
+  "phases": {
+    "capabilities": {
+      "secondary_index": {
+        "title": "Create a secondary index on a non-key field and use it",
+        "group": "indexing",
+        "status": "supported",
+        "detail": "createIndex on any field",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "compound_index": {
+        "title": "Compound / composite index over two fields",
+        "group": "indexing",
+        "status": "supported",
+        "detail": "compound index (ESR rule: equality, sort, range)",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "unique_constraint": {
+        "title": "Unique constraint on a non-key field (duplicate rejected)",
+        "group": "indexing",
+        "status": "supported",
+        "detail": "duplicate rejected (E11000): E11000 duplicate key error collection: lab.scratch index: u_",
+        "ms": 672.0
+      },
+      "ttl_expiry": {
+        "title": "Native per-document/key expiry",
+        "group": "indexing",
+        "status": "supported",
+        "detail": "TTL index (expireAfterSeconds; background sweep every 60 s)",
+        "ms": 527.3
+      },
+      "text_index": {
+        "title": "Full-text index with tokenised search",
+        "group": "indexing",
+        "status": "supported",
+        "detail": "text index + $text (community); Atlas Search for BM25/analyzers",
+        "ms": 6.8
+      },
+      "geo_index": {
+        "title": "Geospatial index and radius query",
+        "group": "indexing",
+        "status": "supported",
+        "detail": "2dsphere index + $nearSphere / $geoWithin",
+        "ms": 3.7
+      },
+      "vector_index": {
+        "title": "Vector (ANN) index and kNN query",
+        "group": "indexing",
+        "status": "unsupported",
+        "detail": "$vectorSearch: $vectorSearch stage is only allowed on MongoDB Atlas, full error: {'ok': 0.0, 'errmsg': '$vectorSearch stage is only all",
+        "ms": 5.3
+      },
+      "partial_update": {
+        "title": "Update a single field without rewriting the document",
+        "group": "model",
+        "status": "supported",
+        "detail": "$set / $unset / $inc operators",
+        "ms": 72.5
+      },
+      "atomic_increment": {
+        "title": "Server-side atomic numeric increment",
+        "group": "consistency",
+        "status": "supported",
+        "detail": "$inc via findOneAndUpdate -> [(363,)]",
+        "ms": 23.3
+      },
+      "optimistic_concurrency": {
+        "title": "Compare-and-set / version or ETag-guarded write",
+        "group": "consistency",
+        "status": "supported",
+        "detail": "filter on version + $inc version -> [(1, 2)]",
+        "ms": 30.5
+      },
+      "multi_doc_transaction": {
+        "title": "Multi-document / multi-key ACID transaction with rollback",
+        "group": "consistency",
+        "status": "supported",
+        "detail": "multi-document ACID transactions with abort (replica set / sharded)",
+        "ms": 3.2
+      },
+      "tunable_consistency": {
+        "title": "Per-request consistency / write concern / read preference",
+        "group": "consistency",
+        "status": "supported",
+        "detail": "writeConcern (w, j, wtimeout), readConcern (local/majority/linearizable), readPreference",
+        "ms": 59.5
+      },
+      "nested_query": {
+        "title": "Filter on a field inside a nested object",
+        "group": "model",
+        "status": "supported",
+        "detail": "dot notation on embedded documents",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "array_operators": {
+        "title": "Query and update array-valued fields (contains, push)",
+        "group": "model",
+        "status": "supported",
+        "detail": "$push/$addToSet/$pull, $elemMatch, array equality match -> 1",
+        "ms": 67.4
+      },
+      "aggregation": {
+        "title": "Server-side group-by aggregation",
+        "group": "model",
+        "status": "supported",
+        "detail": "aggregation pipeline",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "server_side_join": {
+        "title": "Join / lookup between two collections inside the engine",
+        "group": "model",
+        "status": "supported",
+        "detail": "$lookup (+ $graphLookup)",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "graph_traversal": {
+        "title": "Variable-depth traversal over references",
+        "group": "model",
+        "status": "supported",
+        "detail": "$graphLookup",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "schema_validation": {
+        "title": "Server-enforced document schema / constraints",
+        "group": "model",
+        "status": "supported",
+        "detail": "$jsonSchema validator rejects non-conforming documents",
+        "ms": 249.9
+      },
+      "change_streams": {
+        "title": "Change feed / watch / keyspace notifications",
+        "group": "operations",
+        "status": "supported",
+        "detail": "change streams (oplog-backed) -> insert",
+        "ms": 118.9
+      },
+      "server_side_scripting": {
+        "title": "Stored procedures / Lua / JS / UDF executed by the server",
+        "group": "operations",
+        "status": "unsupported",
+        "detail": "no server-side JS since 4.2 (no such command: 'eval', full error: {'ok': 0.0, '); $function/$accumulator in aggregation only",
+        "ms": 1.0
+      },
+      "pubsub": {
+        "title": "Publish/subscribe messaging built into the engine",
+        "group": "operations",
+        "status": "unsupported",
+        "detail": "no pub/sub; change streams or capped tailable cursors",
+        "ms": 0.0
+      },
+      "explain_plan": {
+        "title": "Query plan / profile output for a query",
+        "group": "operations",
+        "status": "supported",
+        "detail": "explain(executionStats) -> FETCH",
+        "ms": 1.8
+      },
+      "bulk_import": {
+        "title": "Native bulk import path (bulk API, batch, COPY-like tool)",
+        "group": "operations",
+        "status": "supported",
+        "detail": "insertMany / bulkWrite / mongoimport",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "large_document": {
+        "title": "Store and read back a 15 MB document / value",
+        "group": "limits",
+        "status": "supported",
+        "detail": "15 MB document ok (BSON limit 16 MB; GridFS beyond)",
+        "ms": 547.2
+      },
+      "many_fields": {
+        "title": "Document with 5000 top-level fields",
+        "group": "limits",
+        "status": "supported",
+        "detail": "5001 fields",
+        "ms": 110.6
+      },
+      "read_from_replica": {
+        "title": "Client can direct reads to a replica / secondary",
+        "group": "operations",
+        "status": "supported",
+        "detail": "readPreference=secondary/secondaryPreferred/nearest (+ readConcern)",
+        "ms": 12.0
+      },
+      "snapshot_backup": {
+        "title": "Online snapshot / backup command available",
+        "group": "operations",
+        "status": "supported",
+        "detail": "fsyncLock + filesystem snapshot; mongodump/mongorestore",
+        "ms": 1889.9
+      },
+      "_seconds": 4.4
+    }
+  },
+  "partial": false,
+  "server_version": "MongoDB 7.0.37",
+  "finished": "2026-09-13T10:59:46+00:00"
+}

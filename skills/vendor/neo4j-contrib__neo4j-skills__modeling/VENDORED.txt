@@ -1,0 +1,3 @@
+source: https://github.com/neo4j-contrib/neo4j-skills/tree/main/neo4j-modeling-skill
+license: MIT
+vendored: 2026-09-13 (ns-databases lab)

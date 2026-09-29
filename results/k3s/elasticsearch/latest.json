@@ -1,0 +1,2617 @@
+{
+  "engine": "elasticsearch",
+  "display": "Elasticsearch 9",
+  "category": "search / analytics engine (Lucene, inverted index)",
+  "family": "search",
+  "driver": "es",
+  "image": "elasticsearch:9.5.3",
+  "run_id": "20260914-182724-91e5a1",
+  "started": "2026-09-14T15:27:24+00:00",
+  "scale": 1.0,
+  "notes": "Elasticsearch 9, 3-node cluster (all master-eligible + data), security disabled. One index per collection with 1 primary shard + 2 replicas, so every node holds every shard (the RF=3 equivalent of the other clustered stacks). Every field indexed at mapping time (inverted index for keyword/text, BKD tree for numeric/geo, HNSW for dense_vector). Eventually consistent for search (30 s refresh; the harness refreshes after load). No multi-document transactions, no server-side joins across indices, no per-document TTL. Any node coordinates writes; the master is re-elected by the remaining quorum when a node dies.",
+  "platform": "k3s",
+  "phases": {
+    "load": {
+      "scale": 1.0,
+      "collections": {
+        "customers": {
+          "rows": 20000,
+          "counted": 20000,
+          "expected": 20000,
+          "seconds": 4.28,
+          "rows_per_s": 4673,
+          "method": "bulk_put",
+          "ok": true
+        },
+        "categories": {
+          "rows": 200,
+          "counted": 200,
+          "expected": 200,
+          "seconds": 0.03,
+          "rows_per_s": 6244,
+          "method": "bulk_put",
+          "ok": true
+        },
+        "products": {
+          "rows": 5000,
+          "counted": 5000,
+          "expected": 5000,
+          "seconds": 2.95,
+          "rows_per_s": 1697,
+          "method": "bulk_put",
+          "ok": true
+        },
+        "orders": {
+          "rows": 200000,
+          "counted": 200000,
+          "expected": 200000,
+          "seconds": 8.18,
+          "rows_per_s": 24452,
+          "method": "bulk_put x4 connections",
+          "ok": true
+        },
+        "order_items": {
+          "rows": 487606,
+          "counted": 487606,
+          "expected": 487606,
+          "seconds": 7.93,
+          "rows_per_s": 61502,
+          "method": "bulk_put x4 connections",
+          "ok": true
+        },
+        "events": {
+          "rows": 1000000,
+          "counted": 1000000,
+          "expected": 1000000,
+          "seconds": 29.62,
+          "rows_per_s": 33762,
+          "method": "bulk_put x4 connections",
+          "ok": true
+        },
+        "inventory": {
+          "rows": 20000,
+          "counted": 20000,
+          "expected": 20000,
+          "seconds": 1.63,
+          "rows_per_s": 12298,
+          "method": "bulk_put",
+          "ok": true
+        }
+      },
+      "schema": [
+        "index lab_customers (9 mapped fields)",
+        "index lab_categories (4 mapped fields)",
+        "index lab_products (9 mapped fields)",
+        "index lab_orders (7 mapped fields)",
+        "index lab_order_items (5 mapped fields)",
+        "index lab_events (8 mapped fields)",
+        "index lab_inventory (5 mapped fields)"
+      ],
+      "errors": [],
+      "schema_seconds": 1.99,
+      "load_seconds": 63.82,
+      "after_load": [
+        "_refresh all indices (search visibility)"
+      ],
+      "post_seconds": 0.01,
+      "server_version": "elasticsearch 9.5.3",
+      "_seconds": 65.9
+    },
+    "capabilities": {
+      "secondary_index": {
+        "title": "Create a secondary index on a non-key field and use it",
+        "group": "indexing",
+        "status": "supported",
+        "detail": "every field is indexed by default (inverted index / BKD tree / doc_values)",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "compound_index": {
+        "title": "Compound / composite index over two fields",
+        "group": "indexing",
+        "status": "supported",
+        "detail": "bool query combines per-field indexes; no explicit composite index needed",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "unique_constraint": {
+        "title": "Unique constraint on a non-key field (duplicate rejected)",
+        "group": "indexing",
+        "status": "unsupported",
+        "detail": "no unique constraint; _id uniqueness only (op_type=create rejects a duplicate _id)",
+        "ms": 0.0
+      },
+      "ttl_expiry": {
+        "title": "Native per-document/key expiry",
+        "group": "indexing",
+        "status": "unsupported",
+        "detail": "per-document _ttl removed in 5.0; use an expiry timestamp + ILM rollover/delete or delete-by-query",
+        "ms": 0.0
+      },
+      "text_index": {
+        "title": "Full-text index with tokenised search",
+        "group": "indexing",
+        "status": "supported",
+        "detail": "analyzed text fields with BM25 (the core feature)",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "geo_index": {
+        "title": "Geospatial index and radius query",
+        "group": "indexing",
+        "status": "supported",
+        "detail": "geo_point / geo_shape (BKD tree) + geo_distance / geo_bounding_box",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "vector_index": {
+        "title": "Vector (ANN) index and kNN query",
+        "group": "indexing",
+        "status": "supported",
+        "detail": "dense_vector with HNSW + kNN search",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "partial_update": {
+        "title": "Update a single field without rewriting the document",
+        "group": "model",
+        "status": "supported",
+        "detail": "_update with a partial doc or painless script (reindexes the document internally)",
+        "ms": 106.5
+      },
+      "atomic_increment": {
+        "title": "Server-side atomic numeric increment",
+        "group": "consistency",
+        "status": "supported",
+        "detail": "_update painless script ctx._source.qty += 1 -> [(363,)]",
+        "ms": 109.6
+      },
+      "optimistic_concurrency": {
+        "title": "Compare-and-set / version or ETag-guarded write",
+        "group": "consistency",
+        "status": "supported",
+        "detail": "if_seq_no + if_primary_term (or external version) -> [(1, 2)]",
+        "ms": 65.9
+      },
+      "multi_doc_transaction": {
+        "title": "Multi-document / multi-key ACID transaction with rollback",
+        "group": "consistency",
+        "status": "unsupported",
+        "detail": "single-document atomicity only; no multi-document transactions",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "tunable_consistency": {
+        "title": "Per-request consistency / write concern / read preference",
+        "group": "consistency",
+        "status": "supported",
+        "detail": "wait_for_active_shards per write; refresh=true|wait_for|false for read-your-write visibility",
+        "ms": 84.7
+      },
+      "nested_query": {
+        "title": "Filter on a field inside a nested object",
+        "group": "model",
+        "status": "supported",
+        "detail": "object/nested field types + nested query",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "array_operators": {
+        "title": "Query and update array-valued fields (contains, push)",
+        "group": "model",
+        "status": "supported",
+        "detail": "arrays are first-class (a field is multi-valued); term query matches any element -> 1044 match 'eco'",
+        "ms": 14.3
+      },
+      "aggregation": {
+        "title": "Server-side group-by aggregation",
+        "group": "model",
+        "status": "supported",
+        "detail": "aggregations framework (terms, date_histogram, metrics, pipeline)",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "server_side_join": {
+        "title": "Join / lookup between two collections inside the engine",
+        "group": "model",
+        "status": "unsupported",
+        "detail": "no server-side joins across indices (denormalise, parent/join field within one index, or terms-lookup)",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "graph_traversal": {
+        "title": "Variable-depth traversal over references",
+        "group": "model",
+        "status": "unsupported",
+        "detail": "no graph traversal (client-side, or X-Pack Graph explore API)",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "schema_validation": {
+        "title": "Server-enforced document schema / constraints",
+        "group": "model",
+        "status": "supported",
+        "detail": "explicit mappings + dynamic:strict rejects unknown fields; field data types enforced at index time",
+        "ms": 0.0
+      },
+      "change_streams": {
+        "title": "Change feed / watch / keyspace notifications",
+        "group": "operations",
+        "status": "unsupported",
+        "detail": "no change feed; poll with a sorted timestamp/_seq_no or use Logstash/change-detection",
+        "ms": 0.0
+      },
+      "server_side_scripting": {
+        "title": "Stored procedures / Lua / JS / UDF executed by the server",
+        "group": "operations",
+        "status": "supported",
+        "detail": "Painless scripts (ingest pipelines, script queries, script fields, _update) -> 2",
+        "ms": 12.6
+      },
+      "pubsub": {
+        "title": "Publish/subscribe messaging built into the engine",
+        "group": "operations",
+        "status": "unsupported",
+        "detail": "no pub/sub",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "explain_plan": {
+        "title": "Query plan / profile output for a query",
+        "group": "operations",
+        "status": "supported",
+        "detail": "_validate/query?explain and Search Profile API (per-shard query/collector timings, took=12ms)",
+        "ms": 37.4
+      },
+      "bulk_import": {
+        "title": "Native bulk import path (bulk API, batch, COPY-like tool)",
+        "group": "operations",
+        "status": "supported",
+        "detail": "_bulk NDJSON API",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "large_document": {
+        "title": "Store and read back a 15 MB document / value",
+        "group": "limits",
+        "status": "supported",
+        "detail": "5 MB _source stored (http.max_content_length 100 MB; large text hurts search)",
+        "ms": 387.7
+      },
+      "many_fields": {
+        "title": "Document with 5000 top-level fields",
+        "group": "limits",
+        "status": "unsupported",
+        "detail": "index.mapping.total_fields.limit default 1000; 5000 distinct fields triggers mapping explosion (use flattened type)",
+        "ms": 0.0
+      },
+      "read_from_replica": {
+        "title": "Client can direct reads to a replica / secondary",
+        "group": "operations",
+        "status": "supported",
+        "detail": "reads are served by any shard copy (primary or replica) automatically; ?preference= pins routing",
+        "ms": 0.0
+      },
+      "snapshot_backup": {
+        "title": "Online snapshot / backup command available",
+        "group": "operations",
+        "status": "supported",
+        "detail": "snapshot API into an fs repository under path.repo (S3/GCS/Azure via repository plugins); SLM schedules + retention (exercised in the backup phase)",
+        "ms": 171.4
+      },
+      "incremental_backup": {
+        "title": "Incremental / differential backup (file- or segment-level)",
+        "group": "operations",
+        "status": "supported",
+        "detail": "repository stores each Lucene segment once: every snapshot after the first only uploads new segments",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "pitr": {
+        "title": "Point-in-time recovery from a continuous change log",
+        "group": "operations",
+        "status": "unsupported",
+        "detail": "no translog replay between snapshots \u2014 the RPO is the SLM schedule",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "slow_query_log": {
+        "title": "Server-side slow-query log with a configurable threshold",
+        "group": "logging",
+        "status": "supported",
+        "detail": "per-index search/indexing slowlog thresholds (index.search.slowlog.threshold.query.warn ...), dynamic, JSON lines with took_millis + source",
+        "ms": 156.5
+      },
+      "audit_log": {
+        "title": "Audit / full-query log of statements or auth events",
+        "group": "logging",
+        "status": "unsupported",
+        "detail": "xpack.security.audit.enabled needs security enabled (off in this lab); JSON audit of auth/access events",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "structured_logs": {
+        "title": "JSON-structured server log out of the box",
+        "group": "logging",
+        "status": "supported",
+        "detail": "ECS JSON on stdout in the docker image (server, deprecation, slowlog datasets)",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "runtime_log_level": {
+        "title": "Change log verbosity at run time (no restart)",
+        "group": "logging",
+        "status": "supported",
+        "detail": "PUT _cluster/settings logger.<package>: DEBUG (transient/persistent), no restart",
+        "ms": 121.4
+      },
+      "_seconds": 1.3
+    },
+    "bench": {
+      "ping": {
+        "title": "Round trip: cheapest server call",
+        "tags": [
+          "connection"
+        ],
+        "kind": "read",
+        "params_sample": "{}",
+        "status": "ok",
+        "timing": {
+          "n": 30,
+          "min": 2.405,
+          "p50": 2.599,
+          "p90": 2.765,
+          "p95": 2.879,
+          "p99": 2.954,
+          "max": 2.962,
+          "mean": 2.611,
+          "stdev": 0.134,
+          "first_ms": 2.587
+        },
+        "rows": null,
+        "checksum": null,
+        "error": null,
+        "error_code": null
+      },
+      "get_by_key": {
+        "title": "Point read: customer by primary key",
+        "tags": [
+          "kv",
+          "read"
+        ],
+        "kind": "read",
+        "params_sample": "{'id': 14824}",
+        "status": "ok",
+        "timing": {
+          "n": 30,
+          "min": 2.269,
+          "p50": 4.33,
+          "p90": 5.114,
+          "p95": 6.389,
+          "p99": 7.183,
+          "max": 7.274,
+          "mean": 4.362,
+          "stdev": 1.045,
+          "first_ms": 7.552
+        },
+        "rows": 1,
+        "checksum": "6fd6c2fc65d6b71d6b168c58",
+        "error": null,
+        "error_code": null
+      },
+      "multi_get": {
+        "title": "Batch point read: 100 customers by key in one request",
+        "tags": [
+          "kv",
+          "read",
+          "batch"
+        ],
+        "kind": "read",
+        "params_sample": "{'ids': [18, 151, 359, 492, 497, 554, 975, 986, 1169, 1373, 1715, 1952, 1963, 2070, 2190, 2302, 2394, 2727, 2785, 2856, 2972, 3085, 3312, 3533, 3537, 3818, 3867",
+        "status": "ok",
+        "timing": {
+          "n": 20,
+          "min": 14.668,
+          "p50": 28.778,
+          "p90": 40.194,
+          "p95": 42.524,
+          "p99": 54.72,
+          "max": 57.769,
+          "mean": 29.092,
+          "stdev": 9.751,
+          "first_ms": 45.636
+        },
+        "rows": 100,
+        "checksum": "655e0c701b1171ed48085c10",
+        "error": null,
+        "error_code": null
+      },
+      "insert_one": {
+        "title": "Single document insert (event)",
+        "tags": [
+          "write"
+        ],
+        "kind": "write",
+        "params_sample": "{'id': 50000000, 'customer_id': 14824, 'event_type': 'bench_insert', 'occurred_at': datetime.datetime(2026, 1, 1, 0, 0), 'payload': {'page': '/bench', 'ref': 'd",
+        "status": "ok",
+        "timing": {
+          "n": 30,
+          "min": 6.095,
+          "p50": 7.416,
+          "p90": 7.955,
+          "p95": 8.14,
+          "p99": 8.843,
+          "max": 9.072,
+          "mean": 7.412,
+          "stdev": 0.594,
+          "first_ms": 10.955
+        },
+        "rows": null,
+        "checksum": null,
+        "error": null,
+        "error_code": null
+      },
+      "update_field": {
+        "title": "Partial update: set one field of a customer",
+        "tags": [
+          "write",
+          "partial"
+        ],
+        "kind": "write",
+        "params_sample": "{'id': 14824, 'value': '2026-01-01T00:00:00Z'}",
+        "status": "ok",
+        "timing": {
+          "n": 30,
+          "min": 6.897,
+          "p50": 8.845,
+          "p90": 13.795,
+          "p95": 16.257,
+          "p99": 16.674,
+          "max": 16.686,
+          "mean": 9.653,
+          "stdev": 2.796,
+          "first_ms": 12.518
+        },
+        "rows": null,
+        "checksum": null,
+        "error": null,
+        "error_code": null
+      },
+      "upsert": {
+        "title": "Upsert inventory row by composite key",
+        "tags": [
+          "write"
+        ],
+        "kind": "write",
+        "params_sample": "{'product_id': 3706, 'warehouse_id': 4, 'qty': 331}",
+        "status": "ok",
+        "timing": {
+          "n": 30,
+          "min": 6.61,
+          "p50": 7.88,
+          "p90": 8.993,
+          "p95": 9.483,
+          "p99": 10.123,
+          "max": 10.343,
+          "mean": 7.97,
+          "stdev": 0.839,
+          "first_ms": 8.046
+        },
+        "rows": null,
+        "checksum": null,
+        "error": null,
+        "error_code": null
+      },
+      "delete_one": {
+        "title": "Delete one document by key",
+        "tags": [
+          "write"
+        ],
+        "kind": "write",
+        "params_sample": "{'id': 60000000, 'customer_id': 14824, 'event_type': 'bench_delete', 'occurred_at': datetime.datetime(2026, 1, 2, 0, 0), 'payload': None, 'value_num': 1.0}",
+        "status": "ok",
+        "timing": {
+          "n": 30,
+          "min": 4.87,
+          "p50": 6.557,
+          "p90": 7.368,
+          "p95": 7.453,
+          "p99": 7.517,
+          "max": 7.524,
+          "mean": 6.501,
+          "stdev": 0.718,
+          "first_ms": 8.98
+        },
+        "rows": null,
+        "checksum": null,
+        "error": null,
+        "error_code": null
+      },
+      "atomic_increment": {
+        "title": "Server-side atomic increment of a numeric field",
+        "tags": [
+          "write",
+          "atomic"
+        ],
+        "kind": "write",
+        "params_sample": "{'product_id': 3706, 'warehouse_id': 4, 'qty': 331}",
+        "status": "ok",
+        "timing": {
+          "n": 30,
+          "min": 8.906,
+          "p50": 11.051,
+          "p90": 12.136,
+          "p95": 13.074,
+          "p99": 17.25,
+          "max": 18.932,
+          "mean": 11.159,
+          "stdev": 1.744,
+          "first_ms": 17.661
+        },
+        "rows": 1,
+        "checksum": "198dac8425ff655c276be095",
+        "error": null,
+        "error_code": null
+      },
+      "conditional_update": {
+        "title": "Compare-and-set on a version field",
+        "tags": [
+          "write",
+          "atomic",
+          "cas"
+        ],
+        "kind": "write",
+        "params_sample": "{'product_id': 3706, 'warehouse_id': 4}",
+        "status": "ok",
+        "timing": {
+          "n": 30,
+          "min": 11.652,
+          "p50": 14.979,
+          "p90": 16.618,
+          "p95": 18.003,
+          "p99": 19.112,
+          "max": 19.12,
+          "mean": 14.967,
+          "stdev": 1.627,
+          "first_ms": 15.034
+        },
+        "rows": 1,
+        "checksum": "4a520767a593e2aaa486f609",
+        "error": null,
+        "error_code": null
+      },
+      "batch_insert_1000": {
+        "title": "Bulk write: 1000 events in one request",
+        "tags": [
+          "write",
+          "batch"
+        ],
+        "kind": "write",
+        "params_sample": "{'base': 70000000, 'docs': [{'id': 70000000, 'customer_id': 14824, 'event_type': 'bench_batch', 'occurred_at': datetime.datetime(2026, 1, 3, 0, 0), 'payload': N",
+        "status": "ok",
+        "timing": {
+          "n": 8,
+          "min": 80.469,
+          "p50": 104.651,
+          "p90": 114.096,
+          "p95": 118.526,
+          "p99": 122.07,
+          "max": 122.956,
+          "mean": 102.473,
+          "stdev": 12.289,
+          "first_ms": 101.383
+        },
+        "rows": null,
+        "checksum": null,
+        "error": null,
+        "error_code": null
+      },
+      "range_by_secondary": {
+        "title": "Secondary lookup: orders of one customer",
+        "tags": [
+          "read",
+          "index"
+        ],
+        "kind": "read",
+        "params_sample": "{'customer_id': 14824}",
+        "status": "ok",
+        "timing": {
+          "n": 20,
+          "min": 5.865,
+          "p50": 7.401,
+          "p90": 9.408,
+          "p95": 13.163,
+          "p99": 63.376,
+          "max": 75.929,
+          "mean": 10.966,
+          "stdev": 14.942,
+          "first_ms": 53.9
+        },
+        "rows": 7,
+        "checksum": "28011086de01faf9ceced703",
+        "error": null,
+        "error_code": null
+      },
+      "range_by_time": {
+        "title": "Range scan: events of one type in a 3-day window",
+        "tags": [
+          "read",
+          "range",
+          "time"
+        ],
+        "kind": "read",
+        "params_sample": "{'event_type': 'checkout', 'start': datetime.datetime(2025, 8, 28, 0, 0), 'end': datetime.datetime(2025, 8, 31, 0, 0), 'limit': 100}",
+        "status": "ok",
+        "timing": {
+          "n": 10,
+          "min": 17.913,
+          "p50": 24.582,
+          "p90": 75.155,
+          "p95": 87.186,
+          "p99": 96.811,
+          "max": 99.217,
+          "mean": 36.359,
+          "stdev": 25.939,
+          "first_ms": 80.39
+        },
+        "rows": 100,
+        "checksum": "706ac8b4bf31cce133e30d69",
+        "error": null,
+        "error_code": null
+      },
+      "filter_nested": {
+        "title": "Filter on a nested field + top-level field",
+        "tags": [
+          "read",
+          "nested"
+        ],
+        "kind": "read",
+        "params_sample": "{}",
+        "status": "ok",
+        "timing": {
+          "n": 10,
+          "min": 4.316,
+          "p50": 4.829,
+          "p90": 5.227,
+          "p95": 5.522,
+          "p99": 5.757,
+          "max": 5.816,
+          "mean": 4.85,
+          "stdev": 0.414,
+          "first_ms": 6.905
+        },
+        "rows": 1,
+        "checksum": "a37e4981ca422ff62b38fee7",
+        "error": null,
+        "error_code": null
+      },
+      "array_contains": {
+        "title": "Filter on array membership",
+        "tags": [
+          "read",
+          "array"
+        ],
+        "kind": "read",
+        "params_sample": "{}",
+        "status": "ok",
+        "timing": {
+          "n": 10,
+          "min": 3.986,
+          "p50": 5.063,
+          "p90": 5.309,
+          "p95": 5.34,
+          "p99": 5.366,
+          "max": 5.372,
+          "mean": 4.977,
+          "stdev": 0.384,
+          "first_ms": 5.391
+        },
+        "rows": 1,
+        "checksum": "855c097b08a3ac4fd8a9ee27",
+        "error": null,
+        "error_code": null
+      },
+      "top_n_sorted": {
+        "title": "Top-N with sort: 10 most expensive active products of a category",
+        "tags": [
+          "read",
+          "sort"
+        ],
+        "kind": "read",
+        "params_sample": "{'category_id': 116, 'n': 10}",
+        "status": "ok",
+        "timing": {
+          "n": 20,
+          "min": 6.458,
+          "p50": 8.781,
+          "p90": 12.139,
+          "p95": 18.669,
+          "p99": 19.471,
+          "max": 19.671,
+          "mean": 9.766,
+          "stdev": 3.426,
+          "first_ms": 12.717
+        },
+        "rows": 10,
+        "checksum": "a26dab79ede7f4d5249c5cb5",
+        "error": null,
+        "error_code": null
+      },
+      "pagination_offset": {
+        "title": "Deep page via offset (skip 10000)",
+        "tags": [
+          "read",
+          "pagination"
+        ],
+        "kind": "read",
+        "params_sample": "{'offset': 10000, 'page': 50}",
+        "status": "ok",
+        "timing": {
+          "n": 8,
+          "min": 48.538,
+          "p50": 61.268,
+          "p90": 80.962,
+          "p95": 81.466,
+          "p99": 81.869,
+          "max": 81.97,
+          "mean": 64.404,
+          "stdev": 12.286,
+          "first_ms": 76.566
+        },
+        "rows": 50,
+        "checksum": "e46e41f3a92752684bbeda77",
+        "error": null,
+        "error_code": null
+      },
+      "pagination_keyset": {
+        "title": "Deep page via keyset / cursor",
+        "tags": [
+          "read",
+          "pagination"
+        ],
+        "kind": "read",
+        "params_sample": "{'offset': 10000, 'page': 50}",
+        "status": "ok",
+        "timing": {
+          "n": 10,
+          "min": 9.181,
+          "p50": 14.761,
+          "p90": 16.0,
+          "p95": 16.071,
+          "p99": 16.127,
+          "max": 16.141,
+          "mean": 13.692,
+          "stdev": 2.294,
+          "first_ms": 89.193
+        },
+        "rows": 50,
+        "checksum": "e46e41f3a92752684bbeda77",
+        "error": null,
+        "error_code": null
+      },
+      "count_filtered": {
+        "title": "Count with equality filter",
+        "tags": [
+          "read",
+          "aggregate"
+        ],
+        "kind": "read",
+        "params_sample": "{}",
+        "status": "ok",
+        "timing": {
+          "n": 10,
+          "min": 3.563,
+          "p50": 4.507,
+          "p90": 4.685,
+          "p95": 5.116,
+          "p99": 5.461,
+          "max": 5.547,
+          "mean": 4.448,
+          "stdev": 0.482,
+          "first_ms": 4.206
+        },
+        "rows": 1,
+        "checksum": "462747c4825a83f70293e696",
+        "error": null,
+        "error_code": null
+      },
+      "aggregate_group": {
+        "title": "Group-by aggregate over 200k orders",
+        "tags": [
+          "read",
+          "aggregate"
+        ],
+        "kind": "read",
+        "params_sample": "{}",
+        "status": "ok",
+        "timing": {
+          "n": 8,
+          "min": 4.146,
+          "p50": 6.778,
+          "p90": 31.401,
+          "p95": 59.364,
+          "p99": 81.734,
+          "max": 87.327,
+          "mean": 16.4,
+          "stdev": 26.825,
+          "first_ms": 138.73
+        },
+        "rows": 13,
+        "checksum": "82a653fa5048bcc6289cad3d",
+        "error": null,
+        "error_code": null
+      },
+      "aggregate_time_bucket": {
+        "title": "Time-bucketed aggregate over 1M events",
+        "tags": [
+          "read",
+          "aggregate",
+          "time"
+        ],
+        "kind": "read",
+        "params_sample": "{}",
+        "status": "ok",
+        "timing": {
+          "n": 5,
+          "min": 5.461,
+          "p50": 6.682,
+          "p90": 8.343,
+          "p95": 8.614,
+          "p99": 8.831,
+          "max": 8.885,
+          "mean": 6.996,
+          "stdev": 1.152,
+          "first_ms": 58.746
+        },
+        "rows": 24,
+        "checksum": "7c611891940b3812b8b36ca6",
+        "error": null,
+        "error_code": null
+      },
+      "join_lookup": {
+        "title": "Orders of a customer with the customer's name (server-side join if the engine has one)",
+        "tags": [
+          "read",
+          "join"
+        ],
+        "kind": "read",
+        "params_sample": "{'customer_id': 14824}",
+        "status": "ok",
+        "timing": {
+          "n": 20,
+          "min": 10.064,
+          "p50": 11.623,
+          "p90": 14.286,
+          "p95": 17.27,
+          "p99": 45.319,
+          "max": 52.331,
+          "mean": 13.828,
+          "stdev": 8.923,
+          "first_ms": 34.682
+        },
+        "rows": 7,
+        "checksum": "4c1b6f23a7e9d95af19b26c5",
+        "error": null,
+        "error_code": null
+      },
+      "graph_traversal": {
+        "title": "Category ancestor chain of a product (variable-depth traversal)",
+        "tags": [
+          "read",
+          "graph"
+        ],
+        "kind": "read",
+        "params_sample": "{'product_id': 3706}",
+        "status": "ok",
+        "timing": {
+          "n": 20,
+          "min": 6.013,
+          "p50": 13.166,
+          "p90": 17.801,
+          "p95": 17.924,
+          "p99": 18.998,
+          "max": 19.266,
+          "mean": 12.942,
+          "stdev": 3.7,
+          "first_ms": 18.944
+        },
+        "rows": 2,
+        "checksum": "f8df79f1ddf52e913fdd7bbf",
+        "error": null,
+        "error_code": null
+      },
+      "text_search": {
+        "title": "Full-text search on product descriptions",
+        "tags": [
+          "read",
+          "text"
+        ],
+        "kind": "read",
+        "params_sample": "{'words': ['wireless', 'charger'], 'limit': 20}",
+        "status": "ok",
+        "timing": {
+          "n": 10,
+          "min": 4.54,
+          "p50": 8.182,
+          "p90": 23.709,
+          "p95": 24.272,
+          "p99": 24.722,
+          "max": 24.835,
+          "mean": 10.39,
+          "stdev": 7.105,
+          "first_ms": 39.534
+        },
+        "rows": 20,
+        "checksum": "a235fed79befa7de480f1d5b",
+        "error": null,
+        "error_code": null
+      },
+      "geo_near": {
+        "title": "Geo radius query on customer locations",
+        "tags": [
+          "read",
+          "geo"
+        ],
+        "kind": "read",
+        "params_sample": "{'lat': 52.5, 'lon': 13.4, 'km': 200, 'limit': 20}",
+        "status": "ok",
+        "timing": {
+          "n": 10,
+          "min": 10.491,
+          "p50": 12.996,
+          "p90": 18.657,
+          "p95": 32.869,
+          "p99": 44.24,
+          "max": 47.082,
+          "mean": 16.355,
+          "stdev": 10.315,
+          "first_ms": 68.256
+        },
+        "rows": 20,
+        "checksum": "ef5985a217c590de050f108e",
+        "error": null,
+        "error_code": null
+      },
+      "vector_knn": {
+        "title": "k-nearest-neighbour search on 8-dim product embeddings",
+        "tags": [
+          "read",
+          "vector"
+        ],
+        "kind": "read",
+        "params_sample": "{'vector': [-0.16177, -0.22283, -0.59722, 0.1963, 0.07576, 0.45484, 0.05553, 0.5597], 'k': 10}",
+        "status": "ok",
+        "timing": {
+          "n": 20,
+          "min": 6.368,
+          "p50": 11.217,
+          "p90": 13.976,
+          "p95": 18.298,
+          "p99": 65.449,
+          "max": 77.236,
+          "mean": 13.804,
+          "stdev": 14.791,
+          "first_ms": 98.137
+        },
+        "rows": 10,
+        "checksum": "9dd41546cff4eeea5845f7c3",
+        "error": null,
+        "error_code": null
+      },
+      "transaction_transfer": {
+        "title": "Multi-document atomic transfer between two inventory rows",
+        "tags": [
+          "write",
+          "txn"
+        ],
+        "kind": "txn",
+        "params_sample": "{'product_id': 3706, 'from': 4, 'to': 2, 'amount': 1}",
+        "status": "unsupported",
+        "timing": {
+          "n": 0,
+          "first_ms": null
+        },
+        "rows": null,
+        "checksum": null,
+        "error": "Unsupported: no multi-document transactions (single-document atomicity only)",
+        "error_code": null
+      },
+      "ttl_set": {
+        "title": "Write with expiry",
+        "tags": [
+          "write",
+          "ttl"
+        ],
+        "kind": "write",
+        "params_sample": "{'key': 'ttl:0', 'seconds': 120, 'value': {'i': 0, 'note': 'bench'}}",
+        "status": "ok",
+        "timing": {
+          "n": 30,
+          "min": 6.137,
+          "p50": 6.994,
+          "p90": 7.479,
+          "p95": 7.86,
+          "p99": 8.142,
+          "max": 8.248,
+          "mean": 6.937,
+          "stdev": 0.491,
+          "first_ms": 61.418
+        },
+        "rows": null,
+        "checksum": null,
+        "error": null,
+        "error_code": null
+      },
+      "scan_full": {
+        "title": "Full scan: count all events",
+        "tags": [
+          "read",
+          "scan"
+        ],
+        "kind": "read",
+        "params_sample": "{}",
+        "status": "ok",
+        "timing": {
+          "n": 5,
+          "min": 7.617,
+          "p50": 8.432,
+          "p90": 8.84,
+          "p95": 8.923,
+          "p99": 8.989,
+          "max": 9.006,
+          "mean": 8.365,
+          "stdev": 0.461,
+          "first_ms": 495.159
+        },
+        "rows": 1,
+        "checksum": "1c667a3800926137abbf2ada",
+        "error": null,
+        "error_code": null
+      },
+      "_seconds": 9.4
+    },
+    "optimize": {
+      "opt01_secondary_index": {
+        "title": "Range scan on events(event_type, occurred_at): no index vs secondary index (both column orders)",
+        "what": "an access path that is not indexed is a full scan; composite order matters on B-tree-like engines",
+        "variants": [
+          {
+            "name": "indexed_field (all fields indexed by default)",
+            "ok": false,
+            "status": "n/a",
+            "error": "all fields are indexed at mapping time; opt01 (add a missing index) does not apply"
+          }
+        ]
+      },
+      "opt02_projection": {
+        "title": "Point read of an order: whole document (with embedded items) vs 3-field projection",
+        "what": "returning fewer fields saves serialisation and transfer; some engines still read the whole document",
+        "variants": [
+          {
+            "name": "full_document",
+            "ok": true,
+            "error": null,
+            "p50_ms": 3.635,
+            "p95_ms": 4.375,
+            "n": 30,
+            "rows": 1
+          },
+          {
+            "name": "projection_3_fields",
+            "ok": true,
+            "error": null,
+            "p50_ms": 3.513,
+            "p95_ms": 4.431,
+            "n": 30,
+            "rows": 1
+          }
+        ],
+        "best_variant": "projection_3_fields",
+        "speedup_vs_first": 1.03
+      },
+      "opt03_pagination": {
+        "title": "Deep pagination: offset/skip vs keyset (cursor) at depth 10k and 100k",
+        "what": "offset still walks and discards rows; a keyset cursor seeks directly into the sorted index",
+        "variants": [
+          {
+            "name": "offset_depth_10000",
+            "ok": true,
+            "error": null,
+            "p50_ms": 57.077,
+            "p95_ms": 72.487,
+            "n": 8,
+            "rows": 50
+          },
+          {
+            "name": "keyset_depth_10000",
+            "ok": true,
+            "error": null,
+            "p50_ms": 13.786,
+            "p95_ms": 17.748,
+            "n": 8,
+            "rows": 50
+          },
+          {
+            "name": "offset_depth_100000",
+            "ok": true,
+            "error": null,
+            "p50_ms": 204.983,
+            "p95_ms": 231.51,
+            "n": 8,
+            "rows": 50
+          },
+          {
+            "name": "keyset_depth_100000",
+            "ok": true,
+            "error": null,
+            "p50_ms": 14.379,
+            "p95_ms": 17.075,
+            "n": 8,
+            "rows": 50
+          }
+        ],
+        "best_variant": "keyset_depth_10000",
+        "speedup_vs_first": 4.14
+      },
+      "opt04_batching": {
+        "title": "Write batching: 2000 events one-by-one vs 2 bulk requests of 1000",
+        "what": "round trips dominate small writes; every engine has a bulk path (insert_many, pipeline, batch, _bulk)",
+        "variants": [
+          {
+            "name": "single_put_x2000",
+            "rows": 2000,
+            "seconds": 11.395,
+            "rows_per_s": 176,
+            "error": null,
+            "ok": true
+          },
+          {
+            "name": "bulk_put_1000_x2",
+            "rows": 2000,
+            "seconds": 0.21,
+            "rows_per_s": 9523,
+            "error": null,
+            "ok": true
+          }
+        ],
+        "speedup_vs_first": 54.11,
+        "best_variant": "bulk_put_1000_x2"
+      },
+      "opt05_multi_get": {
+        "title": "100 point reads: sequential round trips vs one multi-get request",
+        "what": "batched reads (MGET / $in / IN / mget / pipelining) amortise the network round trip",
+        "variants": [
+          {
+            "name": "sequential_100_gets",
+            "ok": true,
+            "error": null,
+            "p50_ms": 328.381,
+            "p95_ms": 344.59,
+            "n": 10,
+            "rows": 100
+          },
+          {
+            "name": "multi_get_100",
+            "ok": true,
+            "error": null,
+            "p50_ms": 17.762,
+            "p95_ms": 22.605,
+            "n": 10,
+            "rows": 100
+          }
+        ],
+        "best_variant": "multi_get_100",
+        "speedup_vs_first": 18.49
+      },
+      "opt06_embedding_vs_reference": {
+        "title": "Order with its items: embedded array (one document) vs referenced (order + items lookup)",
+        "what": "embedding what is read together avoids a second query / join; referencing keeps documents small and items independently addressable",
+        "variants": [
+          {
+            "name": "embedded_items",
+            "ok": true,
+            "error": null,
+            "p50_ms": 2.882,
+            "p95_ms": 3.159,
+            "n": 30,
+            "rows": 1
+          },
+          {
+            "name": "referenced_items",
+            "ok": true,
+            "error": null,
+            "p50_ms": 9.007,
+            "p95_ms": 10.112,
+            "n": 30,
+            "rows": 1
+          }
+        ],
+        "best_variant": "embedded_items",
+        "speedup_vs_first": 1.0
+      },
+      "opt07_write_durability": {
+        "title": "Single-document write at each durability / write-concern level the engine offers",
+        "what": "acknowledgement level (replica acks, fsync, refresh) is the biggest lever on write latency",
+        "variants": [
+          {
+            "name": "refresh_false",
+            "ok": true,
+            "error": null,
+            "p50_ms": 5.928,
+            "p95_ms": 6.408,
+            "n": 30,
+            "rows": null
+          },
+          {
+            "name": "refresh_true",
+            "ok": true,
+            "error": null,
+            "p50_ms": 32.181,
+            "p95_ms": 43.309,
+            "n": 30,
+            "rows": null
+          },
+          {
+            "name": "wait_for",
+            "ok": true,
+            "error": null,
+            "p50_ms": 30018.133,
+            "p95_ms": 30044.316,
+            "n": 3,
+            "rows": null
+          }
+        ],
+        "best_variant": "refresh_false",
+        "speedup_vs_first": 1.0
+      },
+      "opt08_read_consistency": {
+        "title": "Point read at each read consistency level / read preference the engine offers",
+        "what": "linearizable / quorum reads cost extra round trips; replica reads trade freshness for offload",
+        "variants": [
+          {
+            "name": "default",
+            "ok": true,
+            "error": null,
+            "p50_ms": 3.267,
+            "p95_ms": 3.513,
+            "n": 30,
+            "rows": 1
+          }
+        ]
+      },
+      "opt09_connection_reuse": {
+        "title": "Point read with a new connection per operation vs one persistent client",
+        "what": "handshakes (TCP, TLS, auth, topology discovery) dwarf a point read; always pool",
+        "variants": [
+          {
+            "name": "connect_per_operation",
+            "ok": true,
+            "error": null,
+            "p50_ms": 7.185,
+            "p95_ms": 9.127,
+            "n": 20,
+            "rows": 1
+          },
+          {
+            "name": "persistent_client",
+            "ok": true,
+            "error": null,
+            "p50_ms": 3.155,
+            "p95_ms": 3.448,
+            "n": 30,
+            "rows": 1
+          }
+        ],
+        "best_variant": "persistent_client",
+        "speedup_vs_first": 2.28
+      },
+      "_seconds": 166.9
+    },
+    "connections": {
+      "max_connections": null,
+      "connect_latency": {
+        "primary": {
+          "target": "primary",
+          "n": 30,
+          "ms": {
+            "n": 30,
+            "min": 5.088341,
+            "p50": 6.472852,
+            "p90": 7.0204868,
+            "p95": 7.127721349999999,
+            "p99": 7.23075185,
+            "max": 7.242971,
+            "mean": 6.258759666666666,
+            "stdev": 0.6858545423492911
+          },
+          "errors": [],
+          "error_count": 0
+        }
+      },
+      "concurrency": {
+        "primary": [
+          {
+            "workers": 1,
+            "targets": [
+              "primary"
+            ],
+            "ops": 1234,
+            "errors": 0,
+            "seconds": 4.0,
+            "ops_per_s": 308,
+            "latency_ms": {
+              "n": 1234,
+              "min": 1.54358,
+              "p50": 3.3087774999999997,
+              "p90": 3.7253233000000003,
+              "p95": 3.85503605,
+              "p99": 4.349733750000004,
+              "max": 5.741756,
+              "mean": 3.239571077795786,
+              "stdev": 0.45433653156539594
+            },
+            "first_error": null,
+            "workers_reported": 1
+          },
+          {
+            "workers": 4,
+            "targets": [
+              "primary"
+            ],
+            "ops": 5954,
+            "errors": 0,
+            "seconds": 4.0,
+            "ops_per_s": 1488,
+            "latency_ms": {
+              "n": 5954,
+              "min": 1.081452,
+              "p50": 2.7987965,
+              "p90": 3.3995861,
+              "p95": 3.5827399499999997,
+              "p99": 3.8914979900000004,
+              "max": 4.821833,
+              "mean": 2.6855271095062143,
+              "stdev": 0.6455063638976671
+            },
+            "first_error": null,
+            "workers_reported": 4
+          },
+          {
+            "workers": 16,
+            "targets": [
+              "primary"
+            ],
+            "ops": 37487,
+            "errors": 0,
+            "seconds": 4.0,
+            "ops_per_s": 9372,
+            "latency_ms": {
+              "n": 37487,
+              "min": 1.119801,
+              "p50": 1.631908,
+              "p90": 2.0297072000000003,
+              "p95": 2.299676499999999,
+              "p99": 3.35264574,
+              "max": 12.04201,
+              "mean": 1.7058018195907914,
+              "stdev": 0.4550627802233059
+            },
+            "first_error": null,
+            "workers_reported": 16
+          },
+          {
+            "workers": 32,
+            "targets": [
+              "primary"
+            ],
+            "ops": 46259,
+            "errors": 0,
+            "seconds": 4.0,
+            "ops_per_s": 11565,
+            "latency_ms": {
+              "n": 46259,
+              "min": 1.120034,
+              "p50": 2.595263,
+              "p90": 3.778443200000002,
+              "p95": 4.2138332,
+              "p99": 5.28583787999999,
+              "max": 28.301998,
+              "mean": 2.7663665018699066,
+              "stdev": 1.060385783499694
+            },
+            "first_error": null,
+            "workers_reported": 32
+          },
+          {
+            "workers": 64,
+            "targets": [
+              "primary"
+            ],
+            "ops": 46863,
+            "errors": 0,
+            "seconds": 4.0,
+            "ops_per_s": 11716,
+            "latency_ms": {
+              "n": 46863,
+              "min": 1.082942,
+              "p50": 4.998913,
+              "p90": 8.297232000000001,
+              "p95": 9.628142200000001,
+              "p99": 14.184723179999963,
+              "max": 56.207122,
+              "mean": 5.464685407933764,
+              "stdev": 2.928056661650464
+            },
+            "first_error": null,
+            "workers_reported": 64
+          }
+        ]
+      },
+      "pool_saturation": {
+        "pool_size": 8,
+        "workers": 32,
+        "ops": 2250,
+        "ops_per_s": 554,
+        "checkout_wait_ms": {
+          "n": 2250,
+          "min": 0.002284,
+          "p50": 0.00597,
+          "p90": 0.0084603,
+          "p95": 0.009172499999999997,
+          "p99": 3749.6735785699984,
+          "max": 4027.166942,
+          "mean": 41.19873372177778,
+          "stdev": 396.80758713513944
+        },
+        "exec_ms": {
+          "n": 2250,
+          "min": 1.313817,
+          "p50": 11.7960015,
+          "p90": 28.3926965,
+          "p95": 35.29695644999995,
+          "p99": 48.24528547999987,
+          "max": 77.795723,
+          "mean": 14.358419454222222,
+          "stdev": 10.25779366886974
+        }
+      },
+      "write_contention": {
+        "threads": 4,
+        "iters_per_thread": 50,
+        "applied": 72,
+        "rejected": 128,
+        "errors": 0,
+        "version_before": 3,
+        "version_after": 56,
+        "version_delta": 53,
+        "atomic": false,
+        "seconds": 1.13,
+        "cas_ms": {
+          "n": 200,
+          "min": 11.404739,
+          "p50": 21.997675,
+          "p90": 27.750777699999997,
+          "p95": 29.256546799999988,
+          "p99": 40.43683692999999,
+          "max": 46.516789,
+          "mean": 22.227643145000002,
+          "stdev": 5.044046991415426
+        },
+        "first_error": null,
+        "interpretation": "version drifted from applied count: lost or duplicated updates"
+      },
+      "_seconds": 38.4
+    },
+    "loadtest": {
+      "batch_rows": 1000,
+      "seconds_per_run": 15.0,
+      "containers": [
+        "nslab-es1",
+        "nslab-es2",
+        "nslab-es3"
+      ],
+      "runs": [
+        {
+          "workers": 4,
+          "target": "primary",
+          "rows": 540000,
+          "batches": 540,
+          "errors": 0,
+          "seconds": 15.0,
+          "rows_per_s": 36000,
+          "batch_ms": {
+            "n": 540,
+            "min": 67.146173,
+            "p50": 106.9357645,
+            "p90": 124.3859711,
+            "p95": 129.8168014,
+            "p99": 151.03765501,
+            "max": 188.172199,
+            "mean": 107.53999022962964,
+            "stdev": 15.380037417543175
+          },
+          "first_error": null,
+          "workers_reported": 4,
+          "cleanup_s": 8.1,
+          "container_usage": {}
+        },
+        {
+          "workers": 16,
+          "target": "primary",
+          "rows": 1803000,
+          "batches": 1803,
+          "errors": 0,
+          "seconds": 15.0,
+          "rows_per_s": 120200,
+          "batch_ms": {
+            "n": 1803,
+            "min": 64.091428,
+            "p50": 101.668091,
+            "p90": 229.31859859999997,
+            "p95": 247.1751482999999,
+            "p99": 423.47840034000046,
+            "max": 1309.816438,
+            "mean": 130.00950529284526,
+            "stdev": 90.48940920439976
+          },
+          "first_error": null,
+          "workers_reported": 16,
+          "cleanup_s": 14.4,
+          "container_usage": {}
+        },
+        {
+          "workers": 32,
+          "target": "primary",
+          "rows": 1677000,
+          "batches": 1677,
+          "errors": 0,
+          "seconds": 15.0,
+          "rows_per_s": 111800,
+          "batch_ms": {
+            "n": 1677,
+            "min": 102.778709,
+            "p50": 206.877554,
+            "p90": 412.2195348,
+            "p95": 624.9410991999999,
+            "p99": 1704.9294142,
+            "max": 12083.393327,
+            "mean": 292.20324894275495,
+            "stdev": 501.658010362699
+          },
+          "first_error": null,
+          "workers_reported": 32,
+          "cleanup_s": 14.8,
+          "container_usage": {}
+        }
+      ],
+      "best": {
+        "target": "primary",
+        "workers": 16,
+        "rows_per_s": 120200
+      },
+      "_seconds": 89.7
+    },
+    "backup": {
+      "tag": "nslab-20260914-151611",
+      "strategy": {
+        "tool": "snapshot API into a registered repository (type fs under path.repo; S3/GCS/Azure repositories in production) \u2014 segment-level incremental",
+        "consistency": "per-index point-in-time at snapshot start (immutable Lucene segments; the translog is not included)",
+        "restore": "online: delete (or close) the indices, POST _snapshot/<repo>/<snap>/_restore (rename_pattern to restore beside the live index); the fs repository must be the same shared path on every node",
+        "incremental": "built in \u2014 a repository stores each segment once, the 2nd snapshot uploads only new segments (snapshot.stats.incremental)",
+        "pitr": "no; the SLM schedule is the RPO (searchable snapshots / CCR for other goals)",
+        "schedule": "SLM policy (cron schedule + retention) executed by the cluster itself \u2014 created by the backup phase",
+        "retention": "SLM retention (expire_after, min_count, max_count) + DELETE _snapshot/<repo>/<snap>"
+      },
+      "data_bytes": 571890934,
+      "fingerprint_before": {
+        "counts": {
+          "customers": 20000,
+          "categories": 200,
+          "products": 5000,
+          "inventory": 20000
+        },
+        "customers_present": 50,
+        "probe_count": 100,
+        "post_probe_present": false
+      },
+      "reads_baseline": {
+        "reads": 371,
+        "errors": 0,
+        "latency_ms": {
+          "n": 371,
+          "min": 1.5212279977276921,
+          "p50": 2.953767019789666,
+          "p90": 3.5988420131616294,
+          "p95": 3.942873008782044,
+          "p99": 9.284033410949652,
+          "max": 71.2522579706274,
+          "mean": 3.2915074807827707,
+          "stdev": 4.069939728772074
+        }
+      },
+      "backup": {
+        "method": "PUT _snapshot/nslab/<tag> (fs repository, compress)",
+        "online": true,
+        "artifact": "/backups/nslab (repository) snapshot nslab-20260914-151611",
+        "artifact_bytes": 310310687,
+        "repository_bytes": 310403296,
+        "files": 144,
+        "data_dir_bytes": 805005677,
+        "indices": 8,
+        "shards": {
+          "total": 8,
+          "failed": 0,
+          "successful": 8
+        },
+        "server_ms": 7005,
+        "slm": "SLM policy nslab-nightly: daily 01:30, keep 3-30 snapshots / 7 days",
+        "seconds": 7.74,
+        "status": "ok",
+        "reads_during": {
+          "reads": 1522,
+          "errors": 0,
+          "latency_ms": {
+            "n": 1522,
+            "min": 1.3879610341973603,
+            "p50": 2.9724469932261854,
+            "p90": 3.5141179629135877,
+            "p95": 3.832069205236621,
+            "p99": 6.215490693575703,
+            "max": 14.323331997729838,
+            "mean": 2.9748053290026384,
+            "stdev": 0.8189884093635886
+          }
+        },
+        "artifact_pct_of_data": 54.3
+      },
+      "fingerprint_after_mutation": {
+        "counts": {
+          "customers": 19950,
+          "categories": 200,
+          "products": 5000,
+          "inventory": 20000
+        },
+        "customers_present": 0,
+        "probe_count": 600,
+        "post_probe_present": true
+      },
+      "restore": {
+        "method": "DELETE the 8 lab_* indices (by name) + POST _snapshot/nslab/<tag>/_restore",
+        "online": true,
+        "shards": {
+          "total": 8,
+          "failed": 0,
+          "successful": 8
+        },
+        "indices": [
+          "lab_customers",
+          "lab_products",
+          "lab_order_items",
+          "lab_categories",
+          "lab_repl_probe",
+          "lab_inventory",
+          "lab_orders",
+          "lab_events"
+        ],
+        "seconds": 10.39,
+        "status": "ok",
+        "availability": {
+          "downtime_ms": 0.0,
+          "outages": 0
+        },
+        "checks": {
+          "counts_match": true,
+          "deleted_customers_back": true,
+          "probe_count_back_to_pre": true,
+          "post_backup_writes_gone": true
+        },
+        "verified": true
+      },
+      "fingerprint_after_restore": {
+        "counts": {
+          "customers": 20000,
+          "categories": 200,
+          "products": 5000,
+          "inventory": 20000
+        },
+        "customers_present": 50,
+        "probe_count": 100,
+        "post_probe_present": false
+      },
+      "incremental": {
+        "method": "second snapshot into the same repository (only new segments are copied)",
+        "artifact_bytes_delta": 10017,
+        "files_delta": 11,
+        "total_bytes": 310315297,
+        "server_ms": 400,
+        "seconds": 0.48,
+        "status": "ok"
+      },
+      "_seconds": 29.4,
+      "dr": {
+        "tag": "nslab-dr-20260914-170353",
+        "fingerprint_before": {
+          "counts": {
+            "customers": 20000,
+            "categories": 200,
+            "products": 5000,
+            "inventory": 20000
+          },
+          "customers_present": 50,
+          "probe_count": 100,
+          "post_probe_present": false
+        },
+        "backup": {
+          "method": "PUT _snapshot/nslab/<tag> (fs repository, compress)",
+          "online": true,
+          "artifact": "/backups/nslab (repository) snapshot nslab-dr-20260914-170353",
+          "artifact_bytes": 166646624,
+          "repository_bytes": 166736190,
+          "files": 65,
+          "data_dir_bytes": 167075193,
+          "indices": 8,
+          "shards": {
+            "total": 8,
+            "failed": 0,
+            "successful": 8
+          },
+          "server_ms": 4403,
+          "slm": "SLM policy nslab-nightly: daily 01:30, keep 3-30 snapshots / 7 days",
+          "seconds": 5.18
+        },
+        "export": {
+          "dir": "/home/berkay-server/repos/boilers/raw-codes/databases/ns-databases/data/backups/elasticsearch/nslab-dr-20260914-170353",
+          "files": [
+            "/home/berkay-server/repos/boilers/raw-codes/databases/ns-databases/data/backups/elasticsearch/nslab-dr-20260914-170353/nslab"
+          ],
+          "bytes": 166662462,
+          "seconds": 2.95
+        },
+        "destroy": {
+          "method": "docker compose down -v (data + backups volumes removed)",
+          "seconds": 57.1
+        },
+        "fresh_up": {
+          "seconds": 39.3,
+          "services": [
+            "es1",
+            "es2",
+            "es3"
+          ]
+        },
+        "after_destroy": {
+          "customers": "error: EngineError: POST /lab_customers/_refresh -> 404: {\"error\":{\"root_cause\":[{\"type",
+          "repl_probe": "error: EngineError: POST /lab_repl_probe/_refresh -> 404: {\"error\":{\"root_cause\":[{\"typ"
+        },
+        "import": {
+          "placed": [
+            "nslab-es1:/backups/nslab"
+          ],
+          "seconds": 5.38
+        },
+        "restore": {
+          "method": "DELETE the 0 lab_* indices (by name) + POST _snapshot/nslab/<tag>/_restore",
+          "online": true,
+          "shards": {
+            "total": 8,
+            "failed": 0,
+            "successful": 8
+          },
+          "indices": [
+            "lab_customers",
+            "lab_products",
+            "lab_order_items",
+            "lab_categories",
+            "lab_repl_probe",
+            "lab_inventory",
+            "lab_orders",
+            "lab_events"
+          ],
+          "seconds": 3.88,
+          "checks": {
+            "counts_match": true,
+            "customers_present": true,
+            "probe_count_match": true
+          },
+          "verified": true
+        },
+        "fingerprint_after_restore": {
+          "counts": {
+            "customers": 20000,
+            "categories": 200,
+            "products": 5000,
+            "inventory": 20000
+          },
+          "customers_present": 50,
+          "probe_count": 100,
+          "post_probe_present": false
+        },
+        "_seconds": 122.4
+      }
+    },
+    "logging": {
+      "strategy": {
+        "server_log": "ECS JSON on stdout (docker image log4j2): event.dataset elasticsearch.server / deprecation / index_search_slowlog / index_indexing_slowlog",
+        "slow_query": "per-index slowlog thresholds (index.search.slowlog.threshold.{query,fetch}.{warn,info,debug,trace}, index.indexing.slowlog.threshold.index.*), dynamic; lines carry took_millis, source, total_hits",
+        "audit": "xpack.security.audit.enabled (JSON audit of authentication/authorization/run_as) \u2014 needs security on; off in this lab",
+        "runtime": "PUT _cluster/settings {transient|persistent: {logger.<package>: DEBUG}} \u2014 no restart"
+      },
+      "threshold_ms": 100,
+      "containers": {
+        "nslab-es1": {
+          "driver": "kubelet (container-log-max-size/-files via k3d.yaml)",
+          "options": {
+            "max-size": "50Mi",
+            "max-file": "3"
+          },
+          "log_path": "/var/log/pods/nslab-elasticsearch_es1-8699ffb6db-9xwnv_b789fa3d-84b4-4d31-88c4-8eaacfdabe25/",
+          "user": "root",
+          "started": "2026-09-14T12:08:53Z",
+          "bytes": 224901,
+          "lines": 457,
+          "json_lines_pct": 100.0,
+          "format": "json",
+          "sample": [
+            "{\"@timestamp\":\"2026-09-14T12:16:40.333Z\",\"log.level\": \"INFO\",\"message\":\"snapshot [default:nslab:nslab-20260914-151611-inc/MR8mWkDDS1Oy2aSFAois3A] started\", \"ecs.version\": \"1.2.0\",\"service.name\":\"ES_ECS\",\"event.dataset\":\"elasticsearch.server",
+            "{\"@timestamp\":\"2026-09-14T12:16:40.461Z\",\"log.level\": \"INFO\",\"message\":\"snapshot [default:nslab:nslab-20260914-151611-inc/MR8mWkDDS1Oy2aSFAois3A] completed with state [SUCCESS]\", \"ecs.version\": \"1.2.0\",\"service.name\":\"ES_ECS\",\"event.dataset",
+            "{\"@timestamp\":\"2026-09-14T12:16:40.482Z\",\"log.level\": \"INFO\",\"message\":\"[lab_repl_probe/qb8ggfJ0TQylG6OfNK88mw] deleting index\", \"ecs.version\": \"1.2.0\",\"service.name\":\"ES_ECS\",\"event.dataset\":\"elasticsearch.server\",\"process.thread.name\":\"el"
+          ]
+        },
+        "nslab-es2": {
+          "driver": "kubelet (container-log-max-size/-files via k3d.yaml)",
+          "options": {
+            "max-size": "50Mi",
+            "max-file": "3"
+          },
+          "log_path": "/var/log/pods/nslab-elasticsearch_es2-79b796bd86-7hzww_e97e3c69-206e-4991-b7b1-1f3cda505965/",
+          "user": "root",
+          "started": "2026-09-14T12:08:54Z",
+          "bytes": 75191,
+          "lines": 191,
+          "json_lines_pct": 97.4,
+          "format": "json",
+          "sample": [
+            "{\"@timestamp\":\"2026-09-14T12:16:04.154Z\",\"log.level\": \"INFO\",\"message\":\"memory usage down after [293], before [3074424832], after [996419568]\", \"ecs.version\": \"1.2.0\",\"service.name\":\"ES_ECS\",\"event.dataset\":\"elasticsearch.server\",\"process.t",
+            "{\"@timestamp\":\"2026-09-14T12:16:04.155Z\",\"log.level\": \"INFO\",\"message\":\"[gc][378] overhead, spent [454ms] collecting in the last [1s]\", \"ecs.version\": \"1.2.0\",\"service.name\":\"ES_ECS\",\"event.dataset\":\"elasticsearch.server\",\"process.thread.na",
+            "{\"@timestamp\":\"2026-09-14T12:16:08.240Z\",\"log.level\": \"INFO\",\"message\":\"[gc][382] overhead, spent [383ms] collecting in the last [1s]\", \"ecs.version\": \"1.2.0\",\"service.name\":\"ES_ECS\",\"event.dataset\":\"elasticsearch.server\",\"process.thread.na"
+          ]
+        },
+        "nslab-es3": {
+          "driver": "kubelet (container-log-max-size/-files via k3d.yaml)",
+          "options": {
+            "max-size": "50Mi",
+            "max-file": "3"
+          },
+          "log_path": "/var/log/pods/nslab-elasticsearch_es3-c99dbbb54-5b8d7_307ddea2-caee-4204-974f-6c53fcdeb668/",
+          "user": "root",
+          "started": "2026-09-14T12:08:53Z",
+          "bytes": 76361,
+          "lines": 194,
+          "json_lines_pct": 97.4,
+          "format": "json",
+          "sample": [
+            "{\"@timestamp\":\"2026-09-14T12:16:04.733Z\",\"log.level\": \"INFO\",\"message\":\"GC did bring memory usage down, before [3108618744], after [2985511240], allocations [5], duration [137]\", \"ecs.version\": \"1.2.0\",\"service.name\":\"ES_ECS\",\"event.dataset",
+            "{\"@timestamp\":\"2026-09-14T12:16:04.733Z\",\"log.level\": \"INFO\",\"message\":\"memory usage down after [0], before [3117007352], after [2989705544]\", \"ecs.version\": \"1.2.0\",\"service.name\":\"ES_ECS\",\"event.dataset\":\"elasticsearch.server\",\"process.th",
+            "{\"@timestamp\":\"2026-09-14T12:16:05.403Z\",\"log.level\": \"WARN\",\"message\":\"[gc][379] overhead, spent [670ms] collecting in the last [1.2s]\", \"ecs.version\": \"1.2.0\",\"service.name\":\"ES_ECS\",\"event.dataset\":\"elasticsearch.server\",\"process.thread."
+          ]
+        }
+      },
+      "server_log": {
+        "status": "ok",
+        "value": {
+          "format": "json (ECS)",
+          "where": "stdout (docker logs); logs/ dir when running from the tarball",
+          "sample": [
+            "{\"@timestamp\":\"2026-09-14T12:16:40.461Z\",\"log.level\": \"INFO\",\"message\":\"snapshot [default:nslab:nslab-20260914-151611-inc/MR8mWkDDS1Oy2aSFAois3A] completed with state [SUCCESS]\", \"ecs.version\": \"1.2.0",
+            "{\"@timestamp\":\"2026-09-14T12:16:40.482Z\",\"log.level\": \"INFO\",\"message\":\"[lab_repl_probe/qb8ggfJ0TQylG6OfNK88mw] deleting index\", \"ecs.version\": \"1.2.0\",\"service.name\":\"ES_ECS\",\"event.dataset\":\"elastic"
+          ]
+        },
+        "ms": 192.6
+      },
+      "slow_query": {
+        "setup": {
+          "status": "ok",
+          "value": "PUT lab_*/_settings index.search.slowlog.threshold.query.warn=100ms (+fetch, indexing) \u2014 dynamic, per index",
+          "ms": 118.8
+        },
+        "effective_threshold_ms": 100,
+        "fast_op": {
+          "desc": "GET lab_customers/_doc/1",
+          "ms": 3.7,
+          "status": "ok",
+          "error": null
+        },
+        "slow_op": {
+          "desc": "script_score over lab_events (painless scoring of 1M docs)",
+          "ms": 667.0,
+          "status": "ok",
+          "error": null
+        },
+        "entries": [
+          {
+            "ms": 562.0,
+            "text": "index.search.slowlog.query [lab_events][0] {\\\"size\\\":1,\\\"query\\\":{\\\"script_score\\\":{\\\"query\\\":{\\\"match_all\\\":{\\\"boost\\\":1.0}},\\\"script\\\":{\\\"source\\\":\\\"(doc['value_num'].size() == 0 ? ",
+            "logger": "index.search.slowlog.query",
+            "hits": "1000045 hits"
+          }
+        ],
+        "entries_status": "ok",
+        "entries_error": null,
+        "slow_op_logged": true,
+        "logged_ms": 562.0,
+        "fast_op_logged": false,
+        "verified": true
+      },
+      "audit": {
+        "setup": {
+          "status": "unsupported",
+          "detail": "xpack.security.audit.enabled needs xpack.security enabled (off in this lab): JSON audit events for authentication/authorization/run_as",
+          "ms": 0.0
+        }
+      },
+      "runtime_log_level": {
+        "status": "ok",
+        "value": "PUT _cluster/settings transient logger.org.elasticsearch.snapshots=DEBUG -> verified -> reset (no restart)",
+        "ms": 99.3
+      },
+      "log_volume_this_phase": {
+        "nslab-es1": {
+          "bytes": 0,
+          "lines": 0
+        },
+        "nslab-es2": {
+          "bytes": 0,
+          "lines": 0
+        },
+        "nslab-es3": {
+          "bytes": 1109,
+          "lines": 1
+        }
+      },
+      "_seconds": 4.5
+    },
+    "replication": {
+      "kind": "primary + replica shards (number_of_replicas 2) over 3 nodes; master election by quorum",
+      "topology": {
+        "primary": {
+          "role_reported": "node",
+          "role_configured": "primary",
+          "version": "elasticsearch 9.5.3",
+          "status": {
+            "status": "green",
+            "nodes": 3,
+            "active_shards": 25,
+            "relocating": 0,
+            "initializing": 0,
+            "unassigned": 0,
+            "master": "es3",
+            "shards_per_node": {
+              "es2": {
+                "p": 0,
+                "r": 7
+              },
+              "es3": {
+                "p": 2,
+                "r": 5
+              },
+              "es1": {
+                "p": 5,
+                "r": 2
+              }
+            }
+          }
+        },
+        "node2": {
+          "role_reported": "node",
+          "role_configured": "node",
+          "version": "elasticsearch 9.5.3",
+          "status": {
+            "status": "green",
+            "nodes": 3,
+            "active_shards": 25,
+            "relocating": 0,
+            "initializing": 0,
+            "unassigned": 0,
+            "master": "es3",
+            "shards_per_node": {
+              "es2": {
+                "p": 0,
+                "r": 7
+              },
+              "es3": {
+                "p": 2,
+                "r": 5
+              },
+              "es1": {
+                "p": 5,
+                "r": 2
+              }
+            }
+          }
+        },
+        "node3": {
+          "role_reported": "master",
+          "role_configured": "node",
+          "version": "elasticsearch 9.5.3",
+          "status": {
+            "status": "green",
+            "nodes": 3,
+            "active_shards": 25,
+            "relocating": 0,
+            "initializing": 0,
+            "unassigned": 0,
+            "master": "es3",
+            "shards_per_node": {
+              "es2": {
+                "p": 0,
+                "r": 7
+              },
+              "es3": {
+                "p": 2,
+                "r": 5
+              },
+              "es1": {
+                "p": 5,
+                "r": 2
+              }
+            }
+          }
+        }
+      },
+      "visibility_lag": {
+        "node2": {
+          "replica": "node2",
+          "n": 30,
+          "visible": 30,
+          "timeouts": 0,
+          "lag_ms": {
+            "n": 30,
+            "min": 5.996657011564821,
+            "p50": 8.883889007847756,
+            "p90": 20.60132850310766,
+            "p95": 27.28993041091598,
+            "p99": 33.113966666278436,
+            "max": 35.04142496967688,
+            "mean": 12.161055174268162,
+            "stdev": 6.929058608346184
+          }
+        },
+        "node3": {
+          "replica": "node3",
+          "n": 30,
+          "visible": 30,
+          "timeouts": 0,
+          "lag_ms": {
+            "n": 30,
+            "min": 4.5425440184772015,
+            "p50": 7.1717989922035486,
+            "p90": 10.258473124122252,
+            "p95": 15.169951794086948,
+            "p99": 17.191184727707878,
+            "max": 17.55615696310997,
+            "mean": 7.790909034277623,
+            "stdev": 2.9992831137405584
+          }
+        }
+      },
+      "write_rejection": {
+        "node2": {
+          "replica": "node2",
+          "writes_rejected": false,
+          "note": "replica accepted a write (multi-master / leaderless / coordinator forwards)"
+        },
+        "node3": {
+          "replica": "node3",
+          "writes_rejected": false,
+          "note": "replica accepted a write (multi-master / leaderless / coordinator forwards)"
+        }
+      },
+      "lag_under_load": {
+        "rows": 20000,
+        "batch": 500,
+        "write_seconds": 1.72,
+        "rows_per_s": 11654,
+        "catchup_ms_after_last_write": {
+          "node2": 21.2,
+          "node3": 22.5
+        },
+        "samples": [
+          {
+            "t": 353831.618,
+            "primary": {
+              "status": "green",
+              "nodes": 3,
+              "active_shards": 28,
+              "relocating": 0,
+              "initializing": 0,
+              "unassigned": 0,
+              "master": "es3",
+              "shards_per_node": {
+                "es2": {
+                  "p": 0,
+                  "r": 8
+                },
+                "es3": {
+                  "p": 3,
+                  "r": 5
+                },
+                "es1": {
+                  "p": 5,
+                  "r": 3
+                }
+              }
+            },
+            "node2": {
+              "status": "green",
+              "nodes": 3,
+              "active_shards": 28,
+              "relocating": 0,
+              "initializing": 0,
+              "unassigned": 0,
+              "master": "es3",
+              "shards_per_node": {
+                "es2": {
+                  "p": 0,
+                  "r": 8
+                },
+                "es3": {
+                  "p": 3,
+                  "r": 5
+                },
+                "es1": {
+                  "p": 5,
+                  "r": 3
+                }
+              }
+            },
+            "node3": {
+              "status": "green",
+              "nodes": 3,
+              "active_shards": 28,
+              "relocating": 0,
+              "initializing": 0,
+              "unassigned": 0,
+              "master": "es3",
+              "shards_per_node": {
+                "es2": {
+                  "p": 0,
+                  "r": 8
+                },
+                "es3": {
+                  "p": 3,
+                  "r": 5
+                },
+                "es1": {
+                  "p": 5,
+                  "r": 3
+                }
+              }
+            }
+          },
+          {
+            "t": 353831.977,
+            "primary": {
+              "status": "green",
+              "nodes": 3,
+              "active_shards": 28,
+              "relocating": 0,
+              "initializing": 0,
+              "unassigned": 0,
+              "master": "es3",
+              "shards_per_node": {
+                "es2": {
+                  "p": 0,
+                  "r": 8
+                },
+                "es3": {
+                  "p": 3,
+                  "r": 5
+                },
+                "es1": {
+                  "p": 5,
+                  "r": 3
+                }
+              }
+            },
+            "node2": {
+              "status": "green",
+              "nodes": 3,
+              "active_shards": 28,
+              "relocating": 0,
+              "initializing": 0,
+              "unassigned": 0,
+              "master": "es3",
+              "shards_per_node": {
+                "es2": {
+                  "p": 0,
+                  "r": 8
+                },
+                "es3": {
+                  "p": 3,
+                  "r": 5
+                },
+                "es1": {
+                  "p": 5,
+                  "r": 3
+                }
+              }
+            },
+            "node3": {
+              "status": "green",
+              "nodes": 3,
+              "active_shards": 28,
+              "relocating": 0,
+              "initializing": 0,
+              "unassigned": 0,
+              "master": "es3",
+              "shards_per_node": {
+                "es2": {
+                  "p": 0,
+                  "r": 8
+                },
+                "es3": {
+                  "p": 3,
+                  "r": 5
+                },
+                "es1": {
+                  "p": 5,
+                  "r": 3
+                }
+              }
+            }
+          },
+          {
+            "t": 353832.292,
+            "primary": {
+              "status": "green",
+              "nodes": 3,
+              "active_shards": 28,
+              "relocating": 0,
+              "initializing": 0,
+              "unassigned": 0,
+              "master": "es3",
+              "shards_per_node": {
+                "es2": {
+                  "p": 0,
+                  "r": 8
+                },
+                "es3": {
+                  "p": 3,
+                  "r": 5
+                },
+                "es1": {
+                  "p": 5,
+                  "r": 3
+                }
+              }
+            },
+            "node2": {
+              "status": "green",
+              "nodes": 3,
+              "active_shards": 28,
+              "relocating": 0,
+              "initializing": 0,
+              "unassigned": 0,
+              "master": "es3",
+              "shards_per_node": {
+                "es2": {
+                  "p": 0,
+                  "r": 8
+                },
+                "es3": {
+                  "p": 3,
+                  "r": 5
+                },
+                "es1": {
+                  "p": 5,
+                  "r": 3
+                }
+              }
+            },
+            "node3": {
+              "status": "green",
+              "nodes": 3,
+              "active_shards": 28,
+              "relocating": 0,
+              "initializing": 0,
+              "unassigned": 0,
+              "master": "es3",
+              "shards_per_node": {
+                "es2": {
+                  "p": 0,
+                  "r": 8
+                },
+                "es3": {
+                  "p": 3,
+                  "r": 5
+                },
+                "es1": {
+                  "p": 5,
+                  "r": 3
+                }
+              }
+            }
+          },
+          {
+            "t": 353832.63,
+            "primary": {
+              "status": "green",
+              "nodes": 3,
+              "active_shards": 28,
+              "relocating": 0,
+              "initializing": 0,
+              "unassigned": 0,
+              "master": "es3",
+              "shards_per_node": {
+                "es2": {
+                  "p": 0,
+                  "r": 8
+                },
+                "es3": {
+                  "p": 3,
+                  "r": 5
+                },
+                "es1": {
+                  "p": 5,
+                  "r": 3
+                }
+              }
+            },
+            "node2": {
+              "status": "green",
+              "nodes": 3,
+              "active_shards": 28,
+              "relocating": 0,
+              "initializing": 0,
+              "unassigned": 0,
+              "master": "es3",
+              "shards_per_node": {
+                "es2": {
+                  "p": 0,
+                  "r": 8
+                },
+                "es3": {
+                  "p": 3,
+                  "r": 5
+                },
+                "es1": {
+                  "p": 5,
+                  "r": 3
+                }
+              }
+            },
+            "node3": {
+              "status": "green",
+              "nodes": 3,
+              "active_shards": 28,
+              "relocating": 0,
+              "initializing": 0,
+              "unassigned": 0,
+              "master": "es3",
+              "shards_per_node": {
+                "es2": {
+                  "p": 0,
+                  "r": 8
+                },
+                "es3": {
+                  "p": 3,
+                  "r": 5
+                },
+                "es1": {
+                  "p": 5,
+                  "r": 3
+                }
+              }
+            }
+          },
+          {
+            "t": 353832.958,
+            "primary": {
+              "status": "green",
+              "nodes": 3,
+              "active_shards": 28,
+              "relocating": 0,
+              "initializing": 0,
+              "unassigned": 0,
+              "master": "es3",
+              "shards_per_node": {
+                "es2": {
+                  "p": 0,
+                  "r": 8
+                },
+                "es3": {
+                  "p": 3,
+                  "r": 5
+                },
+                "es1": {
+                  "p": 5,
+                  "r": 3
+                }
+              }
+            },
+            "node2": {
+              "status": "green",
+              "nodes": 3,
+              "active_shards": 28,
+              "relocating": 0,
+              "initializing": 0,
+              "unassigned": 0,
+              "master": "es3",
+              "shards_per_node": {
+                "es2": {
+                  "p": 0,
+                  "r": 8
+                },
+                "es3": {
+                  "p": 3,
+                  "r": 5
+                },
+                "es1": {
+                  "p": 5,
+                  "r": 3
+                }
+              }
+            },
+            "node3": {
+              "status": "green",
+              "nodes": 3,
+              "active_shards": 28,
+              "relocating": 0,
+              "initializing": 0,
+              "unassigned": 0,
+              "master": "es3",
+              "shards_per_node": {
+                "es2": {
+                  "p": 0,
+                  "r": 8
+                },
+                "es3": {
+                  "p": 3,
+                  "r": 5
+                },
+                "es1": {
+                  "p": 5,
+                  "r": 3
+                }
+              }
+            }
+          },
+          {
+            "t": 353833.305,
+            "primary": {
+              "status": "green",
+              "nodes": 3,
+              "active_shards": 28,
+              "relocating": 0,
+              "initializing": 0,
+              "unassigned": 0,
+              "master": "es3",
+              "shards_per_node": {
+                "es2": {
+                  "p": 0,
+                  "r": 8
+                },
+                "es3": {
+                  "p": 3,
+                  "r": 5
+                },
+                "es1": {
+                  "p": 5,
+                  "r": 3
+                }
+              }
+            },
+            "node2": {
+              "status": "green",
+              "nodes": 3,
+              "active_shards": 28,
+              "relocating": 0,
+              "initializing": 0,
+              "unassigned": 0,
+              "master": "es3",
+              "shards_per_node": {
+                "es2": {
+                  "p": 0,
+                  "r": 8
+                },
+                "es3": {
+                  "p": 3,
+                  "r": 5
+                },
+                "es1": {
+                  "p": 5,
+                  "r": 3
+                }
+              }
+            },
+            "node3": {
+              "status": "green",
+              "nodes": 3,
+              "active_shards": 28,
+              "relocating": 0,
+              "initializing": 0,
+              "unassigned": 0,
+              "master": "es3",
+              "shards_per_node": {
+                "es2": {
+                  "p": 0,
+                  "r": 8
+                },
+                "es3": {
+                  "p": 3,
+                  "r": 5
+                },
+                "es1": {
+                  "p": 5,
+                  "r": 3
+                }
+              }
+            }
+          }
+        ]
+      },
+      "read_scaling": {
+        "primary_only": {
+          "targets": [
+            "primary"
+          ],
+          "workers": 32,
+          "ops": 23806,
+          "ops_per_s": 5952,
+          "errors": 0,
+          "latency_ms": {
+            "n": 23806,
+            "min": 1.307554,
+            "p50": 4.5618295,
+            "p90": 9.01477,
+            "p95": 11.10095525,
+            "p99": 18.057888350000017,
+            "max": 39.881885,
+            "mean": 5.377567780223473,
+            "stdev": 3.4192819285306606
+          }
+        },
+        "primary_plus_replicas": {
+          "targets": [
+            "primary",
+            "node2",
+            "node3"
+          ],
+          "workers": 32,
+          "ops": 28112,
+          "ops_per_s": 7028,
+          "errors": 0,
+          "latency_ms": {
+            "n": 28112,
+            "min": 1.271095,
+            "p50": 3.9371615,
+            "p90": 7.364766000000001,
+            "p95": 8.959585849999995,
+            "p99": 13.411645489999993,
+            "max": 43.353351,
+            "mean": 4.5535004514086515,
+            "stdev": 2.5505447473185257
+          }
+        },
+        "gain": 1.18
+      },
+      "failover": {
+        "kind": "primary + replica shards (number_of_replicas 2) over 3 nodes; master election by quorum",
+        "killed": "node3",
+        "killed_container": "nslab-es3",
+        "writes_still_succeed_after_kill": true,
+        "write_attempts_until_success": 1,
+        "last_error_before_success": null,
+        "downtime_ms": 1045.7,
+        "new_primary": "node3",
+        "verified_via": "node2",
+        "new_primary_status_error": "ReadError: [Errno 104] Connection reset by peer",
+        "old_primary_restarted": true,
+        "note": "old primary restarted; whether it rejoins depends on the engine (stack should be recreated for reuse)"
+      },
+      "_seconds": 54.3
+    }
+  },
+  "server_version": "elasticsearch 9.5.3",
+  "finished": "2026-09-14T15:29:24+00:00"
+}

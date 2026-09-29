@@ -1,0 +1,217 @@
+{
+  "engine": "lmdb",
+  "display": "LMDB",
+  "category": "embedded ordered key-value (memory-mapped B+tree)",
+  "family": "embedded",
+  "driver": "lmdb",
+  "image": "(embedded, python lmdb package)",
+  "run_id": "20260913-145437-83bf0a",
+  "started": "2026-09-13T11:54:37+00:00",
+  "scale": 1.0,
+  "notes": "Lightning Memory-Mapped Database, in-process, single writer / many MVCC readers. No query engine: an ordered key-value map. The lab models documents plus hand-maintained ordered index keyspaces (idx/...); aggregations, text, geo and vector scan the primary keyspace. 8 GB map. No server, no network, no replication.",
+  "phases": {
+    "connections": {
+      "max_connections": null,
+      "connect_latency": {
+        "embedded": {
+          "target": "embedded",
+          "n": 30,
+          "ms": {
+            "n": 30,
+            "min": 0.000627,
+            "p50": 0.000691,
+            "p90": 0.0009293000000000001,
+            "p95": 0.0015784999999999968,
+            "p99": 0.0038096900000000023,
+            "max": 0.004517,
+            "mean": 0.0008881333333333334,
+            "stdev": 0.0007206418312094358
+          },
+          "errors": [],
+          "error_count": 0
+        }
+      },
+      "concurrency": {
+        "embedded": [
+          {
+            "workers": 1,
+            "targets": [
+              "embedded"
+            ],
+            "ops": 394850,
+            "errors": 0,
+            "seconds": 4.0,
+            "ops_per_s": 98712,
+            "latency_ms": {
+              "n": 394850,
+              "min": 0.007437,
+              "p50": 0.009124,
+              "p90": 0.009855,
+              "p95": 0.013734,
+              "p99": 0.02473,
+              "max": 0.148098,
+              "mean": 0.009742935337469925,
+              "stdev": 0.003290978859920603
+            },
+            "first_error": null,
+            "workers_reported": 1,
+            "mode": "threads (embedded engine)"
+          },
+          {
+            "workers": 4,
+            "targets": [
+              "embedded"
+            ],
+            "ops": 211877,
+            "errors": 0,
+            "seconds": 4.0,
+            "ops_per_s": 52969,
+            "latency_ms": {
+              "n": 211877,
+              "min": 0.009721,
+              "p50": 0.016165,
+              "p90": 0.026319,
+              "p95": 0.028656,
+              "p99": 0.049498719999999975,
+              "max": 325.955446,
+              "mean": 0.07464543660708807,
+              "stdev": 1.8980995582308975
+            },
+            "first_error": null,
+            "workers_reported": 4,
+            "mode": "threads (embedded engine)"
+          },
+          {
+            "workers": 16,
+            "targets": [
+              "embedded"
+            ],
+            "ops": 116756,
+            "errors": 0,
+            "seconds": 4.0,
+            "ops_per_s": 29189,
+            "latency_ms": {
+              "n": 116756,
+              "min": 0.010275,
+              "p50": 0.027346,
+              "p90": 0.062848,
+              "p95": 1.4661655,
+              "p99": 14.694709199999927,
+              "max": 131.370589,
+              "mean": 0.5447409817054369,
+              "stdev": 3.346448079659061
+            },
+            "first_error": null,
+            "workers_reported": 16,
+            "mode": "threads (embedded engine)"
+          },
+          {
+            "workers": 32,
+            "targets": [
+              "embedded"
+            ],
+            "ops": 115791,
+            "errors": 0,
+            "seconds": 4.0,
+            "ops_per_s": 28948,
+            "latency_ms": {
+              "n": 115791,
+              "min": 0.010719,
+              "p50": 0.027376,
+              "p90": 0.059464,
+              "p95": 2.5950680000000004,
+              "p99": 31.936773200000253,
+              "max": 205.581426,
+              "mean": 1.099052668782548,
+              "stdev": 6.731227374239732
+            },
+            "first_error": null,
+            "workers_reported": 32,
+            "mode": "threads (embedded engine)"
+          },
+          {
+            "workers": 64,
+            "targets": [
+              "embedded"
+            ],
+            "ops": 117353,
+            "errors": 0,
+            "seconds": 4.0,
+            "ops_per_s": 29338,
+            "latency_ms": {
+              "n": 117353,
+              "min": 0.010572,
+              "p50": 0.027556,
+              "p90": 0.058808,
+              "p95": 2.680498999999995,
+              "p99": 67.13382207999967,
+              "max": 606.031586,
+              "mean": 2.1460170440636372,
+              "stdev": 14.044182855788538
+            },
+            "first_error": null,
+            "workers_reported": 64,
+            "mode": "threads (embedded engine)"
+          }
+        ]
+      },
+      "pool_saturation": {
+        "pool_size": 8,
+        "workers": 32,
+        "ops": 111679,
+        "ops_per_s": 27873,
+        "checkout_wait_ms": {
+          "n": 111679,
+          "min": 0.001074,
+          "p50": 0.002794,
+          "p90": 0.003113,
+          "p95": 0.003896,
+          "p99": 0.006283,
+          "max": 3278.58725,
+          "mean": 0.6254521664592269,
+          "stdev": 42.53846807264973
+        },
+        "exec_ms": {
+          "n": 111679,
+          "min": 0.012157,
+          "p50": 0.030736,
+          "p90": 0.047601199999999996,
+          "p95": 0.060155199999999985,
+          "p99": 6.370709740000007,
+          "max": 282.611161,
+          "mean": 0.2724257043222092,
+          "stdev": 3.30049826530408
+        }
+      },
+      "write_contention": {
+        "threads": 4,
+        "iters_per_thread": 50,
+        "applied": 200,
+        "rejected": 0,
+        "errors": 0,
+        "version_before": 110,
+        "version_after": 160,
+        "version_delta": 50,
+        "atomic": false,
+        "seconds": 0.02,
+        "cas_ms": {
+          "n": 200,
+          "min": 0.082763,
+          "p50": 0.341879,
+          "p90": 0.39637179999999994,
+          "p95": 0.4919429999999998,
+          "p99": 0.5310024299999999,
+          "max": 0.77635,
+          "mean": 0.3530104,
+          "stdev": 0.06182408860072262
+        },
+        "first_error": null,
+        "interpretation": "version drifted from applied count: lost or duplicated updates"
+      },
+      "_seconds": 25.6
+    }
+  },
+  "partial": false,
+  "server_version": "unknown",
+  "finished": "2026-09-13T11:55:03+00:00"
+}

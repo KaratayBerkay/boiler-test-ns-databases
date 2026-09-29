@@ -1,0 +1,95 @@
+{
+  "engine": "redis",
+  "run_id": "20260914-122812-7d82d7",
+  "partial": true,
+  "phases": {
+    "backup": {
+      "dr": {
+        "tag": "nslab-dr-20260914-122812",
+        "fingerprint_before": {
+          "counts": {
+            "customers": 20000,
+            "categories": 200,
+            "products": 5000,
+            "inventory": 20000
+          },
+          "customers_present": 50,
+          "probe_count": 100,
+          "post_probe_present": false
+        },
+        "backup": {
+          "method": "BGSAVE + copy dump.rdb",
+          "online": true,
+          "artifact": "/backups/nslab-dr-20260914-122812.rdb",
+          "artifact_bytes": 335772658,
+          "fork_ms": 28.9,
+          "rdb_last_cow_size": 4165632,
+          "aof_current_size": 421063072,
+          "used_memory": 590341552,
+          "seconds": 5.68
+        },
+        "export": {
+          "dir": "/home/berkay-server/repos/boilers/raw-codes/databases/ns-databases/data/backups/redis/nslab-dr-20260914-122812",
+          "files": [
+            "/home/berkay-server/repos/boilers/raw-codes/databases/ns-databases/data/backups/redis/nslab-dr-20260914-122812/nslab-dr-20260914-122812.rdb"
+          ],
+          "bytes": 335772658,
+          "seconds": 0.62
+        },
+        "destroy": {
+          "method": "docker compose down -v (data + backups volumes removed)",
+          "seconds": 21.4
+        },
+        "fresh_up": {
+          "seconds": 12.6,
+          "services": [
+            "haproxy",
+            "primary",
+            "replica",
+            "sentinel1",
+            "sentinel2",
+            "sentinel3"
+          ]
+        },
+        "after_destroy": {
+          "customers": 0,
+          "repl_probe": 0
+        },
+        "import": {
+          "placed": [
+            "nslab-redis-primary:/backups/nslab-dr-20260914-122812.rdb"
+          ],
+          "seconds": 0.93
+        },
+        "restore": {
+          "method": "stop; RDB -> appendonlydir base + manifest; start; replicas full-resync",
+          "online": false,
+          "downtime_ms": 11693.1,
+          "replica_resync_ms": {
+            "replica": 10586.4
+          },
+          "sentinel": "down-after-milliseconds raised to 600000 on 3 sentinels during the restore, then reset",
+          "seconds": 23.17,
+          "checks": {
+            "counts_match": true,
+            "customers_present": true,
+            "probe_count_match": true
+          },
+          "verified": true
+        },
+        "fingerprint_after_restore": {
+          "counts": {
+            "customers": 20000,
+            "categories": 200,
+            "products": 5000,
+            "inventory": 20000
+          },
+          "customers_present": 50,
+          "probe_count": 100,
+          "post_probe_present": false
+        },
+        "_seconds": 75.0
+      }
+    }
+  }
+}

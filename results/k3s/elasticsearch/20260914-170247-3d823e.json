@@ -1,0 +1,104 @@
+{
+  "engine": "elasticsearch",
+  "display": "Elasticsearch 9",
+  "category": "search / analytics engine (Lucene, inverted index)",
+  "family": "search",
+  "driver": "es",
+  "image": "elasticsearch:9.5.3",
+  "run_id": "20260914-170247-3d823e",
+  "started": "2026-09-14T14:02:47+00:00",
+  "scale": 1.0,
+  "notes": "Elasticsearch 9, 3-node cluster (all master-eligible + data), security disabled. One index per collection with 1 primary shard + 2 replicas, so every node holds every shard (the RF=3 equivalent of the other clustered stacks). Every field indexed at mapping time (inverted index for keyword/text, BKD tree for numeric/geo, HNSW for dense_vector). Eventually consistent for search (30 s refresh; the harness refreshes after load). No multi-document transactions, no server-side joins across indices, no per-document TTL. Any node coordinates writes; the master is re-elected by the remaining quorum when a node dies.",
+  "phases": {
+    "load": {
+      "scale": 1.0,
+      "collections": {
+        "customers": {
+          "rows": 20000,
+          "counted": 20000,
+          "expected": 20000,
+          "seconds": 4.46,
+          "rows_per_s": 4484,
+          "method": "bulk_put",
+          "ok": true
+        },
+        "categories": {
+          "rows": 200,
+          "counted": 200,
+          "expected": 200,
+          "seconds": 0.03,
+          "rows_per_s": 6600,
+          "method": "bulk_put",
+          "ok": true
+        },
+        "products": {
+          "rows": 5000,
+          "counted": 5000,
+          "expected": 5000,
+          "seconds": 2.66,
+          "rows_per_s": 1880,
+          "method": "bulk_put",
+          "ok": true
+        },
+        "orders": {
+          "rows": 200000,
+          "counted": 200000,
+          "expected": 200000,
+          "seconds": 8.16,
+          "rows_per_s": 24521,
+          "method": "bulk_put x4 connections",
+          "ok": true
+        },
+        "order_items": {
+          "rows": 487606,
+          "counted": 487606,
+          "expected": 487606,
+          "seconds": 7.91,
+          "rows_per_s": 61683,
+          "method": "bulk_put x4 connections",
+          "ok": true
+        },
+        "events": {
+          "rows": 1000000,
+          "counted": 1000000,
+          "expected": 1000000,
+          "seconds": 32.82,
+          "rows_per_s": 30473,
+          "method": "bulk_put x4 connections",
+          "ok": true
+        },
+        "inventory": {
+          "rows": 20000,
+          "counted": 20000,
+          "expected": 20000,
+          "seconds": 1.86,
+          "rows_per_s": 10766,
+          "method": "bulk_put",
+          "ok": true
+        }
+      },
+      "schema": [
+        "index lab_customers (9 mapped fields)",
+        "index lab_categories (4 mapped fields)",
+        "index lab_products (9 mapped fields)",
+        "index lab_orders (7 mapped fields)",
+        "index lab_order_items (5 mapped fields)",
+        "index lab_events (8 mapped fields)",
+        "index lab_inventory (5 mapped fields)"
+      ],
+      "errors": [],
+      "schema_seconds": 1.76,
+      "load_seconds": 64.11,
+      "after_load": [
+        "_refresh all indices (search visibility)"
+      ],
+      "post_seconds": 0.01,
+      "server_version": "elasticsearch 9.5.3",
+      "_seconds": 66.0
+    }
+  },
+  "partial": false,
+  "platform": "k3s",
+  "server_version": "elasticsearch 9.5.3",
+  "finished": "2026-09-14T14:03:53+00:00"
+}

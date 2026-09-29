@@ -1,0 +1,336 @@
+{
+  "engine": "neo4j",
+  "display": "Neo4j 5",
+  "category": "property graph (native, index-free adjacency)",
+  "family": "graph",
+  "driver": "bolt",
+  "image": "neo4j:5-community",
+  "run_id": "20260913-143521-54fbe8",
+  "started": "2026-09-13T11:35:21+00:00",
+  "scale": 1.0,
+  "notes": "Neo4j 5 Community, single instance (causal clustering, CDC, online backup and read routing are Enterprise-only). Order items are CONTAINS relationships, categories a CHILD_OF tree, so graph_traversal and join_lookup are native. Built-in full-text (Lucene) and HNSW vector indexes; no native TTL or pub/sub.",
+  "phases": {
+    "connections": {
+      "max_connections": 800,
+      "connect_latency": {
+        "primary": {
+          "target": "primary",
+          "n": 30,
+          "ms": {
+            "n": 30,
+            "min": 5.191553,
+            "p50": 5.9199335,
+            "p90": 6.858329500000001,
+            "p95": 7.6149004999999965,
+            "p99": 8.166454289999999,
+            "max": 8.186986,
+            "mean": 6.057885933333334,
+            "stdev": 0.6779013447872747
+          },
+          "errors": [],
+          "error_count": 0
+        }
+      },
+      "storm": {
+        "primary": [
+          {
+            "target": "primary",
+            "requested": 10,
+            "opened": 10,
+            "failed": 0,
+            "wall_ms_to_open_all": 50.1,
+            "connect_ms": {
+              "n": 10,
+              "min": 15.184593,
+              "p50": 17.4163525,
+              "p90": 18.5630185,
+              "p95": 19.50780475,
+              "p99": 20.26363375,
+              "max": 20.452591,
+              "mean": 17.1779933,
+              "stdev": 1.5340318625062552
+            },
+            "error_codes": {},
+            "sample_error": null
+          },
+          {
+            "target": "primary",
+            "requested": 50,
+            "opened": 50,
+            "failed": 0,
+            "wall_ms_to_open_all": 159.9,
+            "connect_ms": {
+              "n": 50,
+              "min": 51.049619,
+              "p50": 119.5435255,
+              "p90": 135.4335975,
+              "p95": 138.68980854999998,
+              "p99": 139.97862283,
+              "max": 140.056108,
+              "mean": 111.28949476,
+              "stdev": 25.405663829758176
+            },
+            "error_codes": {},
+            "sample_error": null
+          },
+          {
+            "target": "primary",
+            "requested": 100,
+            "opened": 100,
+            "failed": 0,
+            "wall_ms_to_open_all": 262.3,
+            "connect_ms": {
+              "n": 100,
+              "min": 76.216391,
+              "p50": 195.3448805,
+              "p90": 220.5808508,
+              "p95": 223.73058165,
+              "p99": 227.56801650000003,
+              "max": 233.26413,
+              "mean": 186.77473430999999,
+              "stdev": 29.763109660893733
+            },
+            "error_codes": {},
+            "sample_error": null
+          },
+          {
+            "target": "primary",
+            "requested": 200,
+            "opened": 200,
+            "failed": 0,
+            "wall_ms_to_open_all": 588.1,
+            "connect_ms": {
+              "n": 200,
+              "min": 148.918649,
+              "p50": 474.2181795,
+              "p90": 532.20969,
+              "p95": 542.70917285,
+              "p99": 553.6677070999999,
+              "max": 559.036531,
+              "mean": 459.35259058,
+              "stdev": 74.06909955462864
+            },
+            "error_codes": {},
+            "sample_error": null
+          },
+          {
+            "target": "primary",
+            "requested": 500,
+            "opened": 500,
+            "failed": 0,
+            "wall_ms_to_open_all": 1560.8,
+            "connect_ms": {
+              "n": 500,
+              "min": 384.754322,
+              "p50": 1067.5837510000001,
+              "p90": 1358.6991522,
+              "p95": 1410.5121909999996,
+              "p99": 1483.47870492,
+              "max": 1513.167031,
+              "mean": 1054.3956502199999,
+              "stdev": 233.09745165835952
+            },
+            "error_codes": {},
+            "sample_error": null
+          },
+          {
+            "target": "primary",
+            "requested": 810,
+            "opened": 810,
+            "failed": 0,
+            "wall_ms_to_open_all": 2113.6,
+            "connect_ms": {
+              "n": 810,
+              "min": 344.999694,
+              "p50": 1419.846211,
+              "p90": 1814.5325523000001,
+              "p95": 1937.85765195,
+              "p99": 2044.24241494,
+              "max": 2082.62403,
+              "mean": 1401.8609900135802,
+              "stdev": 327.8573189963282
+            },
+            "error_codes": {},
+            "sample_error": null
+          }
+        ]
+      },
+      "concurrency": {
+        "primary": [
+          {
+            "workers": 1,
+            "targets": [
+              "primary"
+            ],
+            "ops": 2081,
+            "errors": 0,
+            "seconds": 4.0,
+            "ops_per_s": 520,
+            "latency_ms": {
+              "n": 2081,
+              "min": 0.803149,
+              "p50": 2.033537,
+              "p90": 2.49152,
+              "p95": 2.613639,
+              "p99": 2.918743599999998,
+              "max": 4.026286,
+              "mean": 1.9195637232099951,
+              "stdev": 0.49357128495613445
+            },
+            "first_error": null,
+            "workers_reported": 1
+          },
+          {
+            "workers": 4,
+            "targets": [
+              "primary"
+            ],
+            "ops": 9859,
+            "errors": 0,
+            "seconds": 4.0,
+            "ops_per_s": 2465,
+            "latency_ms": {
+              "n": 9859,
+              "min": 0.701906,
+              "p50": 1.603697,
+              "p90": 2.1690276,
+              "p95": 2.3050693000000004,
+              "p99": 2.68381858,
+              "max": 8.253475,
+              "mean": 1.6208612976975354,
+              "stdev": 0.43317473173559234
+            },
+            "first_error": null,
+            "workers_reported": 4
+          },
+          {
+            "workers": 16,
+            "targets": [
+              "primary"
+            ],
+            "ops": 51222,
+            "errors": 0,
+            "seconds": 4.0,
+            "ops_per_s": 12806,
+            "latency_ms": {
+              "n": 51222,
+              "min": 0.838604,
+              "p50": 1.1794525,
+              "p90": 1.5076867,
+              "p95": 1.6905415999999998,
+              "p99": 2.11091966,
+              "max": 6.656211,
+              "mean": 1.2478099440474797,
+              "stdev": 0.24941439500434145
+            },
+            "first_error": null,
+            "workers_reported": 16
+          },
+          {
+            "workers": 32,
+            "targets": [
+              "primary"
+            ],
+            "ops": 54220,
+            "errors": 0,
+            "seconds": 4.0,
+            "ops_per_s": 13555,
+            "latency_ms": {
+              "n": 54220,
+              "min": 1.022791,
+              "p50": 2.211824,
+              "p90": 3.3209007999999995,
+              "p95": 3.774459,
+              "p99": 4.912916979999998,
+              "max": 10.959491,
+              "mean": 2.3591558373662855,
+              "stdev": 0.7899215738239272
+            },
+            "first_error": null,
+            "workers_reported": 32
+          },
+          {
+            "workers": 64,
+            "targets": [
+              "primary"
+            ],
+            "ops": 61209,
+            "errors": 0,
+            "seconds": 4.0,
+            "ops_per_s": 15302,
+            "latency_ms": {
+              "n": 61209,
+              "min": 1.007023,
+              "p50": 3.690785,
+              "p90": 6.550950600000003,
+              "p95": 7.8545658000000005,
+              "p99": 11.512911399999995,
+              "max": 77.933838,
+              "mean": 4.181486761407636,
+              "stdev": 2.0940264573720397
+            },
+            "first_error": null,
+            "workers_reported": 64
+          }
+        ]
+      },
+      "pool_saturation": {
+        "pool_size": 8,
+        "workers": 32,
+        "ops": 3149,
+        "ops_per_s": 778,
+        "checkout_wait_ms": {
+          "n": 3149,
+          "min": 0.002297,
+          "p50": 0.005616,
+          "p90": 0.007923800000000026,
+          "p95": 0.009274999999999999,
+          "p99": 0.019711039999999933,
+          "max": 4026.959098,
+          "mean": 30.435456976182913,
+          "stdev": 347.23959007125825
+        },
+        "exec_ms": {
+          "n": 3149,
+          "min": 1.385106,
+          "p50": 9.469364,
+          "p90": 16.571168800000002,
+          "p95": 18.741764,
+          "p99": 23.3786204,
+          "max": 35.929305,
+          "mean": 10.240897944744363,
+          "stdev": 4.66129619247245
+        }
+      },
+      "write_contention": {
+        "threads": 4,
+        "iters_per_thread": 50,
+        "applied": 200,
+        "rejected": 0,
+        "errors": 0,
+        "version_before": 3,
+        "version_after": 203,
+        "version_delta": 200,
+        "atomic": true,
+        "seconds": 0.49,
+        "cas_ms": {
+          "n": 200,
+          "min": 3.531258,
+          "p50": 7.612659,
+          "p90": 14.526577199999998,
+          "p95": 20.034100799999994,
+          "p99": 40.6945979,
+          "max": 47.542468,
+          "mean": 9.319933085,
+          "stdev": 5.7242722372999495
+        },
+        "first_error": null,
+        "interpretation": "every accepted CAS advanced the version exactly once: atomic compare-and-set"
+      },
+      "_seconds": 49.3
+    }
+  },
+  "partial": false,
+  "server_version": "Neo4j Kernel 5.26.30 (community)",
+  "finished": "2026-09-13T11:36:11+00:00"
+}

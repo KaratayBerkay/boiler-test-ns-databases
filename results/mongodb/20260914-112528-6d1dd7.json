@@ -1,0 +1,439 @@
+{
+  "engine": "mongodb",
+  "display": "MongoDB 7.0",
+  "category": "document store (replica set)",
+  "family": "document",
+  "driver": "pymongo",
+  "image": "mongo:7",
+  "run_id": "20260914-112528-6d1dd7",
+  "started": "2026-09-14T08:25:28+00:00",
+  "scale": 1.0,
+  "notes": "Official mongo:7 image (7.0.x). mongo:8 (8.3.9) refuses to start on this host's Linux 7.0.0 kernel (SERVER-121912: TCMalloc rseq incompatibility with kernels 6.19-7.0.13, exits at startup, no bypass) so the lab pins 7.0. 3-member replica set rs0 (priorities 3/2/1) initiated by a one-shot mongosh container; no auth. Per-node targets use directConnection=true; writes w=1 unless an experiment says otherwise. $vectorSearch is Atlas / mongot-only, so vector_knn is unsupported on Community.",
+  "phases": {
+    "load": {
+      "scale": 1.0,
+      "collections": {
+        "customers": {
+          "rows": 20000,
+          "counted": 20000,
+          "expected": 20000,
+          "seconds": 1.23,
+          "rows_per_s": 16310,
+          "method": "insert_many(5000, ordered=False, w=1)",
+          "ok": true
+        },
+        "categories": {
+          "rows": 200,
+          "counted": 200,
+          "expected": 200,
+          "seconds": 0.0,
+          "rows_per_s": 50527,
+          "method": "insert_many(5000, ordered=False, w=1)",
+          "ok": true
+        },
+        "products": {
+          "rows": 5000,
+          "counted": 5000,
+          "expected": 5000,
+          "seconds": 0.88,
+          "rows_per_s": 5683,
+          "method": "insert_many(5000, ordered=False, w=1)",
+          "ok": true
+        },
+        "orders": {
+          "rows": 200000,
+          "counted": 200000,
+          "expected": 200000,
+          "seconds": 6.16,
+          "rows_per_s": 32487,
+          "method": "insert_many(5000, ordered=False, w=1) x4 connections",
+          "ok": true
+        },
+        "order_items": {
+          "rows": 487606,
+          "counted": 487606,
+          "expected": 487606,
+          "seconds": 5.44,
+          "rows_per_s": 89614,
+          "method": "insert_many(5000, ordered=False, w=1) x4 connections",
+          "ok": true
+        },
+        "events": {
+          "rows": 1000000,
+          "counted": 1000000,
+          "expected": 1000000,
+          "seconds": 23.64,
+          "rows_per_s": 42302,
+          "method": "insert_many(5000, ordered=False, w=1) x4 connections",
+          "ok": true
+        },
+        "inventory": {
+          "rows": 20000,
+          "counted": 20000,
+          "expected": 20000,
+          "seconds": 0.61,
+          "rows_per_s": 32813,
+          "method": "insert_many(5000, ordered=False, w=1)",
+          "ok": true
+        }
+      },
+      "schema": [
+        "customers: [('email', 1)] {'unique': True}",
+        "customers: [('country_code', 1), ('tier', 1)]",
+        "customers: [('location', '2dsphere')]",
+        "customers: [('attrs.lang', 1), ('tier', 1)]",
+        "categories: [('parent_id', 1)]",
+        "products: [('category_id', 1), ('price', -1)]",
+        "products: [('sku', 1)] {'unique': True}",
+        "products: [('attrs.tags', 1)]",
+        "products: [('description', 'text')]",
+        "orders: [('customer_id', 1)]",
+        "orders: [('status', 1), ('ordered_at', 1)]",
+        "orders: [('ordered_at', 1), ('_id', 1)]",
+        "order_items: [('order_id', 1)]",
+        "order_items: [('product_id', 1)]",
+        "events: [('customer_id', 1)]",
+        "inventory: [('product_id', 1), ('warehouse_id', 1)]",
+        "scratch: [('expires_at', 1)] {'expireAfterSeconds': 0}"
+      ],
+      "errors": [],
+      "schema_seconds": 0.33,
+      "load_seconds": 39.02,
+      "after_load": [],
+      "post_seconds": 0.0,
+      "server_version": "MongoDB 7.0.37",
+      "_seconds": 39.4
+    },
+    "backup": {
+      "tag": "nslab-20260914-112607",
+      "strategy": {
+        "tool": "mongodump --oplog --gzip --archive (logical, cluster-consistent thanks to the oplog captured during the dump); physical alternative: fsyncLock + volume snapshot",
+        "consistency": "point-in-time at the end of the dump (--oplogReplay applies the oplog captured while dumping)",
+        "restore": "online: dropDatabase, then mongorestore --oplogReplay --drop against the primary (secondaries replicate the restore); --oplogReplay cannot be combined with namespace filters",
+        "incremental": "none in Community tooling; Percona PBM does physical + incremental + selective restores",
+        "pitr": "oplog-based \u2014 keep the oplog window (replSetResizeOplog) longer than the backup interval; PBM/Ops Manager tail it continuously",
+        "schedule": "cron / CronJob running mongodump on a secondary (readPreference=secondary) or PBM's scheduler",
+        "retention": "external: archives are self-contained files; PBM has retention policies"
+      },
+      "data_bytes": 1241656251,
+      "fingerprint_before": {
+        "counts": {
+          "customers": 20000,
+          "categories": 200,
+          "products": 5000,
+          "inventory": 20000
+        },
+        "customers_present": 50,
+        "probe_count": 100,
+        "post_probe_present": false
+      },
+      "reads_baseline": {
+        "reads": 646,
+        "errors": 0,
+        "latency_ms": {
+          "n": 646,
+          "min": 0.5098999827168882,
+          "p50": 0.9827314934227616,
+          "p90": 1.2739640078507364,
+          "p95": 1.3246210000943393,
+          "p99": 1.4755469717783838,
+          "max": 19.553673977497965,
+          "mean": 1.0013994063400655,
+          "stdev": 0.7711224975649331
+        }
+      },
+      "backup": {
+        "method": "mongodump --oplog --gzip --archive",
+        "online": true,
+        "artifact": "/backups/nslab-20260914-112607.archive.gz",
+        "artifact_bytes": 50802701,
+        "collections_dumped": 10,
+        "dataSize": 267280566.0,
+        "storageSize": 107552768.0,
+        "oplog_captured": true,
+        "physical_alternative": {
+          "method": "fsyncLock + cp -a /data/db + fsyncUnlock (stand-in for a volume snapshot)",
+          "writes_blocked_ms": 1922.0,
+          "bytes": 1361948758
+        },
+        "seconds": 13.35,
+        "status": "ok",
+        "reads_during": {
+          "reads": 4281,
+          "errors": 0,
+          "latency_ms": {
+            "n": 4281,
+            "min": 0.48329902347177267,
+            "p50": 1.0575110209174454,
+            "p90": 1.306138001382351,
+            "p95": 1.3631139881908894,
+            "p99": 1.5251521952450273,
+            "max": 6.227723031770438,
+            "mean": 1.0265441591231619,
+            "stdev": 0.28935406846094863
+          }
+        },
+        "artifact_pct_of_data": 4.1
+      },
+      "fingerprint_after_mutation": {
+        "counts": {
+          "customers": 19950,
+          "categories": 200,
+          "products": 5000,
+          "inventory": 20000
+        },
+        "customers_present": 0,
+        "probe_count": 600,
+        "post_probe_present": true
+      },
+      "restore": {
+        "method": "dropDatabase + mongorestore --oplogReplay --drop",
+        "online": true,
+        "summary": "2026-09-14T08:27:27.403+0000\t1732906 document(s) restored successfully. 0 document(s) failed to restore.",
+        "index_builds": 0,
+        "seconds": 63.47,
+        "status": "ok",
+        "availability": {
+          "downtime_ms": 0.0,
+          "outages": 0
+        },
+        "checks": {
+          "counts_match": true,
+          "deleted_customers_back": true,
+          "probe_count_back_to_pre": true,
+          "post_backup_writes_gone": true
+        },
+        "verified": true
+      },
+      "fingerprint_after_restore": {
+        "counts": {
+          "customers": 20000,
+          "categories": 200,
+          "products": 5000,
+          "inventory": 20000
+        },
+        "customers_present": 50,
+        "probe_count": 100,
+        "post_probe_present": false
+      },
+      "incremental": {
+        "status": "unsupported",
+        "detail": "pymongo: no incremental backup"
+      },
+      "_seconds": 80.2
+    },
+    "logging": {
+      "strategy": {
+        "server_log": "JSON lines on stdout ({t, s, c, id, ctx, msg, attr}); systemLog.path + logRotate for files; getLog reads the in-memory ring",
+        "slow_query": "operationProfiling: mode slowOp/all, slowOpThresholdMs, slowOpSampleRate -> capped system.profile per database + 'Slow query' log lines (durationMillis, planSummary, keysExamined/docsExamined)",
+        "audit": "auditLog is Enterprise / Percona PSMDB (destination file|syslog|console, filter) \u2014 not in Community",
+        "runtime": "setParameter logLevel / logComponentVerbosity, db.setProfilingLevel(level, {slowms, sampleRate}) \u2014 no restart"
+      },
+      "threshold_ms": 100,
+      "containers": {
+        "nslab-mongo1": {
+          "driver": "json-file",
+          "options": {
+            "compress": "true",
+            "max-file": "3",
+            "max-size": "50m"
+          },
+          "log_path": "/var/lib/docker/containers/2c5122c6c1540a8aeb6b169f889ce45fff1adfd6483d2cc7734d0c326d42b68e/2c5122c6c1540a8aeb6b169f889ce45fff1adfd6483d2cc7734d0c326d42b68e-json.log",
+          "user": "root",
+          "started": "2026-09-14T08:02:30.915385769Z",
+          "bytes": 4455723,
+          "lines": 11703,
+          "json_lines_pct": 100.0,
+          "format": "json",
+          "sample": [
+            "{\"t\":{\"$date\":\"2026-09-14T08:27:28.074+00:00\"},\"s\":\"I\",  \"c\":\"STORAGE\",  \"id\":22214,   \"ctx\":\"conn2284\",\"msg\":\"Deferring table drop for collection\",\"attr\":{\"namespace\":\"lab.repl_probe\",\"ident\":\"collection-141-2354650159545842226\",\"dropTime\"",
+            "{\"t\":{\"$date\":\"2026-09-14T08:27:28.077+00:00\"},\"s\":\"I\",  \"c\":\"NETWORK\",  \"id\":22944,   \"ctx\":\"conn2285\",\"msg\":\"Connection ended\",\"attr\":{\"remote\":\"172.24.0.1:36838\",\"isLoadBalanced\":false,\"uuid\":{\"uuid\":{\"$uuid\":\"30bd4337-975e-40fb-afb0-b1e",
+            "{\"t\":{\"$date\":\"2026-09-14T08:27:28.077+00:00\"},\"s\":\"I\",  \"c\":\"NETWORK\",  \"id\":22944,   \"ctx\":\"conn2284\",\"msg\":\"Connection ended\",\"attr\":{\"remote\":\"172.24.0.1:36824\",\"isLoadBalanced\":false,\"uuid\":{\"uuid\":{\"$uuid\":\"b8e4f039-cb8c-43a5-add2-29f"
+          ]
+        },
+        "nslab-mongo2": {
+          "driver": "json-file",
+          "options": {
+            "compress": "true",
+            "max-file": "3",
+            "max-size": "50m"
+          },
+          "log_path": "/var/lib/docker/containers/e8996ea0e0ddb068c8b99dfd40c21e5552caba9b91484e4ab8e4d8405b7325ef/e8996ea0e0ddb068c8b99dfd40c21e5552caba9b91484e4ab8e4d8405b7325ef-json.log",
+          "user": "root",
+          "started": "2026-09-14T08:02:30.914325723Z",
+          "bytes": 3919525,
+          "lines": 10764,
+          "json_lines_pct": 100.0,
+          "format": "json",
+          "sample": [
+            "{\"t\":{\"$date\":\"2026-09-14T08:27:28.075+00:00\"},\"s\":\"I\",  \"c\":\"STORAGE\",  \"id\":20318,   \"ctx\":\"ReplWriterWorker-21\",\"msg\":\"Finishing collection drop\",\"attr\":{\"namespace\":\"lab.repl_probe\",\"uuid\":{\"uuid\":{\"$uuid\":\"b2339dc2-357a-42e7-8292-0b570",
+            "{\"t\":{\"$date\":\"2026-09-14T08:27:28.076+00:00\"},\"s\":\"I\",  \"c\":\"STORAGE\",  \"id\":22206,   \"ctx\":\"ReplWriterWorker-21\",\"msg\":\"Deferring table drop for index\",\"attr\":{\"index\":\"_id_\",\"namespace\":\"lab.repl_probe\",\"uuid\":{\"uuid\":{\"$uuid\":\"b2339dc2-",
+            "{\"t\":{\"$date\":\"2026-09-14T08:27:28.076+00:00\"},\"s\":\"I\",  \"c\":\"STORAGE\",  \"id\":22214,   \"ctx\":\"ReplWriterWorker-21\",\"msg\":\"Deferring table drop for collection\",\"attr\":{\"namespace\":\"lab.repl_probe\",\"ident\":\"collection-140--885938079423910667\""
+          ]
+        },
+        "nslab-mongo3": {
+          "driver": "json-file",
+          "options": {
+            "compress": "true",
+            "max-file": "3",
+            "max-size": "50m"
+          },
+          "log_path": "/var/lib/docker/containers/925aa6e42d672a8f9b9bd9009e4d3983d827ecbafafc985c69cad09264787e1e/925aa6e42d672a8f9b9bd9009e4d3983d827ecbafafc985c69cad09264787e1e-json.log",
+          "user": "root",
+          "started": "2026-09-14T08:02:30.914812494Z",
+          "bytes": 3916009,
+          "lines": 10698,
+          "json_lines_pct": 100.0,
+          "format": "json",
+          "sample": [
+            "{\"t\":{\"$date\":\"2026-09-14T08:27:28.077+00:00\"},\"s\":\"I\",  \"c\":\"STORAGE\",  \"id\":20318,   \"ctx\":\"ReplWriterWorker-44\",\"msg\":\"Finishing collection drop\",\"attr\":{\"namespace\":\"lab.repl_probe\",\"uuid\":{\"uuid\":{\"$uuid\":\"b2339dc2-357a-42e7-8292-0b570",
+            "{\"t\":{\"$date\":\"2026-09-14T08:27:28.077+00:00\"},\"s\":\"I\",  \"c\":\"STORAGE\",  \"id\":22206,   \"ctx\":\"ReplWriterWorker-44\",\"msg\":\"Deferring table drop for index\",\"attr\":{\"index\":\"_id_\",\"namespace\":\"lab.repl_probe\",\"uuid\":{\"uuid\":{\"$uuid\":\"b2339dc2-",
+            "{\"t\":{\"$date\":\"2026-09-14T08:27:28.077+00:00\"},\"s\":\"I\",  \"c\":\"STORAGE\",  \"id\":22214,   \"ctx\":\"ReplWriterWorker-44\",\"msg\":\"Deferring table drop for collection\",\"attr\":{\"namespace\":\"lab.repl_probe\",\"ident\":\"collection-140--8748276590123412368"
+          ]
+        }
+      },
+      "server_log": {
+        "status": "ok",
+        "value": {
+          "format": "json",
+          "where": "stdout (docker logs) \u2014 systemLog.path when set; getLog: global = last 1024 lines in memory",
+          "ring_lines": 11717,
+          "sample": [
+            "{\"t\":{\"$date\":\"2026-09-14T08:27:28.632+00:00\"},\"s\":\"I\",  \"c\":\"NETWORK\",  \"id\":51800,   \"ctx\":\"conn2288\",\"msg\":\"client metadata\",\"attr\":{\"remote\":\"172.24.0.1:36858\",\"client\":\"conn2288\",\"negotiatedCompr",
+            "{\"t\":{\"$date\":\"2026-09-14T08:27:28.632+00:00\"},\"s\":\"I\",  \"c\":\"ACCESS\",   \"id\":10483900,\"ctx\":\"conn2288\",\"msg\":\"Connection not authenticating\",\"attr\":{\"client\":\"172.24.0.1:36858\",\"doc\":{\"driver\":{\"name",
+            "{\"t\":{\"$date\":\"2026-09-14T08:27:28.632+00:00\"},\"s\":\"I\",  \"c\":\"NETWORK\",  \"id\":6788700, \"ctx\":\"conn2287\",\"msg\":\"Received first command on ingress connection since session start or auth handshake\",\"attr"
+          ]
+        },
+        "ms": 1.3
+      },
+      "slow_query": {
+        "setup": {
+          "status": "ok",
+          "value": "db.setProfilingLevel(1, {slowms: 100, sampleRate: 1.0}) on 'lab' (system.profile capped 1 MB + 'Slow query' JSON log lines)",
+          "ms": 1.1
+        },
+        "effective_threshold_ms": 100,
+        "fast_op": {
+          "desc": "find customers {_id: 1}",
+          "ms": 0.8,
+          "status": "ok",
+          "error": null
+        },
+        "slow_op": {
+          "desc": "aggregate events [$group by event_type] (1M-doc collection scan)",
+          "ms": 1204.2,
+          "status": "ok",
+          "error": null
+        },
+        "entries": [
+          {
+            "ms": 1202,
+            "text": "command lab.events {\"aggregate\": \"events\", \"pipeline\": [{\"$group\": {\"_id\": \"$event_type\", \"n\": {\"$sum\": 1}}}], \"cursor\": {}}",
+            "planSummary": "COLLSCAN",
+            "docsExamined": 1000000,
+            "keysExamined": 0
+          },
+          {
+            "ms": 3346,
+            "text": "command lab.events {\"createIndexes\": \"events\", \"indexes\": [{\"key\": {\"customer_id\": 1}, \"ns\": \"lab.events\", \"name\": \"customer_id_1\"}], \"ignoreUnknownIndexOptions\": true}",
+            "planSummary": null,
+            "docsExamined": null,
+            "keysExamined": null
+          },
+          {
+            "ms": 2676,
+            "text": "command lab.order_items {\"createIndexes\": \"order_items\", \"indexes\": [{\"key\": {\"order_id\": 1}, \"name\": \"order_id_1\", \"ns\": \"lab.order_items\"}, {\"key\": {\"product_id\": 1}, \"name\": \"produc",
+            "planSummary": null,
+            "docsExamined": null,
+            "keysExamined": null
+          },
+          {
+            "ms": 1237,
+            "text": "command lab.scratch {\"createIndexes\": \"scratch\", \"indexes\": [{\"key\": {\"expires_at\": 1}, \"name\": \"expires_at_1\", \"expireAfterSeconds\": 0, \"ns\": \"lab.scratch\"}], \"ignoreUnknownIndexO",
+            "planSummary": null,
+            "docsExamined": null,
+            "keysExamined": null
+          },
+          {
+            "ms": 1958,
+            "text": "command lab.orders {\"createIndexes\": \"orders\", \"indexes\": [{\"key\": {\"ordered_at\": 1, \"_id\": 1}, \"name\": \"ordered_at_1__id_1\", \"ns\": \"lab.orders\"}, {\"key\": {\"customer_id\": 1}, \"nam",
+            "planSummary": null,
+            "docsExamined": null,
+            "keysExamined": null
+          },
+          {
+            "ms": 726,
+            "text": "command lab.products {\"createIndexes\": \"products\", \"indexes\": [{\"key\": {\"category_id\": 1, \"price\": -1}, \"name\": \"category_id_1_price_-1\", \"ns\": \"lab.products\"}, {\"key\": {\"sku\": 1}, ",
+            "planSummary": null,
+            "docsExamined": null,
+            "keysExamined": null
+          },
+          {
+            "ms": 433,
+            "text": "command lab.customers {\"createIndexes\": \"customers\", \"indexes\": [{\"key\": {\"email\": 1}, \"name\": \"email_1\", \"unique\": true, \"ns\": \"lab.customers\"}, {\"key\": {\"country_code\": 1, \"tier\": ",
+            "planSummary": null,
+            "docsExamined": null,
+            "keysExamined": null
+          },
+          {
+            "ms": 159,
+            "text": "command lab.inventory {\"createIndexes\": \"inventory\", \"indexes\": [{\"key\": {\"product_id\": 1, \"warehouse_id\": 1}, \"name\": \"product_id_1_warehouse_id_1\", \"ns\": \"lab.inventory\"}], \"ignore",
+            "planSummary": null,
+            "docsExamined": null,
+            "keysExamined": null
+          },
+          {
+            "ms": 109,
+            "text": "insert lab.events {\"insert\": \"events\", \"ordered\": false, \"bypassEmptyTsReplacement\": true, \"writeConcern\": {\"w\": \"majority\"}, \"txnNumber\": 466}",
+            "planSummary": null,
+            "docsExamined": null,
+            "keysExamined": null
+          },
+          {
+            "ms": 104,
+            "text": "insert lab.events {\"insert\": \"events\", \"ordered\": false, \"bypassEmptyTsReplacement\": true, \"writeConcern\": {\"w\": \"majority\"}, \"txnNumber\": 436}",
+            "planSummary": null,
+            "docsExamined": null,
+            "keysExamined": null
+          }
+        ],
+        "entries_status": "ok",
+        "entries_error": null,
+        "slow_op_logged": true,
+        "logged_ms": 1202,
+        "fast_op_logged": false,
+        "verified": true
+      },
+      "audit": {
+        "setup": {
+          "status": "unsupported",
+          "detail": "pymongo: no audit log",
+          "ms": 0.0
+        }
+      },
+      "runtime_log_level": {
+        "status": "ok",
+        "value": "setParameter logComponentVerbosity.command -1 -> 1 -> -1 (no restart; every command logged at 1)",
+        "ms": 4.7
+      },
+      "log_volume_this_phase": {
+        "nslab-mongo1": {
+          "bytes": 12339,
+          "lines": 25
+        },
+        "nslab-mongo2": {
+          "bytes": 8370,
+          "lines": 23
+        },
+        "nslab-mongo3": {
+          "bytes": 8369,
+          "lines": 23
+        }
+      },
+      "_seconds": 2.7
+    }
+  },
+  "partial": false,
+  "server_version": "MongoDB 7.0.37",
+  "finished": "2026-09-14T08:27:30+00:00"
+}

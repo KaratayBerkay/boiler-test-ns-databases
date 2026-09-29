@@ -1,0 +1,3 @@
+source: https://github.com/valkey-io/valkey-skills/tree/main/skills/valkey
+license: BSD-3-Clause
+vendored: 2026-09-13 (ns-databases lab)

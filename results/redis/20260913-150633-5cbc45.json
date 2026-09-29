@@ -1,0 +1,72 @@
+{
+  "engine": "redis",
+  "display": "Redis 8",
+  "category": "in-memory key-value (data structures, Query Engine, JSON)",
+  "family": "keyvalue",
+  "driver": "resp",
+  "image": "redis:8",
+  "run_id": "20260913-150633-5cbc45",
+  "started": "2026-09-13T12:06:33+00:00",
+  "scale": 1.0,
+  "notes": "Redis Open Source 8 (RediSearch/JSON/TimeSeries/probabilistic modules built in). Async primary->replica replication with diskless sync, AOF everysec on both; 3 Sentinels (quorum 2, down-after 2 s) elect a new primary; HAProxy round-robins reads over primary+replica. Documents are hashes with application-maintained index sets/zsets; FT.CREATE on products for text + vector.",
+  "phases": {
+    "bench": {
+      "text_search": {
+        "title": "Full-text search on product descriptions",
+        "tags": [
+          "read",
+          "text"
+        ],
+        "kind": "read",
+        "params_sample": "{'words': ['wireless', 'charger'], 'limit': 20}",
+        "status": "ok",
+        "timing": {
+          "n": 10,
+          "min": 1.099,
+          "p50": 1.583,
+          "p90": 1.73,
+          "p95": 1.74,
+          "p99": 1.748,
+          "max": 1.75,
+          "mean": 1.508,
+          "stdev": 0.208,
+          "first_ms": 4.654
+        },
+        "rows": 20,
+        "checksum": "a235fed79befa7de480f1d5b",
+        "error": null,
+        "error_code": null
+      },
+      "geo_near": {
+        "title": "Geo radius query on customer locations",
+        "tags": [
+          "read",
+          "geo"
+        ],
+        "kind": "read",
+        "params_sample": "{'lat': 52.5, 'lon': 13.4, 'km': 200, 'limit': 20}",
+        "status": "ok",
+        "timing": {
+          "n": 10,
+          "min": 0.991,
+          "p50": 1.1,
+          "p90": 1.598,
+          "p95": 1.674,
+          "p99": 1.734,
+          "max": 1.749,
+          "mean": 1.231,
+          "stdev": 0.252,
+          "first_ms": 1.355
+        },
+        "rows": 20,
+        "checksum": "ef5985a217c590de050f108e",
+        "error": null,
+        "error_code": null
+      },
+      "_seconds": 0.0
+    }
+  },
+  "partial": true,
+  "server_version": "redis 8.10.1",
+  "finished": "2026-09-13T12:06:33+00:00"
+}

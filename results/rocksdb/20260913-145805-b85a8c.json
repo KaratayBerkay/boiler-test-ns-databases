@@ -1,0 +1,22 @@
+{
+  "engine": "rocksdb",
+  "display": "RocksDB",
+  "category": "embedded ordered key-value (LSM tree)",
+  "family": "embedded",
+  "driver": "rocksdb",
+  "image": "(embedded, python rocksdict/RocksDB)",
+  "run_id": "20260913-145805-b85a8c",
+  "started": "2026-09-13T11:58:05+00:00",
+  "scale": 1.0,
+  "notes": "RocksDB (Facebook LSM-tree) via rocksdict, in-process, thread-safe. Same modelling as LMDB (ordered key-value + hand-maintained index keyspaces, WriteBatch for atomic multi-key writes). Write-optimised (LSM) vs LMDB's read-optimised B+tree. No server, no network, no replication.",
+  "phases": {
+    "loadtest": {
+      "status": "n/a",
+      "note": "embedded single-process engine: see optimize opt04 batching for write throughput",
+      "_seconds": 0.0
+    }
+  },
+  "partial": false,
+  "server_version": "unknown",
+  "finished": "2026-09-13T11:58:05+00:00"
+}

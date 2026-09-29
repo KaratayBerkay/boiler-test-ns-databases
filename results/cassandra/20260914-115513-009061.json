@@ -1,0 +1,214 @@
+{
+  "engine": "cassandra",
+  "display": "Cassandra 5.0",
+  "category": "wide-column (leaderless, tunable consistency)",
+  "family": "widecolumn",
+  "driver": "cql",
+  "image": "cassandra:5",
+  "run_id": "20260914-115513-009061",
+  "started": "2026-09-14T08:55:13+00:00",
+  "scale": 1.0,
+  "notes": "Official cassandra:5 image, 3 nodes RF=3, LOCAL_QUORUM by default. Query-first schema (one table per access path), SAI indexes for vector (ANN) and analyzed text search, LWT for compare-and-set, counter table for increments. Nodes are addressed by static container IPs (10.99.1.11-13); the client is pinned to one node per target.",
+  "phases": {
+    "backup": {
+      "tag": "nslab-20260914-115513",
+      "strategy": {
+        "tool": "nodetool flush + nodetool snapshot -t <tag> --ttl 3h (hard-linked SSTables, instant, per node) then export the snapshot dirs to /backups/<tag>/<node>/lab/<table>/",
+        "consistency": "per-node crash-consistent after the flush; cluster-wide consistency comes from repair after restore (or a coordinated snapshot)",
+        "restore": "online: TRUNCATE every table, then each node runs nodetool import --copy-data on its own exported snapshot (server-side, SAI components included; without --copy-data the export is moved, i.e. consumed); sstableloader streams to the owning replicas but its driver cannot parse vector<float, 8> on 5.0.x",
+        "incremental": "incremental_backups (nodetool enablebackup): each flushed SSTable is hard-linked into <table>/backups/ \u2014 ship those as they appear",
+        "pitr": "commitlog archiving (archive_command + restore_point_in_time) \u2014 configured in commitlog_archiving.properties",
+        "schedule": "cron on every node (nodetool snapshot) or Medusa / Scylla Manager; --ttl makes snapshots self-expiring",
+        "retention": "nodetool clearsnapshot / snapshot --ttl; hard links cost nothing until compaction rewrites the SSTables"
+      },
+      "data_bytes": 379454357,
+      "fingerprint_before": {
+        "counts": {
+          "customers": 20000,
+          "categories": 200,
+          "products": 5000,
+          "inventory": 20000
+        },
+        "customers_present": 50,
+        "probe_count": 100,
+        "post_probe_present": false
+      },
+      "reads_baseline": {
+        "reads": 538,
+        "errors": 0,
+        "latency_ms": {
+          "n": 538,
+          "min": 0.9098369628190994,
+          "p50": 1.6343430324923247,
+          "p90": 1.9906168745364994,
+          "p95": 2.0675644336733963,
+          "p99": 2.4403575994074345,
+          "max": 3.688005032017827,
+          "mean": 1.5814755560715985,
+          "stdev": 0.3649482844381975
+        }
+      },
+      "backup": {
+        "method": "nodetool flush + snapshot --ttl 3h on every node, export to /backups (sstableloader layout)",
+        "online": true,
+        "artifact": "/backups/nslab-20260914-115513/<node>/lab/<table>/",
+        "artifact_bytes": 379543589,
+        "per_node": {
+          "primary": {
+            "snapshot_ms": 2399.7,
+            "export_ms": 242.9,
+            "bytes": 126565117
+          },
+          "node2": {
+            "snapshot_ms": 2123.5,
+            "export_ms": 240.8,
+            "bytes": 126483339
+          },
+          "node3": {
+            "snapshot_ms": 2086.6,
+            "export_ms": 234.9,
+            "bytes": 126495133
+          }
+        },
+        "listsnapshots_sample": [
+          "nslab-20260914-115513                        lab           repl_probe           1.09 KiB   8.27 KiB     2026-09-14T08:55:19.702Z 2026-09-14T11:55:19.702Z",
+          "nslab-20260914-115513                        lab           events               1.27 KiB   55.73 MiB    2026-09-14T08:55:19.702Z 2026-09-14T11:55:19.702Z",
+          "nslab-20260914-115513                        lab           inventory_qty        1.2 KiB    461.29 KiB   2026-09-14T08:55:19.702Z 2026-09-14T11:55:19.702Z"
+        ],
+        "note": "RF=3 on 3 nodes: each node's export is a full copy of the keyspace; every node re-imports its own",
+        "seconds": 8.56,
+        "status": "ok",
+        "reads_during": {
+          "reads": 2401,
+          "errors": 0,
+          "latency_ms": {
+            "n": 2401,
+            "min": 0.8407790446653962,
+            "p50": 1.4183670282363892,
+            "p90": 1.9184220000170171,
+            "p95": 2.0213319803588092,
+            "p99": 2.3577999672852457,
+            "max": 20.625926030334085,
+            "mean": 1.4824424779643055,
+            "stdev": 0.5104592034786568
+          }
+        },
+        "artifact_pct_of_data": 100.0
+      },
+      "fingerprint_after_mutation": {
+        "counts": {
+          "customers": 19950,
+          "categories": 200,
+          "products": 5000,
+          "inventory": 20000
+        },
+        "customers_present": 0,
+        "probe_count": 600,
+        "post_probe_present": true
+      },
+      "restore": {
+        "method": "TRUNCATE tables + nodetool import --copy-data of each node's own snapshot export (parallel per node)",
+        "online": true,
+        "truncate_ms": 800.6,
+        "tables": 14,
+        "per_node": {
+          "node3": {
+            "ms": 20101.1,
+            "per_table_ms": {
+              "categories": 1118.9,
+              "customers": 1219.4,
+              "events": 1766.6,
+              "inventory": 1092.3,
+              "inventory_qty": 1204.6,
+              "items_by_order": 1470.8,
+              "order_items": 1228.0,
+              "orders": 1296.8,
+              "orders_by_customer": 1183.8,
+              "orders_by_time": 1101.8,
+              "products": 4176.0,
+              "products_by_category": 1063.0,
+              "repl_probe": 1108.5,
+              "scratch": 1070.4
+            }
+          },
+          "primary": {
+            "ms": 20474.5,
+            "per_table_ms": {
+              "categories": 1114.9,
+              "customers": 1247.7,
+              "events": 1704.7,
+              "inventory": 1136.7,
+              "inventory_qty": 1230.1,
+              "items_by_order": 1384.6,
+              "order_items": 1410.5,
+              "orders": 1193.4,
+              "orders_by_customer": 1133.2,
+              "orders_by_time": 1164.0,
+              "products": 4431.9,
+              "products_by_category": 1129.4,
+              "repl_probe": 1065.9,
+              "scratch": 1127.5
+            }
+          },
+          "node2": {
+            "ms": 20571.5,
+            "per_table_ms": {
+              "categories": 1104.6,
+              "customers": 1108.4,
+              "events": 2346.3,
+              "inventory": 1130.9,
+              "inventory_qty": 1133.3,
+              "items_by_order": 1376.9,
+              "order_items": 1399.9,
+              "orders": 1309.5,
+              "orders_by_customer": 1150.7,
+              "orders_by_time": 1126.4,
+              "products": 4168.4,
+              "products_by_category": 1134.1,
+              "repl_probe": 1011.7,
+              "scratch": 1070.2
+            }
+          }
+        },
+        "nodetool_invocations": 42,
+        "note": "sstableloader (client-side streaming) fails on the vector<float, 8> column in 5.0.x: 'Could not parse type name'",
+        "seconds": 21.38,
+        "status": "ok",
+        "availability": {
+          "downtime_ms": 0.0,
+          "outages": 0
+        },
+        "checks": {
+          "counts_match": true,
+          "deleted_customers_back": true,
+          "probe_count_back_to_pre": true,
+          "post_backup_writes_gone": true
+        },
+        "verified": true
+      },
+      "fingerprint_after_restore": {
+        "counts": {
+          "customers": 20000,
+          "categories": 200,
+          "products": 5000,
+          "inventory": 20000
+        },
+        "customers_present": 50,
+        "probe_count": 100,
+        "post_probe_present": false
+      },
+      "incremental": {
+        "method": "nodetool enablebackup (incremental_backups) + flush: new SSTables hard-linked into <table>/backups/",
+        "files": 16,
+        "artifact_bytes_delta": 10546,
+        "node": "primary",
+        "seconds": 3.15,
+        "status": "ok"
+      },
+      "_seconds": 39.4
+    }
+  },
+  "partial": false,
+  "server_version": "Cassandra 5.0.9 (CQL 3.4.7)",
+  "finished": "2026-09-14T08:55:53+00:00"
+}

@@ -1,0 +1,20 @@
+{
+  "engine": "cassandra",
+  "display": "Cassandra 5.0",
+  "category": "wide-column (leaderless, tunable consistency)",
+  "family": "widecolumn",
+  "driver": "cql",
+  "image": "cassandra:5",
+  "run_id": "20260913-141639-b91884",
+  "started": "2026-09-13T11:16:39+00:00",
+  "scale": 1.0,
+  "notes": "Official cassandra:5 image, 3 nodes RF=3, LOCAL_QUORUM by default. Query-first schema (one table per access path), SAI indexes for vector (ANN) and analyzed text search, LWT for compare-and-set, counter table for increments. Nodes are addressed by static container IPs (10.99.1.11-13); the client is pinned to one node per target.",
+  "phases": {
+    "load": {
+      "_error": "UnsupportedOperation: Cluster.set_core_connections_per_host() only has an effect when using protocol_version 1 or 2.",
+      "_seconds": 0.0
+    }
+  },
+  "partial": false,
+  "finished": "2026-09-13T11:16:39+00:00"
+}

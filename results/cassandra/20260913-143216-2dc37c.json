@@ -1,0 +1,190 @@
+{
+  "engine": "cassandra",
+  "display": "Cassandra 5.0",
+  "category": "wide-column (leaderless, tunable consistency)",
+  "family": "widecolumn",
+  "driver": "cql",
+  "image": "cassandra:5",
+  "run_id": "20260913-143216-2dc37c",
+  "started": "2026-09-13T11:32:16+00:00",
+  "scale": 1.0,
+  "notes": "Official cassandra:5 image, 3 nodes RF=3, LOCAL_QUORUM by default. Query-first schema (one table per access path), SAI indexes for vector (ANN) and analyzed text search, LWT for compare-and-set, counter table for increments. Nodes are addressed by static container IPs (10.99.1.11-13); the client is pinned to one node per target.",
+  "phases": {
+    "loadtest": {
+      "batch_rows": 1000,
+      "seconds_per_run": 15.0,
+      "containers": [
+        "nslab-cassandra1",
+        "nslab-cassandra2",
+        "nslab-cassandra3"
+      ],
+      "runs": [
+        {
+          "workers": 4,
+          "target": "primary",
+          "rows": 228000,
+          "batches": 228,
+          "errors": 0,
+          "seconds": 15.0,
+          "rows_per_s": 15200,
+          "batch_ms": {
+            "n": 228,
+            "min": 220.088798,
+            "p50": 244.22989,
+            "p90": 316.8350617,
+            "p95": 335.08774609999995,
+            "p99": 353.09950825999994,
+            "max": 356.272727,
+            "mean": 261.3976045131579,
+            "stdev": 36.191855292728064
+          },
+          "first_error": null,
+          "workers_reported": 4,
+          "cleanup_s": 13.6,
+          "container_usage": {
+            "nslab-cassandra1": {
+              "cpu_cores_avg": 4.042,
+              "cpu_limit_cores": null,
+              "cpu_pct_of_limit": null,
+              "mem_peak_mb": 6457,
+              "mem_end_mb": 6005,
+              "mem_limit_mb": null,
+              "cpu_cores_avg_during_inserts": 8.183
+            },
+            "nslab-cassandra2": {
+              "cpu_cores_avg": 1.837,
+              "cpu_limit_cores": null,
+              "cpu_pct_of_limit": null,
+              "mem_peak_mb": 6254,
+              "mem_end_mb": 5886,
+              "mem_limit_mb": null,
+              "cpu_cores_avg_during_inserts": 3.719
+            },
+            "nslab-cassandra3": {
+              "cpu_cores_avg": 1.641,
+              "cpu_limit_cores": null,
+              "cpu_pct_of_limit": null,
+              "mem_peak_mb": 6333,
+              "mem_end_mb": 5914,
+              "mem_limit_mb": null,
+              "cpu_cores_avg_during_inserts": 3.322
+            }
+          }
+        },
+        {
+          "workers": 16,
+          "target": "primary",
+          "rows": 472000,
+          "batches": 472,
+          "errors": 0,
+          "seconds": 15.0,
+          "rows_per_s": 31467,
+          "batch_ms": {
+            "n": 472,
+            "min": 312.162738,
+            "p50": 496.0733285,
+            "p90": 629.8510996000001,
+            "p95": 694.17507975,
+            "p99": 785.3725350900006,
+            "max": 878.141895,
+            "mean": 508.8462409004237,
+            "stdev": 97.88271836178362
+          },
+          "first_error": null,
+          "workers_reported": 16,
+          "cleanup_s": 13.9,
+          "container_usage": {
+            "nslab-cassandra1": {
+              "cpu_cores_avg": 5.597,
+              "cpu_limit_cores": null,
+              "cpu_pct_of_limit": null,
+              "mem_peak_mb": 6457,
+              "mem_end_mb": 6156,
+              "mem_limit_mb": null,
+              "cpu_cores_avg_during_inserts": 11.735
+            },
+            "nslab-cassandra2": {
+              "cpu_cores_avg": 3.182,
+              "cpu_limit_cores": null,
+              "cpu_pct_of_limit": null,
+              "mem_peak_mb": 6254,
+              "mem_end_mb": 6040,
+              "mem_limit_mb": null,
+              "cpu_cores_avg_during_inserts": 6.671
+            },
+            "nslab-cassandra3": {
+              "cpu_cores_avg": 3.117,
+              "cpu_limit_cores": null,
+              "cpu_pct_of_limit": null,
+              "mem_peak_mb": 6333,
+              "mem_end_mb": 6137,
+              "mem_limit_mb": null,
+              "cpu_cores_avg_during_inserts": 6.535
+            }
+          }
+        },
+        {
+          "workers": 32,
+          "target": "primary",
+          "rows": 505000,
+          "batches": 505,
+          "errors": 0,
+          "seconds": 15.0,
+          "rows_per_s": 33667,
+          "batch_ms": {
+            "n": 505,
+            "min": 423.897581,
+            "p50": 938.06359,
+            "p90": 1250.2963492,
+            "p95": 1353.0423369999996,
+            "p99": 1492.1278863599996,
+            "max": 1797.943629,
+            "mean": 960.6554847881189,
+            "stdev": 216.56332140530932
+          },
+          "first_error": null,
+          "workers_reported": 32,
+          "cleanup_s": 13.0,
+          "container_usage": {
+            "nslab-cassandra1": {
+              "cpu_cores_avg": 5.831,
+              "cpu_limit_cores": null,
+              "cpu_pct_of_limit": null,
+              "mem_peak_mb": 6457,
+              "mem_end_mb": 6112,
+              "mem_limit_mb": null,
+              "cpu_cores_avg_during_inserts": 12.259
+            },
+            "nslab-cassandra2": {
+              "cpu_cores_avg": 2.964,
+              "cpu_limit_cores": null,
+              "cpu_pct_of_limit": null,
+              "mem_peak_mb": 6254,
+              "mem_end_mb": 5977,
+              "mem_limit_mb": null,
+              "cpu_cores_avg_during_inserts": 6.232
+            },
+            "nslab-cassandra3": {
+              "cpu_cores_avg": 2.873,
+              "cpu_limit_cores": null,
+              "cpu_pct_of_limit": null,
+              "mem_peak_mb": 6333,
+              "mem_end_mb": 6010,
+              "mem_limit_mb": null,
+              "cpu_cores_avg_during_inserts": 6.04
+            }
+          }
+        }
+      ],
+      "best": {
+        "target": "primary",
+        "workers": 32,
+        "rows_per_s": 33667
+      },
+      "_seconds": 93.6
+    }
+  },
+  "partial": false,
+  "server_version": "Cassandra 5.0.9 (CQL 3.4.7)",
+  "finished": "2026-09-13T11:33:50+00:00"
+}

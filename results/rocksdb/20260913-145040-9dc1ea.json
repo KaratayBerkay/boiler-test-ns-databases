@@ -1,0 +1,90 @@
+{
+  "engine": "rocksdb",
+  "display": "RocksDB",
+  "category": "embedded ordered key-value (LSM tree)",
+  "family": "embedded",
+  "driver": "rocksdb",
+  "image": "(embedded, python rocksdict/RocksDB)",
+  "run_id": "20260913-145040-9dc1ea",
+  "started": "2026-09-13T11:50:40+00:00",
+  "scale": 1.0,
+  "notes": "RocksDB (Facebook LSM-tree) via rocksdict, in-process, thread-safe. Same modelling as LMDB (ordered key-value + hand-maintained index keyspaces, WriteBatch for atomic multi-key writes). Write-optimised (LSM) vs LMDB's read-optimised B+tree. No server, no network, no replication.",
+  "phases": {
+    "connections": {
+      "max_connections": null,
+      "connect_latency": {
+        "embedded": {
+          "target": "embedded",
+          "n": 30,
+          "ms": {
+            "n": 30,
+            "min": 6.322252,
+            "p50": 6.9146745,
+            "p90": 8.3196419,
+            "p95": 9.630184599999998,
+            "p99": 12.282870770000002,
+            "max": 13.201761,
+            "mean": 7.2953904000000005,
+            "stdev": 1.3395647975058567
+          },
+          "errors": [],
+          "error_count": 0
+        }
+      },
+      "concurrency": {
+        "embedded": [
+          {
+            "workers": 1,
+            "targets": [
+              "embedded"
+            ],
+            "ops": 289079,
+            "errors": 0,
+            "seconds": 4.0,
+            "ops_per_s": 72270,
+            "latency_ms": {
+              "n": 289079,
+              "min": 0.010008,
+              "p50": 0.012372,
+              "p90": 0.013611,
+              "p95": 0.023238099999999977,
+              "p99": 0.029796,
+              "max": 0.113626,
+              "mean": 0.013304592920966241,
+              "stdev": 0.004016718350141789
+            },
+            "first_error": null,
+            "workers_reported": 1,
+            "mode": "threads (embedded engine)"
+          },
+          {
+            "workers": 4,
+            "error": "Exception: IO error: lock hold by current process, acquire time 1789300244 acquiring thread 129709672448128: /home/berkay-server/repos/boilers/raw-codes/databases/ns-databases/data/rocksdb/lab.rocks/LOCK: No locks available"
+          },
+          {
+            "workers": 16,
+            "error": "Exception: IO error: lock hold by current process, acquire time 1789300244 acquiring thread 129709672448128: /home/berkay-server/repos/boilers/raw-codes/databases/ns-databases/data/rocksdb/lab.rocks/LOCK: No locks available"
+          },
+          {
+            "workers": 32,
+            "error": "Exception: IO error: lock hold by current process, acquire time 1789300244 acquiring thread 129709672448128: /home/berkay-server/repos/boilers/raw-codes/databases/ns-databases/data/rocksdb/lab.rocks/LOCK: No locks available"
+          },
+          {
+            "workers": 64,
+            "error": "Exception: IO error: lock hold by current process, acquire time 1789300244 acquiring thread 129709672448128: /home/berkay-server/repos/boilers/raw-codes/databases/ns-databases/data/rocksdb/lab.rocks/LOCK: No locks available"
+          }
+        ]
+      },
+      "pool_saturation": {
+        "error": "Exception: IO error: lock hold by current process, acquire time 1789300244 acquiring thread 129709672448128: /home/berkay-server/repos/boilers/raw-codes/databases/ns-databases/data/rocksdb/lab.rocks/LOCK: No locks available"
+      },
+      "write_contention": {
+        "error": "Exception: IO error: lock hold by current process, acquire time 1789300244 acquiring thread 129709672448128: /home/berkay-server/repos/boilers/raw-codes/databases/ns-databases/data/rocksdb/lab.rocks/LOCK: No locks available"
+      },
+      "_seconds": 4.7
+    }
+  },
+  "partial": false,
+  "server_version": "unknown",
+  "finished": "2026-09-13T11:50:44+00:00"
+}

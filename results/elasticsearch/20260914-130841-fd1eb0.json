@@ -1,0 +1,247 @@
+{
+  "engine": "elasticsearch",
+  "display": "Elasticsearch 9",
+  "category": "search / analytics engine (Lucene, inverted index)",
+  "family": "search",
+  "driver": "es",
+  "image": "elasticsearch:9.5.3",
+  "run_id": "20260914-130841-fd1eb0",
+  "started": "2026-09-14T10:08:41+00:00",
+  "scale": 1.0,
+  "notes": "Elasticsearch 9, 3-node cluster (all master-eligible + data), security disabled. One index per collection with 1 primary shard + 2 replicas, so every node holds every shard (the RF=3 equivalent of the other clustered stacks). Every field indexed at mapping time (inverted index for keyword/text, BKD tree for numeric/geo, HNSW for dense_vector). Eventually consistent for search (30 s refresh; the harness refreshes after load). No multi-document transactions, no server-side joins across indices, no per-document TTL. Any node coordinates writes; the master is re-elected by the remaining quorum when a node dies.",
+  "phases": {
+    "load": {
+      "scale": 1.0,
+      "collections": {
+        "customers": {
+          "rows": 20000,
+          "counted": 20000,
+          "expected": 20000,
+          "seconds": 4.72,
+          "rows_per_s": 4236,
+          "method": "bulk_put",
+          "ok": true
+        },
+        "categories": {
+          "rows": 200,
+          "counted": 200,
+          "expected": 200,
+          "seconds": 0.04,
+          "rows_per_s": 5137,
+          "method": "bulk_put",
+          "ok": true
+        },
+        "products": {
+          "rows": 5000,
+          "counted": 5000,
+          "expected": 5000,
+          "seconds": 2.81,
+          "rows_per_s": 1782,
+          "method": "bulk_put",
+          "ok": true
+        },
+        "orders": {
+          "rows": 200000,
+          "counted": 200000,
+          "expected": 200000,
+          "seconds": 8.48,
+          "rows_per_s": 23579,
+          "method": "bulk_put x4 connections",
+          "ok": true
+        },
+        "order_items": {
+          "rows": 487606,
+          "counted": 487606,
+          "expected": 487606,
+          "seconds": 8.23,
+          "rows_per_s": 59214,
+          "method": "bulk_put x4 connections",
+          "ok": true
+        },
+        "events": {
+          "rows": 1000000,
+          "counted": 1000000,
+          "expected": 1000000,
+          "seconds": 32.65,
+          "rows_per_s": 30626,
+          "method": "bulk_put x4 connections",
+          "ok": true
+        },
+        "inventory": {
+          "rows": 20000,
+          "counted": 20000,
+          "expected": 20000,
+          "seconds": 3.83,
+          "rows_per_s": 5228,
+          "method": "bulk_put",
+          "ok": true
+        }
+      },
+      "schema": [
+        "index lab_customers (9 mapped fields)",
+        "index lab_categories (4 mapped fields)",
+        "index lab_products (9 mapped fields)",
+        "index lab_orders (7 mapped fields)",
+        "index lab_order_items (5 mapped fields)",
+        "index lab_events (8 mapped fields)",
+        "index lab_inventory (5 mapped fields)"
+      ],
+      "errors": [],
+      "schema_seconds": 1.89,
+      "load_seconds": 67.15,
+      "after_load": [
+        "_refresh all indices (search visibility)"
+      ],
+      "post_seconds": 0.01,
+      "server_version": "elasticsearch 9.5.3",
+      "_seconds": 69.1
+    },
+    "logging": {
+      "strategy": {
+        "server_log": "ECS JSON on stdout (docker image log4j2): event.dataset elasticsearch.server / deprecation / index_search_slowlog / index_indexing_slowlog",
+        "slow_query": "per-index slowlog thresholds (index.search.slowlog.threshold.{query,fetch}.{warn,info,debug,trace}, index.indexing.slowlog.threshold.index.*), dynamic; lines carry took_millis, source, total_hits",
+        "audit": "xpack.security.audit.enabled (JSON audit of authentication/authorization/run_as) \u2014 needs security on; off in this lab",
+        "runtime": "PUT _cluster/settings {transient|persistent: {logger.<package>: DEBUG}} \u2014 no restart"
+      },
+      "threshold_ms": 100,
+      "containers": {
+        "nslab-es1": {
+          "driver": "json-file",
+          "options": {
+            "compress": "true",
+            "max-file": "3",
+            "max-size": "50m"
+          },
+          "log_path": "/var/lib/docker/containers/0c144e7be584dba23d4ff368754aca65d4155c937aa3a5b0f043c872eec37bf0/0c144e7be584dba23d4ff368754aca65d4155c937aa3a5b0f043c872eec37bf0-json.log",
+          "user": "1000:0",
+          "started": "2026-09-14T10:08:05.726979235Z",
+          "bytes": 70640,
+          "lines": 183,
+          "json_lines_pct": 97.3,
+          "format": "json",
+          "sample": [
+            "WARNING: sun.misc.Unsafe::arrayBaseOffset has been called by com.google.protobuf.UnsafeUtil$MemoryAccessor (file:/usr/share/elasticsearch/modules/x-pack-otel-data/protobuf-java-4.32.0.jar)",
+            "WARNING: Please consider reporting this to the maintainers of class com.google.protobuf.UnsafeUtil$MemoryAccessor",
+            "WARNING: sun.misc.Unsafe::arrayBaseOffset will be removed in a future release"
+          ]
+        },
+        "nslab-es2": {
+          "driver": "json-file",
+          "options": {
+            "compress": "true",
+            "max-file": "3",
+            "max-size": "50m"
+          },
+          "log_path": "/var/lib/docker/containers/bf095d567fe4b8a3234bc6a17affa5bdea01119d34eb1a0d158308b1e184df4a/bf095d567fe4b8a3234bc6a17affa5bdea01119d34eb1a0d158308b1e184df4a-json.log",
+          "user": "1000:0",
+          "started": "2026-09-14T10:08:05.727993528Z",
+          "bytes": 69865,
+          "lines": 182,
+          "json_lines_pct": 97.3,
+          "format": "json",
+          "sample": [
+            "WARNING: sun.misc.Unsafe::arrayBaseOffset has been called by com.google.protobuf.UnsafeUtil$MemoryAccessor (file:/usr/share/elasticsearch/modules/x-pack-otel-data/protobuf-java-4.32.0.jar)",
+            "WARNING: Please consider reporting this to the maintainers of class com.google.protobuf.UnsafeUtil$MemoryAccessor",
+            "WARNING: sun.misc.Unsafe::arrayBaseOffset will be removed in a future release"
+          ]
+        },
+        "nslab-es3": {
+          "driver": "json-file",
+          "options": {
+            "compress": "true",
+            "max-file": "3",
+            "max-size": "50m"
+          },
+          "log_path": "/var/lib/docker/containers/ae48e885f445ba8d2260fb020902ce98c393943c30a9d014b0fc5496056c77b0/ae48e885f445ba8d2260fb020902ce98c393943c30a9d014b0fc5496056c77b0-json.log",
+          "user": "1000:0",
+          "started": "2026-09-14T10:08:05.728613496Z",
+          "bytes": 206833,
+          "lines": 425,
+          "json_lines_pct": 97.5,
+          "format": "json",
+          "sample": [
+            "WARNING: sun.misc.Unsafe::arrayBaseOffset has been called by com.google.protobuf.UnsafeUtil$MemoryAccessor (file:/usr/share/elasticsearch/modules/x-pack-otel-data/protobuf-java-4.32.0.jar)",
+            "WARNING: Please consider reporting this to the maintainers of class com.google.protobuf.UnsafeUtil$MemoryAccessor",
+            "WARNING: sun.misc.Unsafe::arrayBaseOffset will be removed in a future release"
+          ]
+        }
+      },
+      "server_log": {
+        "status": "ok",
+        "value": {
+          "format": "json (ECS)",
+          "where": "stdout (docker logs); logs/ dir when running from the tarball",
+          "sample": [
+            "{\"@timestamp\":\"2026-09-14T10:08:35.797Z\",\"log.level\": \"INFO\",\"message\":\"added {{es2}{pn1h8tezSQGtDGQNS4phoA}{O8YtI95lQb-J5Z5K4osc7Q}{es2}{172.19.0.3}{172.19.0.3:9300}{cdfhilmrstw}{9.5.3}{8000099-91110",
+            "{\"@timestamp\":\"2026-09-14T10:08:37.538Z\",\"log.level\": \"INFO\",\"message\":\"license [9eea43a9-adee-470b-90e7-e51b1cf27473] mode [basic] - valid\", \"ecs.version\": \"1.2.0\",\"service.name\":\"ES_ECS\",\"event.data"
+          ]
+        },
+        "ms": 24.5
+      },
+      "slow_query": {
+        "setup": {
+          "status": "ok",
+          "value": "PUT lab_*/_settings index.search.slowlog.threshold.query.warn=100ms (+fetch, indexing) \u2014 dynamic, per index",
+          "ms": 423.0
+        },
+        "effective_threshold_ms": 100,
+        "fast_op": {
+          "desc": "GET lab_customers/_doc/1",
+          "ms": 22.3,
+          "status": "ok",
+          "error": null
+        },
+        "slow_op": {
+          "desc": "script_score over lab_events (painless scoring of 1M docs)",
+          "ms": 554.8,
+          "status": "ok",
+          "error": null
+        },
+        "entries": [
+          {
+            "ms": 466.0,
+            "text": "index.search.slowlog.query [lab_events][0] {\\\"size\\\":1,\\\"query\\\":{\\\"script_score\\\":{\\\"query\\\":{\\\"match_all\\\":{\\\"boost\\\":1.0}},\\\"script\\\":{\\\"source\\\":\\\"(doc['value_num'].size() == 0 ? ",
+            "logger": "index.search.slowlog.query",
+            "hits": "1000000 hits"
+          }
+        ],
+        "entries_status": "ok",
+        "entries_error": null,
+        "slow_op_logged": true,
+        "logged_ms": 466.0,
+        "fast_op_logged": false,
+        "verified": true
+      },
+      "audit": {
+        "setup": {
+          "status": "unsupported",
+          "detail": "xpack.security.audit.enabled needs xpack.security enabled (off in this lab): JSON audit events for authentication/authorization/run_as",
+          "ms": 0.0
+        }
+      },
+      "runtime_log_level": {
+        "status": "ok",
+        "value": "PUT _cluster/settings transient logger.org.elasticsearch.snapshots=DEBUG -> verified -> reset (no restart)",
+        "ms": 883.9
+      },
+      "log_volume_this_phase": {
+        "nslab-es1": {
+          "bytes": 1109,
+          "lines": 1
+        },
+        "nslab-es2": {
+          "bytes": 0,
+          "lines": 0
+        },
+        "nslab-es3": {
+          "bytes": 0,
+          "lines": 0
+        }
+      },
+      "_seconds": 3.2
+    }
+  },
+  "partial": false,
+  "server_version": "elasticsearch 9.5.3",
+  "finished": "2026-09-14T10:09:53+00:00"
+}

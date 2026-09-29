@@ -1,0 +1,22 @@
+display: RocksDB
+family: embedded
+category: embedded ordered key-value (LSM tree)
+driver: rocksdb
+image: (embedded, python rocksdict/RocksDB)
+project: nslab-rocksdb
+scale: 1
+notes: >-
+  RocksDB (Facebook LSM-tree) via rocksdict, in-process, thread-safe. Same modelling as LMDB (ordered key-value +
+  hand-maintained index keyspaces, WriteBatch for atomic multi-key writes). Write-optimised (LSM) vs LMDB's
+  read-optimised B+tree. No server, no network, no replication.
+docs:
+  - https://rocksdb.org/
+  - https://congyuwang.github.io/RocksDict/
+targets:
+  - name: embedded
+    role: primary
+    host: local
+    port: 0
+    database: data/rocksdb/lab.rocks
+features:
+  connection_storm: false

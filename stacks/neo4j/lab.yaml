@@ -1,0 +1,34 @@
+display: Neo4j 5
+family: graph
+category: property graph (native, index-free adjacency)
+driver: bolt
+image: neo4j:5-community
+project: nslab-neo4j
+scale: 1
+notes: >-
+  Neo4j 5 Community, single instance (causal clustering, CDC, online backup and read routing are Enterprise-only).
+  Order items are CONTAINS relationships, categories a CHILD_OF tree, so graph_traversal and join_lookup are native.
+  Built-in full-text (Lucene) and HNSW vector indexes; no native TTL or pub/sub.
+docs:
+  - https://hub.docker.com/_/neo4j
+  - https://neo4j.com/docs/cypher-manual/current/indexes/
+  - https://neo4j.com/docs/cypher-manual/current/indexes/semantic-indexes/vector-indexes/
+targets:
+  - name: primary
+    role: primary
+    host: 127.0.0.1
+    port: 7687
+    user: neo4j
+    password: labpass123
+    database: neo4j
+    container: nslab-neo4j
+replication:
+  kind: none (single instance; Enterprise causal clustering not in Community)
+  promote:
+    method: none
+features:
+  vector: true
+  text_index: true
+  settle_seconds: 3
+  connection_storm: true
+  loadtest_workers: [4, 16, 32]

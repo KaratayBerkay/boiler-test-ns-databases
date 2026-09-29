@@ -1,0 +1,39 @@
+[cassandra] starting stack ...
+[cassandra] up in 62.3s: ['cassandra1', 'cassandra2', 'cassandra3']
+[cassandra] phase: load
+  schema created (15 items, 19.84s)
+  customers       20,000 docs     6.19s      3,230 docs/s  [execute_concurrent 
+(prepared, 256 in flight, CL=ONE)]
+  categories         200 docs     0.07s      2,882 docs/s  [execute_concurrent 
+(prepared, 256 in flight, CL=ONE)]
+  products         5,000 docs     3.47s      1,440 docs/s  [execute_concurrent 
+(prepared, 256 in flight, CL=ONE)]
+  orders         200,000 docs    26.80s      7,464 docs/s  [execute_concurrent 
+(prepared, 256 in flight, CL=ONE) x8 connections]
+  order_items    487,606 docs    35.03s     13,918 docs/s  [execute_concurrent 
+(prepared, 256 in flight, CL=ONE) x8 connections]
+  events       1,000,000 docs    56.16s     17,806 docs/s  [execute_concurrent 
+(prepared, 256 in flight, CL=ONE) x8 connections]
+  inventory       20,000 docs     9.70s      2,062 docs/s  [execute_concurrent 
+(prepared, 256 in flight, CL=ONE)]
+[cassandra] phase: replication
+  primary    role=node {'local': '10.42.0.137', 'peers': ['10.42.0.138', 
+'10.42.0.139'], 'tokens': 16}
+  node2      role=node {'local': '10.42.0.139', 'peers': ['10.42.0.137', 
+'10.42.0.138'], 'tokens': 16}
+  node3      role=node {'local': '10.42.0.138', 'peers': ['10.42.0.137', 
+'10.42.0.139'], 'tokens': 16}
+  visibility lag -> node2: p50=3.52 ms p95=3.95 ms max=12.23 ms timeouts=0
+  visibility lag -> node3: p50=3.18 ms p95=3.72 ms max=14.88 ms timeouts=0
+  write on node2: ACCEPTED
+  write on node3: ACCEPTED
+  lag under load: 20000 docs in 4.38s, catch-up after last write: {'node2': 
+482.0, 'node3': 419.5}
+  read scaling: primary only 11845 ops/s -> primary+replicas 9722 ops/s (x0.82) 
+errors=0
+  killing primary container nslab-cassandra1 ...
+  downtime until first successful write via node2: 1612.5 ms (1 attempts)
+saved 
+/home/berkay-server/repos/boilers/raw-codes/databases/ns-databases/results/k3s/c
+assandra/20260914-183941-61feaa.json
+[cassandra] tearing down ...

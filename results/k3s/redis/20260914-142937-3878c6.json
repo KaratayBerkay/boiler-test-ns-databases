@@ -1,0 +1,392 @@
+{
+  "engine": "redis",
+  "display": "Redis 8",
+  "category": "in-memory key-value (data structures, Query Engine, JSON)",
+  "family": "keyvalue",
+  "driver": "resp",
+  "image": "redis:8",
+  "run_id": "20260914-142937-3878c6",
+  "started": "2026-09-14T11:29:37+00:00",
+  "scale": 1.0,
+  "notes": "Redis Open Source 8 (RediSearch/JSON/TimeSeries/probabilistic modules built in). Async primary->replica replication with diskless sync, AOF everysec on both; 3 Sentinels (quorum 2, down-after 2 s) elect a new primary; HAProxy round-robins reads over primary+replica. Documents are hashes with application-maintained index sets/zsets; FT.CREATE on products for text + vector.",
+  "phases": {
+    "load": {
+      "scale": 1.0,
+      "collections": {
+        "customers": {
+          "rows": 20000,
+          "counted": 20000,
+          "expected": 20000,
+          "seconds": 1.44,
+          "rows_per_s": 13880,
+          "method": "pipeline HSET (2000/batch) + index sets",
+          "ok": true
+        },
+        "categories": {
+          "rows": 200,
+          "counted": 200,
+          "expected": 200,
+          "seconds": 0.01,
+          "rows_per_s": 19391,
+          "method": "pipeline HSET (2000/batch) + index sets",
+          "ok": true
+        },
+        "products": {
+          "rows": 5000,
+          "counted": 5000,
+          "expected": 5000,
+          "seconds": 0.98,
+          "rows_per_s": 5090,
+          "method": "pipeline HSET (2000/batch) + index sets",
+          "ok": true
+        },
+        "orders": {
+          "error": "EngineError: parallel load: ReadOnlyError: Command # 1 (HSET orders:16002 id 16002 customer_id 4241 status delivered ordered_at 2025-06-28T23:04:26Z...) of pipeline caused error: You can't write against a read only replica.",
+          "seconds": 1.01
+        },
+        "order_items": {
+          "error": "EngineError: parallel load: ReadOnlyError: Command # 1 (HSET order_items:1 id 1 order_id 1 product_id 2149 qty 1 unit_price 101.65) of pipeline caused error: You can't write against a read only replica.",
+          "seconds": 0.14
+        },
+        "events": {
+          "error": "EngineError: parallel load: ReadOnlyError: Command # 1 (HSET events:1 id 1 customer_id 7970 event_type login occurred_at 2024-11-22T01:00:02Z...) of pipeline caused error: You can't write against a read only replica.",
+          "seconds": 0.22
+        },
+        "inventory": {
+          "error": "ReadOnlyError: Command # 1 (HSET inventory:{1}:1 product_id 1 warehouse_id 1 qty 362 updated_at 2025-12-28T21:17:25Z version 1) of pipeline caused error: You can't write against a read only replica.",
+          "seconds": 0.06
+        }
+      },
+      "schema": [
+        "hash per document, keys:<coll> sets, application-maintained index sets/zsets, GEOADD geo:customers",
+        "FT.CREATE ft:products ON HASH PREFIX products: (description TEXT, embedding VECTOR HNSW cosine)"
+      ],
+      "errors": [
+        "orders: EngineError: parallel load: ReadOnlyError: Command # 1 (HSET orders:16002 id 16002 customer_id 4241 status delivered ordered_at 2025-06-28T23:04:26Z...) of pipeline caused error: You can't write against a read only replica.",
+        "order_items: EngineError: parallel load: ReadOnlyError: Command # 1 (HSET order_items:1 id 1 order_id 1 product_id 2149 qty 1 unit_price 101.65) of pipeline caused error: You can't write against a read only replica.",
+        "events: EngineError: parallel load: ReadOnlyError: Command # 1 (HSET events:1 id 1 customer_id 7970 event_type login occurred_at 2024-11-22T01:00:02Z...) of pipeline caused error: You can't write against a read only replica.",
+        "inventory: ReadOnlyError: Command # 1 (HSET inventory:{1}:1 product_id 1 warehouse_id 1 qty 362 updated_at 2025-12-28T21:17:25Z version 1) of pipeline caused error: You can't write against a read only replica."
+      ],
+      "schema_seconds": 1.78,
+      "load_seconds": 3.88,
+      "after_load": [
+        "ft:products indexed 5000 docs"
+      ],
+      "post_seconds": 0.0,
+      "server_version": "redis 8.10.1",
+      "_seconds": 5.7
+    },
+    "backup": {
+      "_error": "ReadOnlyError: Command # 1 (HSET repl_probe:1 id 1 ts_ms 1789385385269) of pipeline caused error: You can't write against a read only replica.",
+      "_seconds": 1.8
+    },
+    "logging": {
+      "strategy": {
+        "server_log": "plain text on stdout (`pid:role date level message`), loglevel notice; the docker json-file driver rotates it",
+        "slow_query": "SLOWLOG (in-memory ring: slowlog-log-slower-than \u00b5s, slowlog-max-len) + LATENCY MONITOR (latency-monitor-threshold ms) + LATENCY DOCTOR",
+        "audit": "ACL LOG for denied AUTH / NOPERM attempts (in memory, acllog-max-len); MONITOR is a live debug stream, not a log; persistent audit is Redis Enterprise",
+        "runtime": "CONFIG SET loglevel / slowlog-* / latency-monitor-threshold apply immediately (CONFIG REWRITE persists them)"
+      },
+      "threshold_ms": 100,
+      "containers": {
+        "nslab-redis-haproxy": {
+          "driver": "kubelet (container-log-max-size/-files via k3d.yaml)",
+          "options": {
+            "max-size": "50Mi",
+            "max-file": "3"
+          },
+          "log_path": "/var/log/pods/nslab-redis_haproxy-bfd99bb7c-97kfd_cbb98cda-c8ca-416b-991e-f96093dbf700/",
+          "user": "root",
+          "started": "2026-09-14T11:16:36Z",
+          "bytes": 385,
+          "lines": 4,
+          "json_lines_pct": 0.0,
+          "format": "text",
+          "sample": [
+            "[NOTICE]   (1) : Loading success.",
+            "[WARNING]  (8) : Server redis_read/primary is DOWN, reason: Layer4 timeout, info: \" at initial connection step of tcp-check\", check duration: 2001ms. 1 active and 0 backup servers left. 0 sessions active, 0 requeued, 0 remaining in queue.",
+            "Defaulted container \"haproxy\" out of: haproxy, wait-replica (init)"
+          ]
+        },
+        "nslab-redis-primary": {
+          "driver": "kubelet (container-log-max-size/-files via k3d.yaml)",
+          "options": {
+            "max-size": "50Mi",
+            "max-file": "3"
+          },
+          "log_path": "/var/log/pods/nslab-redis_primary-64986966b-hjqnb_14aac2fe-066c-458e-8a68-05fb92e675fd/",
+          "user": "root",
+          "started": "2026-09-14T11:29:25Z",
+          "bytes": 14356,
+          "lines": 161,
+          "json_lines_pct": 0.0,
+          "format": "text",
+          "sample": [
+            "1:S 14 Sep 2026 11:29:42.797 * Master replied to PING, replication can continue...",
+            "1:S 14 Sep 2026 11:29:42.798 * Trying a partial resynchronization (request 2337cfb8ae12eb910e2ceca74b561074f81130ed:149451).",
+            "1:S 14 Sep 2026 11:29:42.798 * PSYNC is not possible, initialize RDB channel."
+          ]
+        },
+        "nslab-redis-replica": {
+          "driver": "kubelet (container-log-max-size/-files via k3d.yaml)",
+          "options": {
+            "max-size": "50Mi",
+            "max-file": "3"
+          },
+          "log_path": "/var/log/pods/nslab-redis_replica-7d96d6cb94-f5sbc_8afbe76e-18b0-4849-9544-fa44db45f8ac/",
+          "user": "root",
+          "started": "2026-09-14T11:16:44Z",
+          "bytes": 15891,
+          "lines": 171,
+          "json_lines_pct": 0.0,
+          "format": "text",
+          "sample": [
+            "1:M 14 Sep 2026 11:29:42.798 * Full resync requested by replica 10.42.0.16:6379 (rdb-channel)",
+            "1:M 14 Sep 2026 11:29:42.798 * Delay next BGSAVE for diskless SYNC",
+            "Defaulted container \"replica\" out of: replica, wait-primary (init)"
+          ]
+        },
+        "nslab-redis-sentinel1": {
+          "driver": "kubelet (container-log-max-size/-files via k3d.yaml)",
+          "options": {
+            "max-size": "50Mi",
+            "max-file": "3"
+          },
+          "log_path": "/var/log/pods/nslab-redis_sentinel1-7d568ff946-mh2z7_2978d77d-69d0-477d-bf83-65f627c7107e/",
+          "user": "root",
+          "started": "2026-09-14T11:16:36Z",
+          "bytes": 43943,
+          "lines": 628,
+          "json_lines_pct": 0.0,
+          "format": "text",
+          "sample": [
+            "11:X 14 Sep 2026 11:29:43.849 * +slave slave 10.42.0.16:6379 10.42.0.16 6379 @ mymaster 10.42.0.14 6379",
+            "11:X 14 Sep 2026 11:29:44.316 * Sentinel new configuration saved on disk",
+            "Defaulted container \"sentinel1\" out of: sentinel1, wait-replica (init)"
+          ]
+        },
+        "nslab-redis-sentinel2": {
+          "driver": "kubelet (container-log-max-size/-files via k3d.yaml)",
+          "options": {
+            "max-size": "50Mi",
+            "max-file": "3"
+          },
+          "log_path": "/var/log/pods/nslab-redis_sentinel2-64595cbc8-smcjf_b8e05e24-b9ef-4f96-a760-9250095ec48a/",
+          "user": "root",
+          "started": "2026-09-14T11:16:36Z",
+          "bytes": 44837,
+          "lines": 637,
+          "json_lines_pct": 0.0,
+          "format": "text",
+          "sample": [
+            "11:X 14 Sep 2026 11:29:43.665 * +slave slave 10.42.0.16:6379 10.42.0.16 6379 @ mymaster 10.42.0.14 6379",
+            "11:X 14 Sep 2026 11:29:44.102 * Sentinel new configuration saved on disk",
+            "Defaulted container \"sentinel2\" out of: sentinel2, wait-replica (init)"
+          ]
+        },
+        "nslab-redis-sentinel3": {
+          "driver": "kubelet (container-log-max-size/-files via k3d.yaml)",
+          "options": {
+            "max-size": "50Mi",
+            "max-file": "3"
+          },
+          "log_path": "/var/log/pods/nslab-redis_sentinel3-65f9c8b6c8-r8cq8_8f2e785b-0850-445c-a84f-2ca3acac0728/",
+          "user": "root",
+          "started": "2026-09-14T11:16:36Z",
+          "bytes": 44027,
+          "lines": 629,
+          "json_lines_pct": 0.0,
+          "format": "text",
+          "sample": [
+            "11:X 14 Sep 2026 11:29:43.753 * +slave slave 10.42.0.16:6379 10.42.0.16 6379 @ mymaster 10.42.0.14 6379",
+            "11:X 14 Sep 2026 11:29:44.280 * Sentinel new configuration saved on disk",
+            "Defaulted container \"sentinel3\" out of: sentinel3, wait-replica (init)"
+          ]
+        }
+      },
+      "server_log": {
+        "status": "ok",
+        "value": {
+          "format": "text",
+          "where": "stdout (docker logs) \u2014 `logfile` when set",
+          "loglevel": "notice",
+          "sample": [
+            "1:S 14 Sep 2026 11:29:42.798 * PSYNC is not possible, initialize RDB channel.",
+            "1:S 14 Sep 2026 11:29:47.892 * Starting to receive RDB and replication stream in parallel.",
+            "1:S 14 Sep 2026 11:29:47.936 * MASTER <-> REPLICA sync: receiving streamed RDB from master with EOF to disk"
+          ]
+        },
+        "ms": 385.8
+      },
+      "slow_query": {
+        "setup": {
+          "status": "ok",
+          "value": "CONFIG SET slowlog-log-slower-than 100000 (\u00b5s) + SLOWLOG RESET; latency-monitor-threshold 100 ms",
+          "ms": 56.5
+        },
+        "effective_threshold_ms": 100,
+        "fast_op": {
+          "desc": "HGET customers:1 name",
+          "ms": 0.6,
+          "status": "ok",
+          "error": null
+        },
+        "slow_op": {
+          "desc": "KEYS customers:* (scans the whole keyspace \u2014 the anti-pattern SLOWLOG exists to catch)",
+          "ms": 22.7,
+          "status": "ok",
+          "error": null
+        },
+        "entries": [],
+        "entries_status": "ok",
+        "entries_error": null,
+        "slow_op_logged": false,
+        "logged_ms": null,
+        "fast_op_logged": false,
+        "verified": false
+      },
+      "audit": {
+        "setup": {
+          "status": "ok",
+          "value": "ACL LOG RESET; ACL SETUSER nslab_auditor on >s3cret ~* +@read (read-only user to provoke denials)",
+          "ms": 1.1
+        },
+        "exercise": [
+          "AUTH nslab_auditor <wrong> -> AuthenticationError: invalid username-password pair or user is disabled.",
+          "SET as read-only nslab_auditor -> NoPermissionError: User nslab_auditor has no permissions to run the 'set' comma"
+        ],
+        "entries": [
+          "reason=command context=toplevel object=set user=nslab_auditor count=1",
+          "reason=auth context=toplevel object=AUTH user=nslab_auditor count=1"
+        ],
+        "entries_count": 2,
+        "entries_status": "ok",
+        "entries_error": null,
+        "verified": true
+      },
+      "runtime_log_level": {
+        "status": "ok",
+        "value": "CONFIG SET loglevel debug -> verified -> back to notice (no restart)",
+        "ms": 1.7
+      },
+      "log_volume_this_phase": {
+        "nslab-redis-haproxy": {
+          "bytes": 0,
+          "lines": 0
+        },
+        "nslab-redis-primary": {
+          "bytes": 199,
+          "lines": 2
+        },
+        "nslab-redis-replica": {
+          "bytes": 299,
+          "lines": 3
+        },
+        "nslab-redis-sentinel1": {
+          "bytes": 0,
+          "lines": 0
+        },
+        "nslab-redis-sentinel2": {
+          "bytes": 0,
+          "lines": 0
+        },
+        "nslab-redis-sentinel3": {
+          "bytes": 0,
+          "lines": 0
+        }
+      },
+      "_seconds": 7.7
+    },
+    "replication": {
+      "kind": "async primary/replica (diskless sync, AOF everysec) + Sentinel failover",
+      "topology": {
+        "primary": {
+          "role_reported": "replica",
+          "role_configured": "primary",
+          "version": "redis 8.10.1",
+          "status": {
+            "role": "slave",
+            "master_host": "10.42.0.14",
+            "master_link_status": "down",
+            "master_last_io_seconds_ago": -1,
+            "slave_repl_offset": 149450,
+            "slave_read_only": 1,
+            "connected_slaves": 0,
+            "master_repl_offset": 149450,
+            "replicas": []
+          }
+        },
+        "replica": {
+          "error": "ConnectionError: Error while reading from 127.0.0.1:31003 : (104, 'Connection reset by peer')"
+        },
+        "haproxy-ro": {
+          "error": "ConnectionError: Error while reading from 127.0.0.1:31004 : (104, 'Connection reset by peer')"
+        }
+      },
+      "visibility_lag": {
+        "replica": {
+          "error": "ConnectionError: Error while reading from 127.0.0.1:31002 : (104, 'Connection reset by peer')"
+        }
+      },
+      "write_rejection": {
+        "replica": {
+          "replica": "replica",
+          "writes_rejected": true,
+          "error_code": null,
+          "error": "ConnectionError: Error while reading from 127.0.0.1:31003 : (104, 'Connection reset by peer')"
+        }
+      },
+      "lag_under_load": {
+        "error": "ConnectionError: Error while reading from 127.0.0.1:31002 : (104, 'Connection reset by peer')"
+      },
+      "read_scaling": {
+        "primary_only": {
+          "targets": [
+            "primary"
+          ],
+          "workers": 32,
+          "ops": 0,
+          "ops_per_s": 0,
+          "errors": 3,
+          "latency_ms": {
+            "n": 0
+          }
+        },
+        "primary_plus_replicas": {
+          "targets": [
+            "primary",
+            "replica"
+          ],
+          "workers": 32,
+          "ops": 0,
+          "ops_per_s": 0,
+          "errors": 4,
+          "latency_ms": {
+            "n": 0
+          }
+        },
+        "gain": null
+      },
+      "failover": {
+        "kind": "async primary/replica (diskless sync, AOF everysec) + Sentinel failover",
+        "killed": "primary",
+        "killed_container": "nslab-redis-primary",
+        "write_error_after_kill": "ConnectionError: Error while reading from 127.0.0.1:31003 : (104, 'Connection reset by peer')",
+        "write_attempts_until_success": 17,
+        "last_error_before_success": "ConnectionError: Error while reading from 127.0.0.1:31003 : (104, 'Connection reset by peer')",
+        "downtime_ms": null,
+        "new_primary": "replica",
+        "verified_via": "replica",
+        "new_primary_role": "unknown",
+        "new_primary_status_error": "ConnectionError: Error while reading from 127.0.0.1:31003 : (104, 'Connection reset by peer')",
+        "old_primary_restarted": true,
+        "note": "old primary restarted; whether it rejoins depends on the engine (stack should be recreated for reuse)"
+      },
+      "_seconds": 925.7
+    }
+  },
+  "partial": false,
+  "platform": "k3s",
+  "server_version": "redis 8.10.1",
+  "finished": "2026-09-14T11:45:18+00:00"
+}

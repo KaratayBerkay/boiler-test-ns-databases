@@ -1,0 +1,3 @@
+source: https://github.com/Percona-Lab/skills/tree/main/pbm-recipes
+license: MIT
+vendored: 2026-09-14 (ns-databases lab, backup/logging pass)

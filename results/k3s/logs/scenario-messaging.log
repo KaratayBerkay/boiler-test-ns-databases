@@ -1,0 +1,30 @@
+up: {'seconds': 62.6, 'services': ['cassandra1', 'cassandra2', 'cassandra3'], 
+'namespace': 'nslab-cassandra'}
+  dropping + creating keyspace ...
+  schema: 13 tables
+  seeding size=small: 40,000 users, 60,000 conversations, ~25 avg friend degree,
+8 workers
+  seeded in 516.2s: {'users': 40000, 'friends': 999976, 'requests': 119996, 
+'conversations': 60000, 'messages': 7983898} (15466 msgs/s)
+saved 
+/home/berkay-server/repos/boilers/raw-codes/databases/ns-databases/results/k3s/c
+assandra/scenario-messaging-seed-20260914-171704-b05e36.json
+  Cassandra 5.0.9 keyspace=chatter RF=3 CL=6 fanout=write
+  workers=  8 throughput=  1,117 ops/s errors=0 | load_history p95=15.0  
+load_inbox p95=12.0  send_message p95=90.9  mark_read p95=5.4 ms | busiest 
+  workers= 32 throughput=  2,605 ops/s errors=0 | load_history p95=39.8  
+load_inbox p95=19.2  send_message p95=118.7  mark_read p95=13.4 ms | busiest 
+  workers= 64 throughput=  2,936 ops/s errors=0 | load_history p95=69.7  
+load_inbox p95=28.4  send_message p95=143.2  mark_read p95=27.0 ms | busiest 
+saved 
+/home/berkay-server/repos/boilers/raw-codes/databases/ns-databases/results/k3s/c
+assandra/scenario-messaging-20260914-171854-250992.json
+  fan-out send latency vs group size (400 samples) ...
+  PYMK latency vs friend degree (400 samples) ...
+  send_vs_group_size: dm(2):7.813ms(n288)  3-5:11.212ms(n25)  6-20:21.143ms(n17)
+21-50:32.958ms(n22)  51-150:78.342ms(n28)  150+:162.068ms(n20)
+  pymk_vs_degree: <=10:14.377ms(n6)  11-50:27.86ms(n287)  51-150:68.741ms(n61)  
+151-500:123.089ms(n30)  500+:163.257ms(n16)
+saved 
+/home/berkay-server/repos/boilers/raw-codes/databases/ns-databases/results/k3s/c
+assandra/scenario-messaging-curves-20260914-171925-8e06ea.json

@@ -1,0 +1,41 @@
+[mongodb] starting stack ...
+[mongodb] up in 42.0s: ['mongo1', 'mongo2', 'mongo3', 'init']
+[mongodb] phase: load
+  schema created (17 items, 0.33s)
+  customers       20,000 docs     1.11s     17,973 docs/s  [insert_many(5000, 
+ordered=False, w=1)]
+  categories         200 docs     0.01s     35,550 docs/s  [insert_many(5000, 
+ordered=False, w=1)]
+  products         5,000 docs     0.82s      6,129 docs/s  [insert_many(5000, 
+ordered=False, w=1)]
+  orders         200,000 docs     5.47s     36,551 docs/s  [insert_many(5000, 
+ordered=False, w=1) x4 connections]
+  order_items    487,606 docs     5.29s     92,250 docs/s  [insert_many(5000, 
+ordered=False, w=1) x4 connections]
+  events       1,000,000 docs    21.31s     46,916 docs/s  [insert_many(5000, 
+ordered=False, w=1) x4 connections]
+  inventory       20,000 docs     0.59s     33,710 docs/s  [insert_many(5000, 
+ordered=False, w=1)]
+[mongodb] phase: replication
+  primary    role=primary {'set': 'rs0', 'my_state': 1, 'members': [{'name': 
+'mongo1:27017', 'state': 'PRIMARY', 'optime': '2026-09-14 15:24:53', 
+  replica    role=replica {'set': 'rs0', 'my_state': 2, 'members': [{'name': 
+'mongo1:27017', 'state': 'PRIMARY', 'optime': '2026-09-14 15:24:51', 
+  replica2   role=replica {'set': 'rs0', 'my_state': 2, 'members': [{'name': 
+'mongo1:27017', 'state': 'PRIMARY', 'optime': '2026-09-14 15:24:51', 
+  visibility lag -> replica: p50=1.29 ms p95=1.56 ms max=1.70 ms timeouts=0
+  visibility lag -> replica2: p50=1.48 ms p95=1.60 ms max=1.64 ms timeouts=0
+  write on replica: rejected NotPrimaryError: not primary, full error: 
+{'topologyVersion'
+  write on replica2: rejected NotPrimaryError: not primary, full error: 
+{'topologyVersion'
+  lag under load: 20000 docs in 0.59s, catch-up after last write: {'replica': 
+27.7, 'replica2': 30.2}
+  read scaling: primary only 26712 ops/s -> primary+replicas 27100 ops/s (x1.01)
+errors=0
+  killing primary container nslab-mongo1 ...
+  downtime until first successful write via replica: 923.2 ms (1 attempts)
+saved 
+/home/berkay-server/repos/boilers/raw-codes/databases/ns-databases/results/k3s/m
+ongodb/20260914-182417-6009ae.json
+[mongodb] tearing down ...

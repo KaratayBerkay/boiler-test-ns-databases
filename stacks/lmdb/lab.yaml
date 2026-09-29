@@ -1,0 +1,22 @@
+display: LMDB
+family: embedded
+category: embedded ordered key-value (memory-mapped B+tree)
+driver: lmdb
+image: (embedded, python lmdb package)
+project: nslab-lmdb
+scale: 1
+notes: >-
+  Lightning Memory-Mapped Database, in-process, single writer / many MVCC readers. No query engine: an ordered
+  key-value map. The lab models documents plus hand-maintained ordered index keyspaces (idx/...); aggregations,
+  text, geo and vector scan the primary keyspace. 8 GB map. No server, no network, no replication.
+docs:
+  - http://www.lmdb.tech/doc/
+  - https://lmdb.readthedocs.io/
+targets:
+  - name: embedded
+    role: primary
+    host: local
+    port: 0
+    database: data/lmdb/lab.mdb
+features:
+  connection_storm: false

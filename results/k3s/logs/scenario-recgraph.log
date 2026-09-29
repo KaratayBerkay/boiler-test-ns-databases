@@ -1,0 +1,30 @@
+up: {'seconds': 2.1, 'services': ['neo4j'], 'namespace': 'nslab-neo4j'}
+  dropping + creating graph schema ...
+  schema: 8 constraints/indexes
+  seeding size=small: 6,000 customers, 1,500 products, 60,000 orders, ~4,800 
+cards / 2,700 devices (shared => fraud rings), 8 workers
+  seeded in 22.1s: {'customers': 6000, 'categories': 200, 'products': 1500, 
+'orders': 60000, 'identifiers': 6000, 'ratings': 24000}
+  graph now: {'Customer': 6000, 'Product': 1500, 'Category': 200, 'Order': 
+60000, 'Card': 4800, 'Device': 2700, 'Address': 3600, 'PLACED': 60000, 
+'CONTAINS': 146479, 'identity_edges': 26060}
+saved 
+/home/berkay-server/repos/boilers/raw-codes/databases/ns-databases/results/k3s/n
+eo4j/scenario-recgraph-seed-20260914-175037-857f8b.json
+  Neo4j Kernel 5.26.30 (community) — recgraph
+  workers=  8 throughput=    427 ops/s errors=0 | also_bought p95=9.6  for_you 
+p95=192.7  fraud_ring p95=4.3  similar_products p95=3.0 ms | busiest 
+  workers= 32 throughput=    922 ops/s errors=0 | also_bought p95=24.6  for_you 
+p95=353.4  fraud_ring p95=9.1  similar_products p95=8.2 ms | busiest 
+saved 
+/home/berkay-server/repos/boilers/raw-codes/databases/ns-databases/results/k3s/n
+eo4j/scenario-recgraph-20260914-175113-6f46ca.json
+  recommendation (also_bought) latency vs product popularity (400 samples) ...
+  fraud ring_expand latency vs traversal depth (400 samples) ...
+  reco_vs_popularity: <=5:-ms(n0)  6-25:-ms(n0)  26-100:13.039ms(n197)  
+101-500:14.441ms(n203)  500+:-ms(n0)
+  ring_expand_vs_depth: 2_hops:5.435ms(n134)  3_hops:5.446ms(n131)  
+4_hops:5.471ms(n135)
+saved 
+/home/berkay-server/repos/boilers/raw-codes/databases/ns-databases/results/k3s/n
+eo4j/scenario-recgraph-curves-20260914-175119-8c74db.json

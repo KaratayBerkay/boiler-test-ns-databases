@@ -1,0 +1,216 @@
+{
+  "engine": "neo4j",
+  "display": "Neo4j 5",
+  "category": "property graph (native, index-free adjacency)",
+  "family": "graph",
+  "driver": "bolt",
+  "image": "neo4j:5-community",
+  "run_id": "20260913-145829-b6b556",
+  "started": "2026-09-13T11:58:29+00:00",
+  "scale": 1.0,
+  "notes": "Neo4j 5 Community, single instance (causal clustering, CDC, online backup and read routing are Enterprise-only). Order items are CONTAINS relationships, categories a CHILD_OF tree, so graph_traversal and join_lookup are native. Built-in full-text (Lucene) and HNSW vector indexes; no native TTL or pub/sub.",
+  "phases": {
+    "capabilities": {
+      "secondary_index": {
+        "title": "Create a secondary index on a non-key field and use it",
+        "group": "indexing",
+        "status": "supported",
+        "detail": "CREATE INDEX on a node property (range/point/text/lookup)",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "compound_index": {
+        "title": "Compound / composite index over two fields",
+        "group": "indexing",
+        "status": "supported",
+        "detail": "CREATE INDEX ... FOR (n:L) ON (n.a, n.b) composite index",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "unique_constraint": {
+        "title": "Unique constraint on a non-key field (duplicate rejected)",
+        "group": "indexing",
+        "status": "supported",
+        "detail": "UNIQUE constraint rejects duplicate: {neo4j_code: Neo.ClientError.Schema.ConstraintValidationFail",
+        "ms": 129.5
+      },
+      "ttl_expiry": {
+        "title": "Native per-document/key expiry",
+        "group": "indexing",
+        "status": "unsupported",
+        "detail": "no native per-node TTL; APOC apoc.ttl or a scheduled job on an expiry property",
+        "ms": 0.0
+      },
+      "text_index": {
+        "title": "Full-text index with tokenised search",
+        "group": "indexing",
+        "status": "supported",
+        "detail": "CREATE FULLTEXT INDEX + db.index.fulltext.queryNodes (Lucene)",
+        "ms": 112.6
+      },
+      "geo_index": {
+        "title": "Geospatial index and radius query",
+        "group": "indexing",
+        "status": "supported",
+        "detail": "point type + point.distance; POINT range index for bounding-box",
+        "ms": 86.0
+      },
+      "vector_index": {
+        "title": "Vector (ANN) index and kNN query",
+        "group": "indexing",
+        "status": "supported",
+        "detail": "CREATE VECTOR INDEX (HNSW) + db.index.vector.queryNodes",
+        "ms": 21.4
+      },
+      "partial_update": {
+        "title": "Update a single field without rewriting the document",
+        "group": "model",
+        "status": "supported",
+        "detail": "SET / REMOVE a single property",
+        "ms": 43.4
+      },
+      "atomic_increment": {
+        "title": "Server-side atomic numeric increment",
+        "group": "consistency",
+        "status": "supported",
+        "detail": "SET n.x = n.x + 1 inside an auto-committed transaction -> [(251,)]",
+        "ms": 30.6
+      },
+      "optimistic_concurrency": {
+        "title": "Compare-and-set / version or ETag-guarded write",
+        "group": "consistency",
+        "status": "supported",
+        "detail": "read version, SET guarded by WHERE in one tx -> [(1, 205)]",
+        "ms": 31.5
+      },
+      "multi_doc_transaction": {
+        "title": "Multi-document / multi-key ACID transaction with rollback",
+        "group": "consistency",
+        "status": "supported",
+        "detail": "full ACID transactions (multi-statement, commit/rollback)",
+        "ms": 25.4
+      },
+      "tunable_consistency": {
+        "title": "Per-request consistency / write concern / read preference",
+        "group": "consistency",
+        "status": "unsupported",
+        "detail": "single-primary within a cluster; routing (WRITE->leader, READ->followers) but no per-write quorum knob",
+        "ms": 0.0
+      },
+      "nested_query": {
+        "title": "Filter on a field inside a nested object",
+        "group": "model",
+        "status": "supported",
+        "detail": "map properties / flattened; APOC for deep maps",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "array_operators": {
+        "title": "Query and update array-valued fields (contains, push)",
+        "group": "model",
+        "status": "supported",
+        "detail": "list properties + IN / list comprehensions / UNWIND -> 1",
+        "ms": 65.7
+      },
+      "aggregation": {
+        "title": "Server-side group-by aggregation",
+        "group": "model",
+        "status": "supported",
+        "detail": "count/sum/avg/collect + WITH grouping",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "server_side_join": {
+        "title": "Join / lookup between two collections inside the engine",
+        "group": "model",
+        "status": "supported",
+        "detail": "traversals ARE the join: MATCH patterns over relationships (index-free adjacency)",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "graph_traversal": {
+        "title": "Variable-depth traversal over references",
+        "group": "model",
+        "status": "supported",
+        "detail": "variable-length relationships MATCH (a)-[:R*1..5]->(b); shortestPath; APOC",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "schema_validation": {
+        "title": "Server-enforced document schema / constraints",
+        "group": "model",
+        "status": "unsupported",
+        "detail": "existence/type/key constraints are Enterprise-only; Community has UNIQUE constraints only",
+        "ms": 6.5
+      },
+      "change_streams": {
+        "title": "Change feed / watch / keyspace notifications",
+        "group": "operations",
+        "status": "unsupported",
+        "detail": "CDC is Enterprise-only (db.cdc.*); Community has no change feed",
+        "ms": 0.0
+      },
+      "server_side_scripting": {
+        "title": "Stored procedures / Lua / JS / UDF executed by the server",
+        "group": "operations",
+        "status": "supported",
+        "detail": "APOC procedures/functions + custom user-defined procedures (Java) -> APOC 5.26.30",
+        "ms": 9.0
+      },
+      "pubsub": {
+        "title": "Publish/subscribe messaging built into the engine",
+        "group": "operations",
+        "status": "unsupported",
+        "detail": "no pub/sub",
+        "ms": 0.0
+      },
+      "explain_plan": {
+        "title": "Query plan / profile output for a query",
+        "group": "operations",
+        "status": "supported",
+        "detail": "EXPLAIN / PROFILE returns the operator tree (NodeIndexSeek, Expand, ...)",
+        "ms": 26.2
+      },
+      "bulk_import": {
+        "title": "Native bulk import path (bulk API, batch, COPY-like tool)",
+        "group": "operations",
+        "status": "supported",
+        "detail": "UNWIND $rows batches (used here); LOAD CSV; neo4j-admin database import (offline, fastest)",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "large_document": {
+        "title": "Store and read back a 15 MB document / value",
+        "group": "limits",
+        "status": "supported",
+        "detail": "15 MB string property ok (default max is bounded by page/heap, not a fixed doc size)",
+        "ms": 654.6
+      },
+      "many_fields": {
+        "title": "Document with 5000 top-level fields",
+        "group": "limits",
+        "status": "supported",
+        "detail": "5001 properties on one node",
+        "ms": 225.1
+      },
+      "read_from_replica": {
+        "title": "Client can direct reads to a replica / secondary",
+        "group": "operations",
+        "status": "unsupported",
+        "detail": "single instance in this lab (Enterprise causal cluster routes reads to secondaries via bolt+routing)",
+        "ms": 0.0
+      },
+      "snapshot_backup": {
+        "title": "Online snapshot / backup command available",
+        "group": "operations",
+        "status": "unsupported",
+        "detail": "neo4j-admin database dump/backup (offline for Community); online backup is Enterprise",
+        "ms": 0.0
+      },
+      "_seconds": 1.5
+    }
+  },
+  "partial": false,
+  "server_version": "Neo4j Kernel 5.26.30 (community)",
+  "finished": "2026-09-13T11:58:31+00:00"
+}

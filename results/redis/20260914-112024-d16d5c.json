@@ -1,0 +1,676 @@
+{
+  "engine": "redis",
+  "display": "Redis 8",
+  "category": "in-memory key-value (data structures, Query Engine, JSON)",
+  "family": "keyvalue",
+  "driver": "resp",
+  "image": "redis:8",
+  "run_id": "20260914-112024-d16d5c",
+  "started": "2026-09-14T08:20:24+00:00",
+  "scale": 1.0,
+  "notes": "Redis Open Source 8 (RediSearch/JSON/TimeSeries/probabilistic modules built in). Async primary->replica replication with diskless sync, AOF everysec on both; 3 Sentinels (quorum 2, down-after 2 s) elect a new primary; HAProxy round-robins reads over primary+replica. Documents are hashes with application-maintained index sets/zsets; FT.CREATE on products for text + vector.",
+  "phases": {
+    "load": {
+      "scale": 1.0,
+      "collections": {
+        "customers": {
+          "rows": 20000,
+          "counted": 20000,
+          "expected": 20000,
+          "seconds": 1.5,
+          "rows_per_s": 13352,
+          "method": "pipeline HSET (2000/batch) + index sets",
+          "ok": true
+        },
+        "categories": {
+          "rows": 200,
+          "counted": 200,
+          "expected": 200,
+          "seconds": 0.01,
+          "rows_per_s": 25396,
+          "method": "pipeline HSET (2000/batch) + index sets",
+          "ok": true
+        },
+        "products": {
+          "rows": 5000,
+          "counted": 5000,
+          "expected": 5000,
+          "seconds": 0.91,
+          "rows_per_s": 5481,
+          "method": "pipeline HSET (2000/batch) + index sets",
+          "ok": true
+        },
+        "orders": {
+          "rows": 200000,
+          "counted": 200000,
+          "expected": 200000,
+          "seconds": 8.16,
+          "rows_per_s": 24506,
+          "method": "pipeline HSET (2000/batch) + index sets x4 connections",
+          "ok": true
+        },
+        "order_items": {
+          "rows": 487606,
+          "counted": 487606,
+          "expected": 487606,
+          "seconds": 7.78,
+          "rows_per_s": 62656,
+          "method": "pipeline HSET (2000/batch) + index sets x4 connections",
+          "ok": true
+        },
+        "events": {
+          "rows": 1000000,
+          "counted": 1000000,
+          "expected": 1000000,
+          "seconds": 23.85,
+          "rows_per_s": 41922,
+          "method": "pipeline HSET (2000/batch) + index sets x4 connections",
+          "ok": true
+        },
+        "inventory": {
+          "rows": 20000,
+          "counted": 20000,
+          "expected": 20000,
+          "seconds": 0.74,
+          "rows_per_s": 27083,
+          "method": "pipeline HSET (2000/batch) + index sets",
+          "ok": true
+        }
+      },
+      "schema": [
+        "hash per document, keys:<coll> sets, application-maintained index sets/zsets, GEOADD geo:customers",
+        "FT.CREATE ft:products ON HASH PREFIX products: (description TEXT, embedding VECTOR HNSW cosine)"
+      ],
+      "errors": [],
+      "schema_seconds": 0.01,
+      "load_seconds": 42.97,
+      "after_load": [
+        "ft:products indexed 5000 docs"
+      ],
+      "post_seconds": 0.0,
+      "server_version": "redis 8.10.1",
+      "_seconds": 43.0
+    },
+    "capabilities": {
+      "secondary_index": {
+        "title": "Create a secondary index on a non-key field and use it",
+        "group": "indexing",
+        "status": "unsupported",
+        "detail": "no server-side secondary indexes; application-maintained sets/zsets (or RediSearch FT.CREATE)",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "compound_index": {
+        "title": "Compound / composite index over two fields",
+        "group": "indexing",
+        "status": "unsupported",
+        "detail": "application-maintained composite keys / zset scores",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "unique_constraint": {
+        "title": "Unique constraint on a non-key field (duplicate rejected)",
+        "group": "indexing",
+        "status": "unsupported",
+        "detail": "keys are unique by definition; no constraint on hash fields (SETNX/HSETNX for keys)",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "ttl_expiry": {
+        "title": "Native per-document/key expiry",
+        "group": "indexing",
+        "status": "supported",
+        "detail": "SET EX / EXPIRE; hash-field TTL (HEXPIRE) in Redis 7.4+/Valkey 9",
+        "ms": 1302.5
+      },
+      "text_index": {
+        "title": "Full-text index with tokenised search",
+        "group": "indexing",
+        "status": "supported",
+        "detail": "FT.CREATE ... TEXT + FT.SEARCH",
+        "ms": 1.9
+      },
+      "geo_index": {
+        "title": "Geospatial index and radius query",
+        "group": "indexing",
+        "status": "supported",
+        "detail": "GEOADD + GEOSEARCH (geohash in a sorted set)",
+        "ms": 0.9
+      },
+      "vector_index": {
+        "title": "Vector (ANN) index and kNN query",
+        "group": "indexing",
+        "status": "supported",
+        "detail": "FT.CREATE ... VECTOR HNSW + FT.SEARCH KNN",
+        "ms": 1.3
+      },
+      "partial_update": {
+        "title": "Update a single field without rewriting the document",
+        "group": "model",
+        "status": "supported",
+        "detail": "HSET one field of a hash",
+        "ms": 1.2
+      },
+      "atomic_increment": {
+        "title": "Server-side atomic numeric increment",
+        "group": "consistency",
+        "status": "supported",
+        "detail": "HINCRBY -> 1",
+        "ms": 1.1
+      },
+      "optimistic_concurrency": {
+        "title": "Compare-and-set / version or ETag-guarded write",
+        "group": "consistency",
+        "status": "supported",
+        "detail": "Lua compare-and-set (EVAL) or WATCH/MULTI/EXEC; Valkey 9: SET IFEQ",
+        "ms": 2.6
+      },
+      "multi_doc_transaction": {
+        "title": "Multi-document / multi-key ACID transaction with rollback",
+        "group": "consistency",
+        "status": "supported",
+        "detail": "MULTI/EXEC: atomic + isolated batch, but no rollback after a failed command (not ACID in the SQL sense)",
+        "ms": 2.2
+      },
+      "tunable_consistency": {
+        "title": "Per-request consistency / write concern / read preference",
+        "group": "consistency",
+        "status": "supported",
+        "detail": "WAIT numreplicas timeout -> 1 replicas acked (async replication; WAIT gives per-write synchronous ack)",
+        "ms": 10.1
+      },
+      "nested_query": {
+        "title": "Filter on a field inside a nested object",
+        "group": "model",
+        "status": "unsupported",
+        "detail": "flattened hash fields; filtering is client-side (or RediSearch)",
+        "ms": 0.0
+      },
+      "array_operators": {
+        "title": "Query and update array-valued fields (contains, push)",
+        "group": "model",
+        "status": "supported",
+        "detail": "native list/set types (RPUSH/LPOS/SISMEMBER) rather than arrays inside documents; LPOS -> 1",
+        "ms": 1.7
+      },
+      "aggregation": {
+        "title": "Server-side group-by aggregation",
+        "group": "model",
+        "status": "unsupported",
+        "detail": "no GROUP BY; client-side, Lua, or FT.AGGREGATE with RediSearch",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "server_side_join": {
+        "title": "Join / lookup between two collections inside the engine",
+        "group": "model",
+        "status": "unsupported",
+        "detail": "no joins; client-side or Lua",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "graph_traversal": {
+        "title": "Variable-depth traversal over references",
+        "group": "model",
+        "status": "unsupported",
+        "detail": "client-side loop over parent pointers",
+        "ms": 0.0
+      },
+      "schema_validation": {
+        "title": "Server-enforced document schema / constraints",
+        "group": "model",
+        "status": "unsupported",
+        "detail": "schemaless",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "change_streams": {
+        "title": "Change feed / watch / keyspace notifications",
+        "group": "operations",
+        "status": "supported",
+        "detail": "keyspace notifications (notify-keyspace-events) over Pub/Sub",
+        "ms": 4.1
+      },
+      "server_side_scripting": {
+        "title": "Stored procedures / Lua / JS / UDF executed by the server",
+        "group": "operations",
+        "status": "supported",
+        "detail": "Lua EVAL -> luax; functions (FUNCTION LOAD) in Redis 7+",
+        "ms": 0.6
+      },
+      "pubsub": {
+        "title": "Publish/subscribe messaging built into the engine",
+        "group": "operations",
+        "status": "supported",
+        "detail": "PUBLISH/SUBSCRIBE (fire-and-forget) + Streams (XADD/XREADGROUP) for durable queues",
+        "ms": 1.0
+      },
+      "explain_plan": {
+        "title": "Query plan / profile output for a query",
+        "group": "operations",
+        "status": "supported",
+        "detail": "FT.EXPLAIN for search queries; plain commands have documented O() complexity, no planner",
+        "ms": 1.3
+      },
+      "bulk_import": {
+        "title": "Native bulk import path (bulk API, batch, COPY-like tool)",
+        "group": "operations",
+        "status": "supported",
+        "detail": "pipelining / redis-cli --pipe (RESP protocol file)",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "large_document": {
+        "title": "Store and read back a 15 MB document / value",
+        "group": "limits",
+        "status": "supported",
+        "detail": "15 MB string round-trip ok (limit: proto-max-bulk-len 512 MB)",
+        "ms": 224.3
+      },
+      "many_fields": {
+        "title": "Document with 5000 top-level fields",
+        "group": "limits",
+        "status": "supported",
+        "detail": "hash with 5000 fields",
+        "ms": 21.7
+      },
+      "read_from_replica": {
+        "title": "Client can direct reads to a replica / secondary",
+        "group": "operations",
+        "status": "supported",
+        "detail": "connect to the replica directly (replica-read-only yes); Sentinel clients expose slave_for()",
+        "ms": 26.4
+      },
+      "snapshot_backup": {
+        "title": "Online snapshot / backup command available",
+        "group": "operations",
+        "status": "supported",
+        "detail": "BGSAVE (RDB snapshot) / AOF; Dragonfly: SAVE DF",
+        "ms": 25.5
+      },
+      "incremental_backup": {
+        "title": "Incremental / differential backup (file- or segment-level)",
+        "group": "operations",
+        "status": "unsupported",
+        "detail": "RDB is always a full snapshot; AOF (everysec) is the continuous log between snapshots",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "pitr": {
+        "title": "Point-in-time recovery from a continuous change log",
+        "group": "operations",
+        "status": "unsupported",
+        "detail": "AOF replays to the last fsync only \u2014 no timestamp-based replay; copy RDBs at the RPO you need",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "slow_query_log": {
+        "title": "Server-side slow-query log with a configurable threshold",
+        "group": "logging",
+        "status": "supported",
+        "detail": "SLOWLOG (in-memory ring, slowlog-log-slower-than=10000 \u00b5s) + LATENCY MONITOR",
+        "ms": 1.6
+      },
+      "audit_log": {
+        "title": "Audit / full-query log of statements or auth events",
+        "group": "logging",
+        "status": "supported",
+        "detail": "ACL LOG (denied AUTH / NOPERM attempts, in memory); no persistent statement audit in OSS (MONITOR is a live stream)",
+        "ms": 0.8
+      },
+      "structured_logs": {
+        "title": "JSON-structured server log out of the box",
+        "group": "logging",
+        "status": "unsupported",
+        "detail": "plain-text server log (pid:role date level message); wrap with the docker log driver / a shipper",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "runtime_log_level": {
+        "title": "Change log verbosity at run time (no restart)",
+        "group": "logging",
+        "status": "supported",
+        "detail": "CONFIG SET loglevel (current notice), slowlog-*, latency-monitor-threshold apply immediately",
+        "ms": 1.5
+      },
+      "_seconds": 1.7
+    },
+    "backup": {
+      "tag": "nslab-20260914-112108",
+      "strategy": {
+        "tool": "BGSAVE (fork, point-in-time RDB) then copy dump.rdb off the box; AOF everysec keeps the gap between snapshots small",
+        "consistency": "point-in-time (fork + copy-on-write); one file per instance",
+        "restore": "offline: stop, install the RDB as the multipart-AOF base file (appendonlydir/ + manifest) so an AOF-enabled server loads it, start; replicas full-resync",
+        "incremental": "none \u2014 RDB is always full; BGREWRITEAOF compacts the AOF",
+        "pitr": "no (AOF replays to the last fsync only)",
+        "schedule": "`save <seconds> <changes>` rules or a cron job calling BGSAVE + copy (Sentinel/replica-aware)",
+        "retention": "external: rotate the copied RDB files"
+      },
+      "data_bytes": 481965591,
+      "fingerprint_before": {
+        "counts": {
+          "customers": 0,
+          "categories": 0,
+          "products": 0,
+          "inventory": 0
+        },
+        "customers_present": 0,
+        "probe_count": 100,
+        "post_probe_present": false
+      },
+      "reads_baseline": {
+        "reads": 735,
+        "errors": 0,
+        "latency_ms": {
+          "n": 735,
+          "min": 0.25498197646811604,
+          "p50": 0.6356750382110476,
+          "p90": 0.7984156021848321,
+          "p95": 0.8277929038740695,
+          "p99": 0.8739545359276235,
+          "max": 1.5122939948923886,
+          "mean": 0.6164674067451638,
+          "stdev": 0.15268910873556937
+        }
+      },
+      "backup": {
+        "method": "BGSAVE + copy dump.rdb",
+        "online": true,
+        "artifact": "/backups/nslab-20260914-112108.rdb",
+        "artifact_bytes": 5319,
+        "fork_ms": 3.9,
+        "rdb_last_cow_size": 2097152,
+        "aof_current_size": 450669697,
+        "used_memory": 4219816,
+        "seconds": 0.26,
+        "status": "ok",
+        "reads_during": {
+          "reads": 105,
+          "errors": 0,
+          "latency_ms": {
+            "n": 105,
+            "min": 0.24764600675553083,
+            "p50": 0.3359480178914964,
+            "p90": 0.4115659976378084,
+            "p95": 0.461882003583014,
+            "p99": 0.9391870209947202,
+            "max": 6.189750973135233,
+            "mean": 0.39998552750884775,
+            "stdev": 0.5733058361431369
+          }
+        },
+        "artifact_pct_of_data": 0.0
+      },
+      "fingerprint_after_mutation": {
+        "counts": {
+          "customers": 0,
+          "categories": 0,
+          "products": 0,
+          "inventory": 0
+        },
+        "customers_present": 0,
+        "probe_count": 600,
+        "post_probe_present": true
+      },
+      "restore": {
+        "method": "stop; RDB -> appendonlydir base + manifest; start; replicas full-resync",
+        "online": false,
+        "downtime_ms": 1816.7,
+        "replica_resync_ms": {
+          "replica": 508.6
+        },
+        "sentinel": "down-after-milliseconds raised to 600000 on 3 sentinels during the restore, then reset",
+        "seconds": 3.11,
+        "status": "ok",
+        "availability": {
+          "downtime_ms": 1816.7,
+          "outages": 0
+        },
+        "checks": {
+          "counts_match": true,
+          "deleted_customers_back": false,
+          "probe_count_back_to_pre": true,
+          "post_backup_writes_gone": true
+        },
+        "verified": false
+      },
+      "fingerprint_after_restore": {
+        "counts": {
+          "customers": 0,
+          "categories": 0,
+          "products": 0,
+          "inventory": 0
+        },
+        "customers_present": 0,
+        "probe_count": 100,
+        "post_probe_present": false
+      },
+      "incremental": {
+        "status": "unsupported",
+        "detail": "resp: no incremental backup"
+      },
+      "_seconds": 7.8
+    },
+    "logging": {
+      "strategy": {
+        "server_log": "plain text on stdout (`pid:role date level message`), loglevel notice; the docker json-file driver rotates it",
+        "slow_query": "SLOWLOG (in-memory ring: slowlog-log-slower-than \u00b5s, slowlog-max-len) + LATENCY MONITOR (latency-monitor-threshold ms) + LATENCY DOCTOR",
+        "audit": "ACL LOG for denied AUTH / NOPERM attempts (in memory, acllog-max-len); MONITOR is a live debug stream, not a log; persistent audit is Redis Enterprise",
+        "runtime": "CONFIG SET loglevel / slowlog-* / latency-monitor-threshold apply immediately (CONFIG REWRITE persists them)"
+      },
+      "threshold_ms": 100,
+      "containers": {
+        "nslab-redis-haproxy": {
+          "driver": "json-file",
+          "options": {
+            "compress": "true",
+            "max-file": "3",
+            "max-size": "50m"
+          },
+          "log_path": "/var/lib/docker/containers/c8a6b84e33d67274af4d4542238f8c87dfa41a397f363ba0903c031e82343744/c8a6b84e33d67274af4d4542238f8c87dfa41a397f363ba0903c031e82343744-json.log",
+          "user": "haproxy",
+          "started": "2026-09-14T08:01:38.80346097Z",
+          "bytes": 79,
+          "lines": 2,
+          "json_lines_pct": 0.0,
+          "format": "text",
+          "sample": [
+            "[NOTICE]   (1) : Initializing new worker (8)",
+            "[NOTICE]   (1) : Loading success."
+          ]
+        },
+        "nslab-redis-primary": {
+          "driver": "json-file",
+          "options": {
+            "compress": "true",
+            "max-file": "3",
+            "max-size": "50m"
+          },
+          "log_path": "/var/lib/docker/containers/30623da19f1ade4b49dfd28b52bfbffc627e599fcf0cd5418be893eb710abbe8/30623da19f1ade4b49dfd28b52bfbffc627e599fcf0cd5418be893eb710abbe8-json.log",
+          "user": "root",
+          "started": "2026-09-14T08:21:15.102246391Z",
+          "bytes": 30129,
+          "lines": 342,
+          "json_lines_pct": 0.0,
+          "format": "text",
+          "sample": [
+            "1:M 14 Sep 2026 08:21:15.357 * Synchronization with replica 172.23.0.3:6379 succeeded",
+            "1:M 14 Sep 2026 08:21:15.363 * Connection with replica (rdbchannel) 172.23.0.3:6379 lost.",
+            "1:M 14 Sep 2026 08:21:15.399 * Background RDB transfer terminated with success"
+          ]
+        },
+        "nslab-redis-replica": {
+          "driver": "json-file",
+          "options": {
+            "compress": "true",
+            "max-file": "3",
+            "max-size": "50m"
+          },
+          "log_path": "/var/lib/docker/containers/2757bde01d9e39c0d37545e727d803f2d6079ad4a1282e89375a1327b7273f14/2757bde01d9e39c0d37545e727d803f2d6079ad4a1282e89375a1327b7273f14-json.log",
+          "user": "root",
+          "started": "2026-09-14T08:01:36.134405324Z",
+          "bytes": 20260,
+          "lines": 227,
+          "json_lines_pct": 0.0,
+          "format": "text",
+          "sample": [
+            "1:S 14 Sep 2026 08:21:15.450 * Removing the history file appendonly.aof.7.incr.aof in the background",
+            "1:S 14 Sep 2026 08:21:15.450 * Removing the history file appendonly.aof.7.base.rdb in the background",
+            "1:S 14 Sep 2026 08:21:15.453 * Background AOF rewrite finished successfully"
+          ]
+        },
+        "nslab-redis-sentinel1": {
+          "driver": "json-file",
+          "options": {
+            "compress": "true",
+            "max-file": "3",
+            "max-size": "50m"
+          },
+          "log_path": "/var/lib/docker/containers/f2eb6bf757e29432ebe56033101d47463ac299b98080716fbe094ba0d4405e09/f2eb6bf757e29432ebe56033101d47463ac299b98080716fbe094ba0d4405e09-json.log",
+          "user": "root",
+          "started": "2026-09-14T08:01:38.804066319Z",
+          "bytes": 1898,
+          "lines": 22,
+          "json_lines_pct": 0.0,
+          "format": "text",
+          "sample": [
+            "11:X 14 Sep 2026 08:21:13.192 * Sentinel new configuration saved on disk",
+            "11:X 14 Sep 2026 08:21:15.909 # +set master mymaster primary 6379 down-after-milliseconds 600000",
+            "11:X 14 Sep 2026 08:21:15.911 * Sentinel new configuration saved on disk"
+          ]
+        },
+        "nslab-redis-sentinel2": {
+          "driver": "json-file",
+          "options": {
+            "compress": "true",
+            "max-file": "3",
+            "max-size": "50m"
+          },
+          "log_path": "/var/lib/docker/containers/70c2cff8800d3fc7b8e9931c9d8b24c6e678546a39a9c36161a7f189d74ecadc/70c2cff8800d3fc7b8e9931c9d8b24c6e678546a39a9c36161a7f189d74ecadc-json.log",
+          "user": "root",
+          "started": "2026-09-14T08:01:38.80474687Z",
+          "bytes": 1898,
+          "lines": 22,
+          "json_lines_pct": 0.0,
+          "format": "text",
+          "sample": [
+            "11:X 14 Sep 2026 08:21:13.343 * Sentinel new configuration saved on disk",
+            "11:X 14 Sep 2026 08:21:15.988 # +set master mymaster primary 6379 down-after-milliseconds 600000",
+            "11:X 14 Sep 2026 08:21:15.990 * Sentinel new configuration saved on disk"
+          ]
+        },
+        "nslab-redis-sentinel3": {
+          "driver": "json-file",
+          "options": {
+            "compress": "true",
+            "max-file": "3",
+            "max-size": "50m"
+          },
+          "log_path": "/var/lib/docker/containers/eb9807d4abbf58f05b24a31c5bd637bf954ba4c6e09e655f768cd28e1ffb9dbf/eb9807d4abbf58f05b24a31c5bd637bf954ba4c6e09e655f768cd28e1ffb9dbf-json.log",
+          "user": "root",
+          "started": "2026-09-14T08:01:38.805173147Z",
+          "bytes": 1898,
+          "lines": 22,
+          "json_lines_pct": 0.0,
+          "format": "text",
+          "sample": [
+            "11:X 14 Sep 2026 08:21:13.502 * Sentinel new configuration saved on disk",
+            "11:X 14 Sep 2026 08:21:16.069 # +set master mymaster primary 6379 down-after-milliseconds 600000",
+            "11:X 14 Sep 2026 08:21:16.071 * Sentinel new configuration saved on disk"
+          ]
+        }
+      },
+      "server_log": {
+        "status": "ok",
+        "value": {
+          "format": "text",
+          "where": "stdout (docker logs) \u2014 `logfile` when set",
+          "loglevel": "notice",
+          "sample": [
+            "1:M 14 Sep 2026 08:21:15.357 * Synchronization with replica 172.23.0.3:6379 succeeded",
+            "1:M 14 Sep 2026 08:21:15.363 * Connection with replica (rdbchannel) 172.23.0.3:6379 lost.",
+            "1:M 14 Sep 2026 08:21:15.399 * Background RDB transfer terminated with success"
+          ]
+        },
+        "ms": 26.7
+      },
+      "slow_query": {
+        "setup": {
+          "status": "ok",
+          "value": "CONFIG SET slowlog-log-slower-than 100000 (\u00b5s) + SLOWLOG RESET; latency-monitor-threshold 100 ms",
+          "ms": 1.3
+        },
+        "effective_threshold_ms": 100,
+        "fast_op": {
+          "desc": "HGET customers:1 name",
+          "ms": 0.3,
+          "status": "ok",
+          "error": null
+        },
+        "slow_op": {
+          "desc": "KEYS customers:* (scans the whole keyspace \u2014 the anti-pattern SLOWLOG exists to catch)",
+          "ms": 0.3,
+          "status": "ok",
+          "error": null
+        },
+        "entries": [],
+        "entries_status": "ok",
+        "entries_error": null,
+        "slow_op_logged": false,
+        "logged_ms": null,
+        "fast_op_logged": false,
+        "verified": false
+      },
+      "audit": {
+        "setup": {
+          "status": "ok",
+          "value": "ACL LOG RESET; ACL SETUSER nslab_auditor on >s3cret ~* +@read (read-only user to provoke denials)",
+          "ms": 1.3
+        },
+        "exercise": [],
+        "entries": [
+          "reason=auth context=toplevel object=AUTH user=nslab_auditor count=11"
+        ],
+        "entries_count": 1,
+        "entries_status": "ok",
+        "entries_error": null,
+        "verified": true
+      },
+      "runtime_log_level": {
+        "status": "ok",
+        "value": "CONFIG SET loglevel debug -> verified -> back to notice (no restart)",
+        "ms": 0.9
+      },
+      "log_volume_this_phase": {
+        "nslab-redis-haproxy": {
+          "bytes": 0,
+          "lines": 0
+        },
+        "nslab-redis-primary": {
+          "bytes": 0,
+          "lines": 0
+        },
+        "nslab-redis-replica": {
+          "bytes": 0,
+          "lines": 0
+        },
+        "nslab-redis-sentinel1": {
+          "bytes": 0,
+          "lines": 0
+        },
+        "nslab-redis-sentinel2": {
+          "bytes": 0,
+          "lines": 0
+        },
+        "nslab-redis-sentinel3": {
+          "bytes": 0,
+          "lines": 0
+        }
+      },
+      "_seconds": 6.3
+    }
+  },
+  "partial": false,
+  "server_version": "redis 8.10.1",
+  "finished": "2026-09-14T08:21:22+00:00"
+}

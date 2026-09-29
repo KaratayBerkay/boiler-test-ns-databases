@@ -1,0 +1,570 @@
+{
+  "engine": "redis",
+  "display": "Redis 8",
+  "category": "in-memory key-value (data structures, Query Engine, JSON)",
+  "family": "keyvalue",
+  "driver": "resp",
+  "image": "redis:8",
+  "run_id": "20260913-134848-dc9532",
+  "started": "2026-09-13T10:48:48+00:00",
+  "scale": 1.0,
+  "notes": "Redis Open Source 8 (RediSearch/JSON/TimeSeries/probabilistic modules built in). Async primary->replica replication with diskless sync, AOF everysec on both; 3 Sentinels (quorum 2, down-after 2 s) elect a new primary; HAProxy round-robins reads over primary+replica. Documents are hashes with application-maintained index sets/zsets; FT.CREATE on products for text + vector.",
+  "phases": {
+    "connections": {
+      "max_connections": 10000,
+      "connect_latency": {
+        "primary": {
+          "target": "primary",
+          "n": 30,
+          "ms": {
+            "n": 30,
+            "min": 2.094325,
+            "p50": 2.2160450000000003,
+            "p90": 2.3132751,
+            "p95": 2.32347985,
+            "p99": 2.6886371000000002,
+            "max": 2.835612,
+            "mean": 2.2329738666666668,
+            "stdev": 0.1289962588216504
+          },
+          "errors": [],
+          "error_count": 0
+        },
+        "haproxy-ro": {
+          "target": "haproxy-ro",
+          "n": 30,
+          "ms": {
+            "n": 30,
+            "min": 2.469952,
+            "p50": 2.824023,
+            "p90": 3.0029651,
+            "p95": 3.07042115,
+            "p99": 3.2344997,
+            "max": 3.281297,
+            "mean": 2.8406668666666666,
+            "stdev": 0.16715629944889568
+          },
+          "errors": [],
+          "error_count": 0
+        }
+      },
+      "storm": {
+        "primary": [
+          {
+            "target": "primary",
+            "requested": 10,
+            "opened": 10,
+            "failed": 0,
+            "wall_ms_to_open_all": 50.1,
+            "connect_ms": {
+              "n": 10,
+              "min": 16.054456,
+              "p50": 19.5152485,
+              "p90": 20.3609308,
+              "p95": 20.6888449,
+              "p99": 20.95117618,
+              "max": 21.016759,
+              "mean": 19.0125775,
+              "stdev": 1.5696463428520615
+            },
+            "error_codes": {},
+            "sample_error": null
+          },
+          {
+            "target": "primary",
+            "requested": 50,
+            "opened": 50,
+            "failed": 0,
+            "wall_ms_to_open_all": 165.1,
+            "connect_ms": {
+              "n": 50,
+              "min": 68.150368,
+              "p50": 126.61319850000001,
+              "p90": 143.97334790000002,
+              "p95": 150.3362061,
+              "p99": 151.17425254,
+              "max": 151.531636,
+              "mean": 119.64044954,
+              "stdev": 21.735701337034865
+            },
+            "error_codes": {},
+            "sample_error": null
+          },
+          {
+            "target": "primary",
+            "requested": 100,
+            "opened": 100,
+            "failed": 0,
+            "wall_ms_to_open_all": 282.5,
+            "connect_ms": {
+              "n": 100,
+              "min": 114.07348,
+              "p50": 235.9006305,
+              "p90": 251.9528463,
+              "p95": 254.07388195,
+              "p99": 257.33715628,
+              "max": 262.487659,
+              "mean": 226.37663236,
+              "stdev": 28.110838374917424
+            },
+            "error_codes": {},
+            "sample_error": null
+          },
+          {
+            "target": "primary",
+            "requested": 200,
+            "opened": 200,
+            "failed": 0,
+            "wall_ms_to_open_all": 632.3,
+            "connect_ms": {
+              "n": 200,
+              "min": 209.52241,
+              "p50": 514.132381,
+              "p90": 559.8149387999999,
+              "p95": 564.48457575,
+              "p99": 573.59391106,
+              "max": 582.479963,
+              "mean": 488.04351256499996,
+              "stdev": 75.64202386655958
+            },
+            "error_codes": {},
+            "sample_error": null
+          },
+          {
+            "target": "primary",
+            "requested": 500,
+            "opened": 500,
+            "failed": 0,
+            "wall_ms_to_open_all": 1294.1,
+            "connect_ms": {
+              "n": 500,
+              "min": 106.413528,
+              "p50": 677.9838615,
+              "p90": 1137.9129588000003,
+              "p95": 1195.1028009499998,
+              "p99": 1264.48084828,
+              "max": 1274.867975,
+              "mean": 724.5262155839999,
+              "stdev": 286.48166576657127
+            },
+            "error_codes": {},
+            "sample_error": null
+          }
+        ],
+        "haproxy-ro": [
+          {
+            "target": "haproxy-ro",
+            "requested": 10,
+            "opened": 10,
+            "failed": 0,
+            "wall_ms_to_open_all": 50.1,
+            "connect_ms": {
+              "n": 10,
+              "min": 18.603795,
+              "p50": 19.928587,
+              "p90": 22.2766323,
+              "p95": 22.34513715,
+              "p99": 22.39994103,
+              "max": 22.413642,
+              "mean": 20.2988006,
+              "stdev": 1.2688118677756128
+            },
+            "error_codes": {},
+            "sample_error": null
+          },
+          {
+            "target": "haproxy-ro",
+            "requested": 50,
+            "opened": 50,
+            "failed": 0,
+            "wall_ms_to_open_all": 157.8,
+            "connect_ms": {
+              "n": 50,
+              "min": 46.583089,
+              "p50": 86.1732645,
+              "p90": 100.0297233,
+              "p95": 103.91800115000001,
+              "p99": 108.99328439,
+              "max": 109.260721,
+              "mean": 83.4674689,
+              "stdev": 14.046372946671141
+            },
+            "error_codes": {},
+            "sample_error": null
+          },
+          {
+            "target": "haproxy-ro",
+            "requested": 100,
+            "opened": 100,
+            "failed": 0,
+            "wall_ms_to_open_all": 325.2,
+            "connect_ms": {
+              "n": 100,
+              "min": 70.487151,
+              "p50": 252.670145,
+              "p90": 275.8302636,
+              "p95": 280.48574025,
+              "p99": 284.38071484,
+              "max": 285.057067,
+              "mean": 241.41180129,
+              "stdev": 35.88685080493772
+            },
+            "error_codes": {},
+            "sample_error": null
+          },
+          {
+            "target": "haproxy-ro",
+            "requested": 200,
+            "opened": 200,
+            "failed": 0,
+            "wall_ms_to_open_all": 438.7,
+            "connect_ms": {
+              "n": 200,
+              "min": 116.58715,
+              "p50": 342.3070335,
+              "p90": 389.0611262,
+              "p95": 395.41343455,
+              "p99": 409.66131143,
+              "max": 415.250065,
+              "mean": 329.56061873,
+              "stdev": 54.6219458526709
+            },
+            "error_codes": {},
+            "sample_error": null
+          },
+          {
+            "target": "haproxy-ro",
+            "requested": 500,
+            "opened": 500,
+            "failed": 0,
+            "wall_ms_to_open_all": 1408.5,
+            "connect_ms": {
+              "n": 500,
+              "min": 161.855854,
+              "p50": 737.5945185,
+              "p90": 1196.4404497,
+              "p95": 1257.8729285,
+              "p99": 1311.52709794,
+              "max": 1351.421265,
+              "mean": 769.37000711,
+              "stdev": 298.3626600522716
+            },
+            "error_codes": {},
+            "sample_error": null
+          }
+        ]
+      },
+      "concurrency": {
+        "primary": [
+          {
+            "workers": 1,
+            "targets": [
+              "primary"
+            ],
+            "ops": 8744,
+            "errors": 0,
+            "seconds": 4.0,
+            "ops_per_s": 2186,
+            "latency_ms": {
+              "n": 8744,
+              "min": 0.137301,
+              "p50": 0.415875,
+              "p90": 0.7502042,
+              "p95": 0.77700335,
+              "p99": 0.8135986,
+              "max": 2.877509,
+              "mean": 0.455003181610247,
+              "stdev": 0.19833168151590252
+            },
+            "first_error": null,
+            "workers_reported": 1
+          },
+          {
+            "workers": 4,
+            "targets": [
+              "primary"
+            ],
+            "ops": 36914,
+            "errors": 0,
+            "seconds": 4.0,
+            "ops_per_s": 9228,
+            "latency_ms": {
+              "n": 36914,
+              "min": 0.133865,
+              "p50": 0.42630900000000005,
+              "p90": 0.5941531,
+              "p95": 0.6454198999999999,
+              "p99": 0.7496994000000003,
+              "max": 3.700955,
+              "mean": 0.4309213298206642,
+              "stdev": 0.13745805834196684
+            },
+            "first_error": null,
+            "workers_reported": 4
+          },
+          {
+            "workers": 16,
+            "targets": [
+              "primary"
+            ],
+            "ops": 242989,
+            "errors": 0,
+            "seconds": 4.0,
+            "ops_per_s": 60747,
+            "latency_ms": {
+              "n": 242989,
+              "min": 0.149912,
+              "p50": 0.249598,
+              "p90": 0.3115180000000001,
+              "p95": 0.35524579999999994,
+              "p99": 0.5509644399999993,
+              "max": 4.847533,
+              "mean": 0.26198811962269897,
+              "stdev": 0.0762954669875012
+            },
+            "first_error": null,
+            "workers_reported": 16
+          },
+          {
+            "workers": 32,
+            "targets": [
+              "primary"
+            ],
+            "ops": 273700,
+            "errors": 0,
+            "seconds": 4.0,
+            "ops_per_s": 68425,
+            "latency_ms": {
+              "n": 273700,
+              "min": 0.17727,
+              "p50": 0.43745500000000004,
+              "p90": 0.6475252,
+              "p95": 0.7267467999999998,
+              "p99": 0.9518069400000009,
+              "max": 8.070259,
+              "mean": 0.46616928520643036,
+              "stdev": 0.16644821898390444
+            },
+            "first_error": null,
+            "workers_reported": 32
+          },
+          {
+            "workers": 64,
+            "targets": [
+              "primary"
+            ],
+            "ops": 317253,
+            "errors": 0,
+            "seconds": 4.0,
+            "ops_per_s": 79313,
+            "latency_ms": {
+              "n": 317253,
+              "min": 0.171583,
+              "p50": 0.761784,
+              "p90": 1.1534815999999999,
+              "p95": 1.3038021999999982,
+              "p99": 1.68662892,
+              "max": 14.150683,
+              "mean": 0.8055078504316744,
+              "stdev": 0.32044106078427176
+            },
+            "first_error": null,
+            "workers_reported": 64
+          }
+        ],
+        "haproxy-ro": [
+          {
+            "workers": 1,
+            "targets": [
+              "haproxy-ro"
+            ],
+            "ops": 5691,
+            "errors": 0,
+            "seconds": 4.0,
+            "ops_per_s": 1423,
+            "latency_ms": {
+              "n": 5691,
+              "min": 0.185489,
+              "p50": 0.750437,
+              "p90": 0.967751,
+              "p95": 1.0091805,
+              "p99": 1.0707376000000002,
+              "max": 5.154111,
+              "mean": 0.7001064881391671,
+              "stdev": 0.24309121119975674
+            },
+            "first_error": null,
+            "workers_reported": 1
+          },
+          {
+            "workers": 4,
+            "targets": [
+              "haproxy-ro"
+            ],
+            "ops": 24923,
+            "errors": 0,
+            "seconds": 4.0,
+            "ops_per_s": 6231,
+            "latency_ms": {
+              "n": 24923,
+              "min": 0.18261,
+              "p50": 0.668455,
+              "p90": 0.8517608,
+              "p95": 0.9024377999999997,
+              "p99": 1.0034436599999998,
+              "max": 4.99283,
+              "mean": 0.639269466797737,
+              "stdev": 0.19771469473929346
+            },
+            "first_error": null,
+            "workers_reported": 4
+          },
+          {
+            "workers": 16,
+            "targets": [
+              "haproxy-ro"
+            ],
+            "ops": 168626,
+            "errors": 0,
+            "seconds": 4.0,
+            "ops_per_s": 42156,
+            "latency_ms": {
+              "n": 168626,
+              "min": 0.223914,
+              "p50": 0.3597685,
+              "p90": 0.44434700000000005,
+              "p95": 0.51332975,
+              "p99": 0.74348975,
+              "max": 12.873387,
+              "mean": 0.3779862655106567,
+              "stdev": 0.10425036690346783
+            },
+            "first_error": null,
+            "workers_reported": 16
+          },
+          {
+            "workers": 32,
+            "targets": [
+              "haproxy-ro"
+            ],
+            "ops": 195462,
+            "errors": 0,
+            "seconds": 4.0,
+            "ops_per_s": 48866,
+            "latency_ms": {
+              "n": 195462,
+              "min": 0.268685,
+              "p50": 0.616537,
+              "p90": 0.8901382999999999,
+              "p95": 0.998671,
+              "p99": 1.2972953899999955,
+              "max": 10.881279,
+              "mean": 0.6533386513695757,
+              "stdev": 0.2332612504824335
+            },
+            "first_error": null,
+            "workers_reported": 32
+          },
+          {
+            "workers": 64,
+            "targets": [
+              "haproxy-ro"
+            ],
+            "ops": 233122,
+            "errors": 0,
+            "seconds": 4.0,
+            "ops_per_s": 58280,
+            "latency_ms": {
+              "n": 233122,
+              "min": 0.280574,
+              "p50": 1.0306725,
+              "p90": 1.5698594,
+              "p95": 1.7799320499999975,
+              "p99": 2.36670996,
+              "max": 17.398433,
+              "mean": 1.0967807603486586,
+              "stdev": 0.4331023701235106
+            },
+            "first_error": null,
+            "workers_reported": 64
+          }
+        ]
+      },
+      "pool_saturation": {
+        "pool_size": 8,
+        "workers": 32,
+        "ops": 10671,
+        "ops_per_s": 2658,
+        "checkout_wait_ms": {
+          "n": 10671,
+          "min": 0.001757,
+          "p50": 0.006276,
+          "p90": 0.00895,
+          "p95": 0.00964,
+          "p99": 0.01405229999999933,
+          "max": 4003.118152,
+          "mean": 8.9548873102802,
+          "stdev": 188.48329158243328
+        },
+        "exec_ms": {
+          "n": 10671,
+          "min": 0.199367,
+          "p50": 2.389118,
+          "p90": 5.963882,
+          "p95": 7.170119,
+          "p99": 10.441272899999992,
+          "max": 17.660283,
+          "mean": 2.993555887077125,
+          "stdev": 2.1291354622212606
+        }
+      },
+      "write_contention": {
+        "threads": 4,
+        "iters_per_thread": 50,
+        "applied": 69,
+        "rejected": 131,
+        "errors": 0,
+        "version_before": 76,
+        "version_after": 145,
+        "version_delta": 69,
+        "atomic": true,
+        "seconds": 0.09,
+        "cas_ms": {
+          "n": 200,
+          "min": 0.893698,
+          "p50": 1.616007,
+          "p90": 2.2983866,
+          "p95": 2.7566625,
+          "p99": 3.802119179999999,
+          "max": 4.467409,
+          "mean": 1.712784475,
+          "stdev": 0.5351817367544873
+        },
+        "first_error": null,
+        "interpretation": "every accepted CAS advanced the version exactly once: atomic compare-and-set"
+      },
+      "rw_split": {
+        "haproxy-ro": {
+          "proxy": "haproxy-ro",
+          "connections": 40,
+          "roles_seen": {
+            "primary": 20,
+            "replica": 20
+          },
+          "writes_ok": 20,
+          "writes_rejected": 20,
+          "writes_rejected_on": {
+            "replica": 20
+          },
+          "write_error_codes": {
+            "READONLY": 20
+          },
+          "interpretation": "TCP-level balancing: 20/40 writes failed because the connection landed on a read-only replica"
+        }
+      },
+      "_seconds": 87.6
+    }
+  },
+  "server_version": "redis 8.10.1",
+  "finished": "2026-09-13T10:50:16+00:00"
+}

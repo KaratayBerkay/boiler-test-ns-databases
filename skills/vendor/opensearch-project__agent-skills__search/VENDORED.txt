@@ -1,0 +1,3 @@
+source: https://github.com/opensearch-project/opensearch-agent-skills/tree/main/skills/opensearch-skills/search
+license: Apache-2.0
+vendored: 2026-09-13 (ns-databases lab)

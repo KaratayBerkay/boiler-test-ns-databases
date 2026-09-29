@@ -1,0 +1,575 @@
+{
+  "engine": "mongodb",
+  "display": "MongoDB 7.0",
+  "category": "document store (replica set)",
+  "family": "document",
+  "driver": "pymongo",
+  "image": "mongo:7",
+  "run_id": "20260914-182417-6009ae",
+  "started": "2026-09-14T15:24:17+00:00",
+  "scale": 1.0,
+  "notes": "Official mongo:7 image (7.0.x). mongo:8 (8.3.9) refuses to start on this host's Linux 7.0.0 kernel (SERVER-121912: TCMalloc rseq incompatibility with kernels 6.19-7.0.13, exits at startup, no bypass) so the lab pins 7.0. 3-member replica set rs0 (priorities 3/2/1) initiated by a one-shot mongosh container; no auth. Per-node targets use directConnection=true; writes w=1 unless an experiment says otherwise. $vectorSearch is Atlas / mongot-only, so vector_knn is unsupported on Community.",
+  "phases": {
+    "load": {
+      "scale": 1.0,
+      "collections": {
+        "customers": {
+          "rows": 20000,
+          "counted": 20000,
+          "expected": 20000,
+          "seconds": 1.11,
+          "rows_per_s": 17973,
+          "method": "insert_many(5000, ordered=False, w=1)",
+          "ok": true
+        },
+        "categories": {
+          "rows": 200,
+          "counted": 200,
+          "expected": 200,
+          "seconds": 0.01,
+          "rows_per_s": 35550,
+          "method": "insert_many(5000, ordered=False, w=1)",
+          "ok": true
+        },
+        "products": {
+          "rows": 5000,
+          "counted": 5000,
+          "expected": 5000,
+          "seconds": 0.82,
+          "rows_per_s": 6129,
+          "method": "insert_many(5000, ordered=False, w=1)",
+          "ok": true
+        },
+        "orders": {
+          "rows": 200000,
+          "counted": 200000,
+          "expected": 200000,
+          "seconds": 5.47,
+          "rows_per_s": 36551,
+          "method": "insert_many(5000, ordered=False, w=1) x4 connections",
+          "ok": true
+        },
+        "order_items": {
+          "rows": 487606,
+          "counted": 487606,
+          "expected": 487606,
+          "seconds": 5.29,
+          "rows_per_s": 92250,
+          "method": "insert_many(5000, ordered=False, w=1) x4 connections",
+          "ok": true
+        },
+        "events": {
+          "rows": 1000000,
+          "counted": 1000000,
+          "expected": 1000000,
+          "seconds": 21.31,
+          "rows_per_s": 46916,
+          "method": "insert_many(5000, ordered=False, w=1) x4 connections",
+          "ok": true
+        },
+        "inventory": {
+          "rows": 20000,
+          "counted": 20000,
+          "expected": 20000,
+          "seconds": 0.59,
+          "rows_per_s": 33710,
+          "method": "insert_many(5000, ordered=False, w=1)",
+          "ok": true
+        }
+      },
+      "schema": [
+        "customers: [('email', 1)] {'unique': True}",
+        "customers: [('country_code', 1), ('tier', 1)]",
+        "customers: [('location', '2dsphere')]",
+        "customers: [('attrs.lang', 1), ('tier', 1)]",
+        "categories: [('parent_id', 1)]",
+        "products: [('category_id', 1), ('price', -1)]",
+        "products: [('sku', 1)] {'unique': True}",
+        "products: [('attrs.tags', 1)]",
+        "products: [('description', 'text')]",
+        "orders: [('customer_id', 1)]",
+        "orders: [('status', 1), ('ordered_at', 1)]",
+        "orders: [('ordered_at', 1), ('_id', 1)]",
+        "order_items: [('order_id', 1)]",
+        "order_items: [('product_id', 1)]",
+        "events: [('customer_id', 1)]",
+        "inventory: [('product_id', 1), ('warehouse_id', 1)]",
+        "scratch: [('expires_at', 1)] {'expireAfterSeconds': 0}"
+      ],
+      "errors": [],
+      "schema_seconds": 0.33,
+      "load_seconds": 35.62,
+      "after_load": [],
+      "post_seconds": 0.0,
+      "server_version": "MongoDB 7.0.37",
+      "_seconds": 36.0
+    },
+    "replication": {
+      "kind": "replica set (oplog, async, automatic election)",
+      "topology": {
+        "primary": {
+          "role_reported": "primary",
+          "role_configured": "primary",
+          "version": "MongoDB 7.0.37",
+          "status": {
+            "set": "rs0",
+            "my_state": 1,
+            "members": [
+              {
+                "name": "mongo1:27017",
+                "state": "PRIMARY",
+                "optime": "2026-09-14 15:24:53",
+                "lag_s": 0.14
+              },
+              {
+                "name": "mongo2:27018",
+                "state": "SECONDARY",
+                "optime": "2026-09-14 15:24:53",
+                "lag_s": 0.14
+              },
+              {
+                "name": "mongo3:27019",
+                "state": "SECONDARY",
+                "optime": "2026-09-14 15:24:53",
+                "lag_s": 0.14
+              }
+            ]
+          }
+        },
+        "replica": {
+          "role_reported": "replica",
+          "role_configured": "replica",
+          "version": "MongoDB 7.0.37",
+          "status": {
+            "set": "rs0",
+            "my_state": 2,
+            "members": [
+              {
+                "name": "mongo1:27017",
+                "state": "PRIMARY",
+                "optime": "2026-09-14 15:24:51",
+                "lag_s": 2.148
+              },
+              {
+                "name": "mongo2:27018",
+                "state": "SECONDARY",
+                "optime": "2026-09-14 15:24:53",
+                "lag_s": 0.148
+              },
+              {
+                "name": "mongo3:27019",
+                "state": "SECONDARY",
+                "optime": "2026-09-14 15:24:51",
+                "lag_s": 2.148
+              }
+            ]
+          }
+        },
+        "replica2": {
+          "role_reported": "replica",
+          "role_configured": "replica",
+          "version": "MongoDB 7.0.37",
+          "status": {
+            "set": "rs0",
+            "my_state": 2,
+            "members": [
+              {
+                "name": "mongo1:27017",
+                "state": "PRIMARY",
+                "optime": "2026-09-14 15:24:51",
+                "lag_s": 2.155
+              },
+              {
+                "name": "mongo2:27018",
+                "state": "SECONDARY",
+                "optime": "2026-09-14 15:24:51",
+                "lag_s": 2.155
+              },
+              {
+                "name": "mongo3:27019",
+                "state": "SECONDARY",
+                "optime": "2026-09-14 15:24:53",
+                "lag_s": 0.155
+              }
+            ]
+          }
+        }
+      },
+      "visibility_lag": {
+        "replica": {
+          "replica": "replica",
+          "n": 30,
+          "visible": 30,
+          "timeouts": 0,
+          "lag_ms": {
+            "n": 30,
+            "min": 0.7361360476352274,
+            "p50": 1.285467529669404,
+            "p90": 1.54998964862898,
+            "p95": 1.5649342676624656,
+            "p99": 1.6602470638463274,
+            "max": 1.6955629689618945,
+            "mean": 1.2882298595892887,
+            "stdev": 0.23066756373164554
+          }
+        },
+        "replica2": {
+          "replica": "replica2",
+          "n": 30,
+          "visible": 30,
+          "timeouts": 0,
+          "lag_ms": {
+            "n": 30,
+            "min": 0.913101015612483,
+            "p50": 1.4841124939266592,
+            "p90": 1.5813881705980748,
+            "p95": 1.6030064783990383,
+            "p99": 1.631980076781474,
+            "max": 1.639540947508067,
+            "mean": 1.422642501226316,
+            "stdev": 0.17905945917663812
+          }
+        }
+      },
+      "write_rejection": {
+        "replica": {
+          "replica": "replica",
+          "writes_rejected": true,
+          "error_code": null,
+          "error": "NotPrimaryError: not primary, full error: {'topologyVersion': {'processId': ObjectId('6aa81184a4c6f8672c98efeb'), 'counter': 4}, 'ok': 0.0, 'errmsg': 'not primary', 'code': 10107, 'codeName': 'NotWritablePrimary', '$clusterTime': {'clusterTime': Timestamp(1789399497, 11), 'signature': {'hash': b'\\x0"
+        },
+        "replica2": {
+          "replica": "replica2",
+          "writes_rejected": true,
+          "error_code": null,
+          "error": "NotPrimaryError: not primary, full error: {'topologyVersion': {'processId': ObjectId('6aa811846e1680909b4eab8c'), 'counter': 4}, 'ok': 0.0, 'errmsg': 'not primary', 'code': 10107, 'codeName': 'NotWritablePrimary', '$clusterTime': {'clusterTime': Timestamp(1789399497, 11), 'signature': {'hash': b'\\x0"
+        }
+      },
+      "lag_under_load": {
+        "rows": 20000,
+        "batch": 500,
+        "write_seconds": 0.59,
+        "rows_per_s": 33860,
+        "catchup_ms_after_last_write": {
+          "replica": 27.7,
+          "replica2": 30.2
+        },
+        "samples": [
+          {
+            "t": 353613.844,
+            "primary": {
+              "set": "rs0",
+              "my_state": 1,
+              "members": [
+                {
+                  "name": "mongo1:27017",
+                  "state": "PRIMARY",
+                  "optime": "2026-09-14 15:24:57",
+                  "lag_s": 0.693
+                },
+                {
+                  "name": "mongo2:27018",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-14 15:24:57",
+                  "lag_s": 0.693
+                },
+                {
+                  "name": "mongo3:27019",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-14 15:24:57",
+                  "lag_s": 0.693
+                }
+              ]
+            },
+            "replica": {
+              "set": "rs0",
+              "my_state": 2,
+              "members": [
+                {
+                  "name": "mongo1:27017",
+                  "state": "PRIMARY",
+                  "optime": "2026-09-14 15:24:57",
+                  "lag_s": 0.695
+                },
+                {
+                  "name": "mongo2:27018",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-14 15:24:57",
+                  "lag_s": 0.695
+                },
+                {
+                  "name": "mongo3:27019",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-14 15:24:57",
+                  "lag_s": 0.695
+                }
+              ]
+            },
+            "replica2": {
+              "set": "rs0",
+              "my_state": 2,
+              "members": [
+                {
+                  "name": "mongo1:27017",
+                  "state": "PRIMARY",
+                  "optime": "2026-09-14 15:24:57",
+                  "lag_s": 0.696
+                },
+                {
+                  "name": "mongo2:27018",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-14 15:24:57",
+                  "lag_s": 0.696
+                },
+                {
+                  "name": "mongo3:27019",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-14 15:24:57",
+                  "lag_s": 0.696
+                }
+              ]
+            }
+          },
+          {
+            "t": 353614.097,
+            "primary": {
+              "set": "rs0",
+              "my_state": 1,
+              "members": [
+                {
+                  "name": "mongo1:27017",
+                  "state": "PRIMARY",
+                  "optime": "2026-09-14 15:24:57",
+                  "lag_s": 0.947
+                },
+                {
+                  "name": "mongo2:27018",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-14 15:24:57",
+                  "lag_s": 0.947
+                },
+                {
+                  "name": "mongo3:27019",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-14 15:24:57",
+                  "lag_s": 0.947
+                }
+              ]
+            },
+            "replica": {
+              "set": "rs0",
+              "my_state": 2,
+              "members": [
+                {
+                  "name": "mongo1:27017",
+                  "state": "PRIMARY",
+                  "optime": "2026-09-14 15:24:57",
+                  "lag_s": 0.948
+                },
+                {
+                  "name": "mongo2:27018",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-14 15:24:57",
+                  "lag_s": 0.948
+                },
+                {
+                  "name": "mongo3:27019",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-14 15:24:57",
+                  "lag_s": 0.948
+                }
+              ]
+            },
+            "replica2": {
+              "set": "rs0",
+              "my_state": 2,
+              "members": [
+                {
+                  "name": "mongo1:27017",
+                  "state": "PRIMARY",
+                  "optime": "2026-09-14 15:24:57",
+                  "lag_s": 0.949
+                },
+                {
+                  "name": "mongo2:27018",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-14 15:24:57",
+                  "lag_s": 0.949
+                },
+                {
+                  "name": "mongo3:27019",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-14 15:24:57",
+                  "lag_s": 0.949
+                }
+              ]
+            }
+          },
+          {
+            "t": 353614.35,
+            "primary": {
+              "set": "rs0",
+              "my_state": 1,
+              "members": [
+                {
+                  "name": "mongo1:27017",
+                  "state": "PRIMARY",
+                  "optime": "2026-09-14 15:24:58",
+                  "lag_s": 0.2
+                },
+                {
+                  "name": "mongo2:27018",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-14 15:24:57",
+                  "lag_s": 1.2
+                },
+                {
+                  "name": "mongo3:27019",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-14 15:24:57",
+                  "lag_s": 1.2
+                }
+              ]
+            },
+            "replica": {
+              "set": "rs0",
+              "my_state": 2,
+              "members": [
+                {
+                  "name": "mongo1:27017",
+                  "state": "PRIMARY",
+                  "optime": "2026-09-14 15:24:58",
+                  "lag_s": 0.201
+                },
+                {
+                  "name": "mongo2:27018",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-14 15:24:58",
+                  "lag_s": 0.201
+                },
+                {
+                  "name": "mongo3:27019",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-14 15:24:57",
+                  "lag_s": 1.201
+                }
+              ]
+            },
+            "replica2": {
+              "set": "rs0",
+              "my_state": 2,
+              "members": [
+                {
+                  "name": "mongo1:27017",
+                  "state": "PRIMARY",
+                  "optime": "2026-09-14 15:24:58",
+                  "lag_s": 0.202
+                },
+                {
+                  "name": "mongo2:27018",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-14 15:24:57",
+                  "lag_s": 1.202
+                },
+                {
+                  "name": "mongo3:27019",
+                  "state": "SECONDARY",
+                  "optime": "2026-09-14 15:24:58",
+                  "lag_s": 0.202
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "read_scaling": {
+        "primary_only": {
+          "targets": [
+            "primary"
+          ],
+          "workers": 32,
+          "ops": 106850,
+          "ops_per_s": 26712,
+          "errors": 0,
+          "latency_ms": {
+            "n": 106850,
+            "min": 0.554291,
+            "p50": 1.1158744999999999,
+            "p90": 1.6842376000000001,
+            "p95": 1.90589065,
+            "p99": 2.4414618299999997,
+            "max": 14.591144,
+            "mean": 1.1964194241834347,
+            "stdev": 0.40091724094499925
+          }
+        },
+        "primary_plus_replicas": {
+          "targets": [
+            "primary",
+            "replica",
+            "replica2"
+          ],
+          "workers": 32,
+          "ops": 108398,
+          "ops_per_s": 27100,
+          "errors": 0,
+          "latency_ms": {
+            "n": 108398,
+            "min": 0.5506,
+            "p50": 1.09626,
+            "p90": 1.6833552999999999,
+            "p95": 1.917935349999999,
+            "p99": 2.4870107399999997,
+            "max": 12.164483,
+            "mean": 1.1792434027934096,
+            "stdev": 0.4021676432954406
+          }
+        },
+        "gain": 1.01
+      },
+      "failover": {
+        "kind": "replica set (oplog, async, automatic election)",
+        "killed": "primary",
+        "killed_container": "nslab-mongo1",
+        "writes_still_succeed_after_kill": true,
+        "write_attempts_until_success": 1,
+        "last_error_before_success": null,
+        "downtime_ms": 923.2,
+        "new_primary": "replica",
+        "verified_via": "replica",
+        "new_primary_role": "primary",
+        "new_primary_status": {
+          "set": "rs0",
+          "my_state": 1,
+          "members": [
+            {
+              "name": "mongo1:27017",
+              "state": "SECONDARY",
+              "optime": "2026-09-14 15:25:09",
+              "lag_s": 4.901
+            },
+            {
+              "name": "mongo2:27018",
+              "state": "PRIMARY",
+              "optime": "2026-09-14 15:25:13",
+              "lag_s": 0.901
+            },
+            {
+              "name": "mongo3:27019",
+              "state": "SECONDARY",
+              "optime": "2026-09-14 15:25:09",
+              "lag_s": 4.901
+            }
+          ]
+        },
+        "old_primary_restarted": true,
+        "note": "old primary restarted; whether it rejoins depends on the engine (stack should be recreated for reuse)"
+      },
+      "_seconds": 42.3
+    }
+  },
+  "partial": false,
+  "platform": "k3s",
+  "server_version": "MongoDB 7.0.37",
+  "finished": "2026-09-14T15:25:35+00:00"
+}

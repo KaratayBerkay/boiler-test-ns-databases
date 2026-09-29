@@ -1,0 +1,84 @@
+# Apache Cassandra 5.0 — 3-node cluster (RF 3), GossipingPropertyFileSnitch, static container IPs on a dedicated bridge
+# subnet so the host driver reaches every node directly (no port mapping; peers advertise 10.99.1.x). Nodes join
+# sequentially (each waits for the previous to be UN). 4 GB heap per node, 16 vnodes.
+name: nslab-cassandra
+# Logging strategy (shared by every stack): the json-file driver with rotation so a chatty engine cannot fill the
+# host disk, `compress` for rotated files. `docker logs <container>` still works; a shipper (promtail/fluent-bit/otel
+# collector) tails the same files. Engine-side slow-query / audit settings live in the service `command`/`environment`.
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "50m"
+    max-file: "3"
+    compress: "true"
+networks:
+  cass:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.99.1.0/24
+services:
+  cassandra1: &cass
+    image: cassandra:5
+    container_name: nslab-cassandra1
+    # Kubernetes (k8s/gen.py): no static IPs there — seeds by headless-Service name, gossip on pod IPs, and each node
+    # gets its own NodePort so the harness can pin a client to a node exactly as it does with the container IPs.
+    # JMX is opened (unauthenticated, in-namespace only) so the backup CronJob can run `nodetool -h cassandraN snapshot`.
+    x-k8s: {port: 9042, publish: {"9042": 19042}, env: {CASSANDRA_SEEDS: cassandra1, LOCAL_JMX: "no", JVM_EXTRA_OPTS: "-Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false"}}
+    environment: &cassenv
+      CASSANDRA_CLUSTER_NAME: lab
+      CASSANDRA_SEEDS: 10.99.1.11
+      CASSANDRA_ENDPOINT_SNITCH: GossipingPropertyFileSnitch
+      CASSANDRA_DC: dc1
+      CASSANDRA_RACK: rack1
+      CASSANDRA_NUM_TOKENS: "16"
+      MAX_HEAP_SIZE: 4G
+      HEAP_NEWSIZE: 800M
+      JVM_OPTS: "-Dcassandra.skip_wait_for_gossip_to_settle=0 -Dcassandra.ring_delay_ms=5000"
+    logging: *logging
+    networks:
+      cass:
+        ipv4_address: 10.99.1.11
+    volumes:
+      - cass1:/var/lib/cassandra
+      - backups:/backups
+    ulimits:
+      memlock: -1
+      nofile: 100000
+    healthcheck:
+      test: ["CMD-SHELL", "nodetool status | grep -q '^UN' && cqlsh -e 'describe keyspaces' >/dev/null"]
+      interval: 10s
+      timeout: 10s
+      retries: 60
+      start_period: 30s
+  cassandra2:
+    <<: *cass
+    container_name: nslab-cassandra2
+    x-k8s: {port: 9042, publish: {"9042": 19043}, env: {CASSANDRA_SEEDS: cassandra1, LOCAL_JMX: "no", JVM_EXTRA_OPTS: "-Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false"}}
+    networks:
+      cass:
+        ipv4_address: 10.99.1.12
+    volumes:
+      - cass2:/var/lib/cassandra
+      - backups:/backups
+    depends_on:
+      cassandra1:
+        condition: service_healthy
+  cassandra3:
+    <<: *cass
+    container_name: nslab-cassandra3
+    x-k8s: {port: 9042, publish: {"9042": 19044}, env: {CASSANDRA_SEEDS: cassandra1, LOCAL_JMX: "no", JVM_EXTRA_OPTS: "-Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false"}}
+    networks:
+      cass:
+        ipv4_address: 10.99.1.13
+    volumes:
+      - cass3:/var/lib/cassandra
+      - backups:/backups
+    depends_on:
+      cassandra2:
+        condition: service_healthy
+volumes:
+  cass1:
+  cass2:
+  cass3:
+  backups:          # exported snapshots in sstableloader layout (backup phase) — removed with `down -v`

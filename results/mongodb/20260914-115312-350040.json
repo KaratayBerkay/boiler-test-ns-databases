@@ -1,0 +1,227 @@
+{
+  "engine": "mongodb",
+  "display": "MongoDB 7.0",
+  "category": "document store (replica set)",
+  "family": "document",
+  "driver": "pymongo",
+  "image": "mongo:7",
+  "run_id": "20260914-115312-350040",
+  "started": "2026-09-14T08:53:12+00:00",
+  "scale": 1.0,
+  "notes": "Official mongo:7 image (7.0.x). mongo:8 (8.3.9) refuses to start on this host's Linux 7.0.0 kernel (SERVER-121912: TCMalloc rseq incompatibility with kernels 6.19-7.0.13, exits at startup, no bypass) so the lab pins 7.0. 3-member replica set rs0 (priorities 3/2/1) initiated by a one-shot mongosh container; no auth. Per-node targets use directConnection=true; writes w=1 unless an experiment says otherwise. $vectorSearch is Atlas / mongot-only, so vector_knn is unsupported on Community.",
+  "phases": {
+    "logging": {
+      "strategy": {
+        "server_log": "JSON lines on stdout ({t, s, c, id, ctx, msg, attr}); systemLog.path + logRotate for files; getLog reads the in-memory ring",
+        "slow_query": "operationProfiling: mode slowOp/all, slowOpThresholdMs, slowOpSampleRate -> capped system.profile per database + 'Slow query' log lines (durationMillis, planSummary, keysExamined/docsExamined)",
+        "audit": "auditLog is Enterprise / Percona PSMDB (destination file|syslog|console, filter) \u2014 not in Community",
+        "runtime": "setParameter logLevel / logComponentVerbosity, db.setProfilingLevel(level, {slowms, sampleRate}) \u2014 no restart"
+      },
+      "threshold_ms": 100,
+      "containers": {
+        "nslab-mongo1": {
+          "driver": "json-file",
+          "options": {
+            "compress": "true",
+            "max-file": "3",
+            "max-size": "50m"
+          },
+          "log_path": "/var/lib/docker/containers/2c5122c6c1540a8aeb6b169f889ce45fff1adfd6483d2cc7734d0c326d42b68e/2c5122c6c1540a8aeb6b169f889ce45fff1adfd6483d2cc7734d0c326d42b68e-json.log",
+          "user": "root",
+          "started": "2026-09-14T08:02:30.915385769Z",
+          "bytes": 8110230,
+          "lines": 21778,
+          "json_lines_pct": 100.0,
+          "format": "json",
+          "sample": [
+            "{\"t\":{\"$date\":\"2026-09-14T08:53:12.320+00:00\"},\"s\":\"I\",  \"c\":\"NETWORK\",  \"id\":22944,   \"ctx\":\"conn4430\",\"msg\":\"Connection ended\",\"attr\":{\"remote\":\"127.0.0.1:56234\",\"isLoadBalanced\":false,\"uuid\":{\"uuid\":{\"$uuid\":\"7abd87a3-466a-4ad0-afc0-6cee",
+            "{\"t\":{\"$date\":\"2026-09-14T08:53:12.320+00:00\"},\"s\":\"I\",  \"c\":\"NETWORK\",  \"id\":22944,   \"ctx\":\"conn4429\",\"msg\":\"Connection ended\",\"attr\":{\"remote\":\"127.0.0.1:56228\",\"isLoadBalanced\":false,\"uuid\":{\"uuid\":{\"$uuid\":\"ad5214c8-8459-4817-a73f-ef8e",
+            "{\"t\":{\"$date\":\"2026-09-14T08:53:12.320+00:00\"},\"s\":\"I\",  \"c\":\"NETWORK\",  \"id\":22944,   \"ctx\":\"conn4428\",\"msg\":\"Connection ended\",\"attr\":{\"remote\":\"127.0.0.1:56220\",\"isLoadBalanced\":false,\"uuid\":{\"uuid\":{\"$uuid\":\"666cef58-c86c-484d-8932-a3eb"
+          ]
+        },
+        "nslab-mongo2": {
+          "driver": "json-file",
+          "options": {
+            "compress": "true",
+            "max-file": "3",
+            "max-size": "50m"
+          },
+          "log_path": "/var/lib/docker/containers/e8996ea0e0ddb068c8b99dfd40c21e5552caba9b91484e4ab8e4d8405b7325ef/e8996ea0e0ddb068c8b99dfd40c21e5552caba9b91484e4ab8e4d8405b7325ef-json.log",
+          "user": "root",
+          "started": "2026-09-14T08:02:30.914325723Z",
+          "bytes": 7565360,
+          "lines": 20826,
+          "json_lines_pct": 100.0,
+          "format": "json",
+          "sample": [
+            "{\"t\":{\"$date\":\"2026-09-14T08:53:11.411+00:00\"},\"s\":\"I\",  \"c\":\"NETWORK\",  \"id\":22944,   \"ctx\":\"conn4291\",\"msg\":\"Connection ended\",\"attr\":{\"remote\":\"127.0.0.1:52000\",\"isLoadBalanced\":false,\"uuid\":{\"uuid\":{\"$uuid\":\"9ec40cfe-6857-42ba-a8ba-0673",
+            "{\"t\":{\"$date\":\"2026-09-14T08:53:11.411+00:00\"},\"s\":\"I\",  \"c\":\"NETWORK\",  \"id\":22944,   \"ctx\":\"conn4290\",\"msg\":\"Connection ended\",\"attr\":{\"remote\":\"127.0.0.1:51998\",\"isLoadBalanced\":false,\"uuid\":{\"uuid\":{\"$uuid\":\"7fc7691a-c10a-4ed7-9c3d-3534",
+            "{\"t\":{\"$date\":\"2026-09-14T08:53:11.411+00:00\"},\"s\":\"I\",  \"c\":\"NETWORK\",  \"id\":22944,   \"ctx\":\"conn4289\",\"msg\":\"Connection ended\",\"attr\":{\"remote\":\"127.0.0.1:51984\",\"isLoadBalanced\":false,\"uuid\":{\"uuid\":{\"$uuid\":\"acccb6ea-b8d5-4736-be38-1817"
+          ]
+        },
+        "nslab-mongo3": {
+          "driver": "json-file",
+          "options": {
+            "compress": "true",
+            "max-file": "3",
+            "max-size": "50m"
+          },
+          "log_path": "/var/lib/docker/containers/925aa6e42d672a8f9b9bd9009e4d3983d827ecbafafc985c69cad09264787e1e/925aa6e42d672a8f9b9bd9009e4d3983d827ecbafafc985c69cad09264787e1e-json.log",
+          "user": "root",
+          "started": "2026-09-14T08:02:30.914812494Z",
+          "bytes": 7558825,
+          "lines": 20766,
+          "json_lines_pct": 100.0,
+          "format": "json",
+          "sample": [
+            "{\"t\":{\"$date\":\"2026-09-14T08:53:11.721+00:00\"},\"s\":\"I\",  \"c\":\"NETWORK\",  \"id\":22944,   \"ctx\":\"conn4292\",\"msg\":\"Connection ended\",\"attr\":{\"remote\":\"127.0.0.1:35420\",\"isLoadBalanced\":false,\"uuid\":{\"uuid\":{\"$uuid\":\"c1c46bf1-e867-4aaf-8271-be90",
+            "{\"t\":{\"$date\":\"2026-09-14T08:53:11.722+00:00\"},\"s\":\"I\",  \"c\":\"NETWORK\",  \"id\":22944,   \"ctx\":\"conn4291\",\"msg\":\"Connection ended\",\"attr\":{\"remote\":\"127.0.0.1:35406\",\"isLoadBalanced\":false,\"uuid\":{\"uuid\":{\"$uuid\":\"4e4388a0-6423-4113-8776-b1a8",
+            "{\"t\":{\"$date\":\"2026-09-14T08:53:11.722+00:00\"},\"s\":\"I\",  \"c\":\"NETWORK\",  \"id\":22944,   \"ctx\":\"conn4290\",\"msg\":\"Connection ended\",\"attr\":{\"remote\":\"127.0.0.1:35392\",\"isLoadBalanced\":false,\"uuid\":{\"uuid\":{\"$uuid\":\"5b79b64f-5b63-4213-bb5b-f489"
+          ]
+        }
+      },
+      "server_log": {
+        "status": "ok",
+        "value": {
+          "format": "json",
+          "where": "stdout (docker logs) \u2014 systemLog.path when set; getLog: global = last 1024 lines in memory",
+          "ring_lines": 21788,
+          "sample": [
+            "{\"t\":{\"$date\":\"2026-09-14T08:53:13.588+00:00\"},\"s\":\"I\",  \"c\":\"NETWORK\",  \"id\":51800,   \"ctx\":\"conn4434\",\"msg\":\"client metadata\",\"attr\":{\"remote\":\"172.24.0.1:48322\",\"client\":\"conn4434\",\"negotiatedCompr",
+            "{\"t\":{\"$date\":\"2026-09-14T08:53:13.588+00:00\"},\"s\":\"I\",  \"c\":\"ACCESS\",   \"id\":10483900,\"ctx\":\"conn4434\",\"msg\":\"Connection not authenticating\",\"attr\":{\"client\":\"172.24.0.1:48322\",\"doc\":{\"driver\":{\"name",
+            "{\"t\":{\"$date\":\"2026-09-14T08:53:13.588+00:00\"},\"s\":\"I\",  \"c\":\"NETWORK\",  \"id\":6788700, \"ctx\":\"conn4433\",\"msg\":\"Received first command on ingress connection since session start or auth handshake\",\"attr"
+          ]
+        },
+        "ms": 1.3
+      },
+      "slow_query": {
+        "setup": {
+          "status": "ok",
+          "value": "db.setProfilingLevel(1, {slowms: 100, sampleRate: 1.0}) on 'lab' (system.profile capped 1 MB + 'Slow query' JSON log lines)",
+          "ms": 1.0
+        },
+        "effective_threshold_ms": 100,
+        "fast_op": {
+          "desc": "find customers {_id: 1}",
+          "ms": 0.9,
+          "status": "ok",
+          "error": null
+        },
+        "slow_op": {
+          "desc": "aggregate events [$group by event_type] (1M-doc collection scan)",
+          "ms": 1099.0,
+          "status": "ok",
+          "error": null
+        },
+        "entries": [
+          {
+            "ms": 1097,
+            "text": "command lab.events {\"aggregate\": \"events\", \"pipeline\": [{\"$group\": {\"_id\": \"$event_type\", \"n\": {\"$sum\": 1}}}], \"cursor\": {}}",
+            "planSummary": "COLLSCAN",
+            "docsExamined": 1000000,
+            "keysExamined": 0
+          },
+          {
+            "ms": 1202,
+            "text": "command lab.events {\"aggregate\": \"events\", \"pipeline\": [{\"$group\": {\"_id\": \"$event_type\", \"n\": {\"$sum\": 1}}}], \"cursor\": {}}",
+            "planSummary": "COLLSCAN",
+            "docsExamined": 1000000,
+            "keysExamined": 0
+          },
+          {
+            "ms": 3346,
+            "text": "command lab.events {\"createIndexes\": \"events\", \"indexes\": [{\"key\": {\"customer_id\": 1}, \"ns\": \"lab.events\", \"name\": \"customer_id_1\"}], \"ignoreUnknownIndexOptions\": true}",
+            "planSummary": null,
+            "docsExamined": null,
+            "keysExamined": null
+          },
+          {
+            "ms": 2676,
+            "text": "command lab.order_items {\"createIndexes\": \"order_items\", \"indexes\": [{\"key\": {\"order_id\": 1}, \"name\": \"order_id_1\", \"ns\": \"lab.order_items\"}, {\"key\": {\"product_id\": 1}, \"name\": \"produc",
+            "planSummary": null,
+            "docsExamined": null,
+            "keysExamined": null
+          },
+          {
+            "ms": 1237,
+            "text": "command lab.scratch {\"createIndexes\": \"scratch\", \"indexes\": [{\"key\": {\"expires_at\": 1}, \"name\": \"expires_at_1\", \"expireAfterSeconds\": 0, \"ns\": \"lab.scratch\"}], \"ignoreUnknownIndexO",
+            "planSummary": null,
+            "docsExamined": null,
+            "keysExamined": null
+          },
+          {
+            "ms": 1958,
+            "text": "command lab.orders {\"createIndexes\": \"orders\", \"indexes\": [{\"key\": {\"ordered_at\": 1, \"_id\": 1}, \"name\": \"ordered_at_1__id_1\", \"ns\": \"lab.orders\"}, {\"key\": {\"customer_id\": 1}, \"nam",
+            "planSummary": null,
+            "docsExamined": null,
+            "keysExamined": null
+          },
+          {
+            "ms": 726,
+            "text": "command lab.products {\"createIndexes\": \"products\", \"indexes\": [{\"key\": {\"category_id\": 1, \"price\": -1}, \"name\": \"category_id_1_price_-1\", \"ns\": \"lab.products\"}, {\"key\": {\"sku\": 1}, ",
+            "planSummary": null,
+            "docsExamined": null,
+            "keysExamined": null
+          },
+          {
+            "ms": 433,
+            "text": "command lab.customers {\"createIndexes\": \"customers\", \"indexes\": [{\"key\": {\"email\": 1}, \"name\": \"email_1\", \"unique\": true, \"ns\": \"lab.customers\"}, {\"key\": {\"country_code\": 1, \"tier\": ",
+            "planSummary": null,
+            "docsExamined": null,
+            "keysExamined": null
+          },
+          {
+            "ms": 159,
+            "text": "command lab.inventory {\"createIndexes\": \"inventory\", \"indexes\": [{\"key\": {\"product_id\": 1, \"warehouse_id\": 1}, \"name\": \"product_id_1_warehouse_id_1\", \"ns\": \"lab.inventory\"}], \"ignore",
+            "planSummary": null,
+            "docsExamined": null,
+            "keysExamined": null
+          },
+          {
+            "ms": 109,
+            "text": "insert lab.events {\"insert\": \"events\", \"ordered\": false, \"bypassEmptyTsReplacement\": true, \"writeConcern\": {\"w\": \"majority\"}, \"txnNumber\": 466}",
+            "planSummary": null,
+            "docsExamined": null,
+            "keysExamined": null
+          }
+        ],
+        "entries_status": "ok",
+        "entries_error": null,
+        "slow_op_logged": true,
+        "logged_ms": 1097,
+        "fast_op_logged": false,
+        "verified": true
+      },
+      "audit": {
+        "setup": {
+          "status": "unsupported",
+          "detail": "auditLog is MongoDB Enterprise / Percona Server for MongoDB (auditLog.destination file|syslog|console + filter); Community has the profiler + JSON log",
+          "ms": 0.0
+        }
+      },
+      "runtime_log_level": {
+        "status": "ok",
+        "value": "setParameter logComponentVerbosity.command -1 -> 1 -> -1 (no restart; every command logged at 1)",
+        "ms": 4.9
+      },
+      "log_volume_this_phase": {
+        "nslab-mongo1": {
+          "bytes": 11094,
+          "lines": 20
+        },
+        "nslab-mongo2": {
+          "bytes": 8369,
+          "lines": 23
+        },
+        "nslab-mongo3": {
+          "bytes": 8363,
+          "lines": 23
+        }
+      },
+      "_seconds": 3.1
+    }
+  },
+  "partial": false,
+  "server_version": "MongoDB 7.0.37",
+  "finished": "2026-09-14T08:53:15+00:00"
+}

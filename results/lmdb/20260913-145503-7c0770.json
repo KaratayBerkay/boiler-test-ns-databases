@@ -1,0 +1,30 @@
+{
+  "engine": "lmdb",
+  "display": "LMDB",
+  "category": "embedded ordered key-value (memory-mapped B+tree)",
+  "family": "embedded",
+  "driver": "lmdb",
+  "image": "(embedded, python lmdb package)",
+  "run_id": "20260913-145503-7c0770",
+  "started": "2026-09-13T11:55:03+00:00",
+  "scale": 1.0,
+  "notes": "Lightning Memory-Mapped Database, in-process, single writer / many MVCC readers. No query engine: an ordered key-value map. The lab models documents plus hand-maintained ordered index keyspaces (idx/...); aggregations, text, geo and vector scan the primary keyspace. 8 GB map. No server, no network, no replication.",
+  "phases": {
+    "replication": {
+      "kind": "none",
+      "topology": {
+        "embedded": {
+          "role_reported": "embedded",
+          "role_configured": "primary",
+          "version": "unknown",
+          "status": {}
+        }
+      },
+      "status": "single-node",
+      "_seconds": 0.0
+    }
+  },
+  "partial": false,
+  "server_version": "unknown",
+  "finished": "2026-09-13T11:55:03+00:00"
+}

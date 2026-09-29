@@ -1,0 +1,459 @@
+{
+  "engine": "neo4j",
+  "display": "Neo4j 5",
+  "category": "property graph (native, index-free adjacency)",
+  "family": "graph",
+  "driver": "bolt",
+  "image": "neo4j:5-community",
+  "run_id": "20260914-113933-db83dc",
+  "started": "2026-09-14T08:39:33+00:00",
+  "scale": 1.0,
+  "notes": "Neo4j 5 Community, single instance (causal clustering, CDC, online backup and read routing are Enterprise-only). Order items are CONTAINS relationships, categories a CHILD_OF tree, so graph_traversal and join_lookup are native. Built-in full-text (Lucene) and HNSW vector indexes; no native TTL or pub/sub.",
+  "phases": {
+    "load": {
+      "scale": 1.0,
+      "collections": {
+        "customers": {
+          "rows": 20000,
+          "counted": 20000,
+          "expected": 20000,
+          "seconds": 4.52,
+          "rows_per_s": 4428,
+          "method": "bulk_put",
+          "ok": true
+        },
+        "categories": {
+          "rows": 200,
+          "counted": 200,
+          "expected": 200,
+          "seconds": 0.38,
+          "rows_per_s": 523,
+          "method": "bulk_put",
+          "ok": true
+        },
+        "products": {
+          "rows": 5000,
+          "counted": 5000,
+          "expected": 5000,
+          "seconds": 2.41,
+          "rows_per_s": 2075,
+          "method": "bulk_put",
+          "ok": true
+        },
+        "orders": {
+          "rows": 200000,
+          "counted": 200000,
+          "expected": 200000,
+          "seconds": 56.24,
+          "rows_per_s": 3556,
+          "method": "bulk_put",
+          "ok": true
+        },
+        "events": {
+          "rows": 1000000,
+          "counted": 1000000,
+          "expected": 1000000,
+          "seconds": 122.67,
+          "rows_per_s": 8152,
+          "method": "bulk_put",
+          "ok": true
+        },
+        "inventory": {
+          "rows": 20000,
+          "counted": 20000,
+          "expected": 20000,
+          "seconds": 1.71,
+          "rows_per_s": 11679,
+          "method": "bulk_put",
+          "ok": true
+        }
+      },
+      "schema": [
+        "CREATE CONSTRAINT customer_id IF NOT EXISTS",
+        "CREATE CONSTRAINT category_id IF NOT EXISTS",
+        "CREATE CONSTRAINT product_id IF NOT EXISTS",
+        "CREATE CONSTRAINT order_id IF NOT EXISTS",
+        "CREATE CONSTRAINT event_id IF NOT EXISTS",
+        "CREATE CONSTRAINT inv_key IF NOT EXISTS",
+        "CREATE INDEX cust_country_tier IF NOT EXISTS",
+        "CREATE INDEX prod_cat IF NOT EXISTS",
+        "CREATE INDEX order_status_ts IF NOT EXISTS",
+        "CREATE INDEX order_ts IF NOT EXISTS",
+        "CREATE INDEX event_type IF NOT EXISTS",
+        "CREATE POINT INDEX cust_loc IF NOT EXISTS",
+        "FULLTEXT INDEX product_desc",
+        "VECTOR INDEX product_vec (HNSW, cosine, dim 8)"
+      ],
+      "errors": [],
+      "schema_seconds": 8.68,
+      "load_seconds": 188.11,
+      "after_load": [
+        "indexes online"
+      ],
+      "post_seconds": 0.05,
+      "server_version": "Neo4j Kernel 5.26.30 (community)",
+      "_seconds": 196.9
+    },
+    "capabilities": {
+      "secondary_index": {
+        "title": "Create a secondary index on a non-key field and use it",
+        "group": "indexing",
+        "status": "supported",
+        "detail": "CREATE INDEX on a node property (range/point/text/lookup)",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "compound_index": {
+        "title": "Compound / composite index over two fields",
+        "group": "indexing",
+        "status": "supported",
+        "detail": "CREATE INDEX ... FOR (n:L) ON (n.a, n.b) composite index",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "unique_constraint": {
+        "title": "Unique constraint on a non-key field (duplicate rejected)",
+        "group": "indexing",
+        "status": "supported",
+        "detail": "UNIQUE constraint rejects duplicate: {neo4j_code: Neo.ClientError.Schema.ConstraintValidationFail",
+        "ms": 266.9
+      },
+      "ttl_expiry": {
+        "title": "Native per-document/key expiry",
+        "group": "indexing",
+        "status": "unsupported",
+        "detail": "no native per-node TTL; APOC apoc.ttl or a scheduled job on an expiry property",
+        "ms": 0.0
+      },
+      "text_index": {
+        "title": "Full-text index with tokenised search",
+        "group": "indexing",
+        "status": "supported",
+        "detail": "CREATE FULLTEXT INDEX + db.index.fulltext.queryNodes (Lucene)",
+        "ms": 211.6
+      },
+      "geo_index": {
+        "title": "Geospatial index and radius query",
+        "group": "indexing",
+        "status": "supported",
+        "detail": "point type + point.distance; POINT range index for bounding-box",
+        "ms": 216.0
+      },
+      "vector_index": {
+        "title": "Vector (ANN) index and kNN query",
+        "group": "indexing",
+        "status": "supported",
+        "detail": "CREATE VECTOR INDEX (HNSW) + db.index.vector.queryNodes",
+        "ms": 50.6
+      },
+      "partial_update": {
+        "title": "Update a single field without rewriting the document",
+        "group": "model",
+        "status": "supported",
+        "detail": "SET / REMOVE a single property",
+        "ms": 85.3
+      },
+      "atomic_increment": {
+        "title": "Server-side atomic numeric increment",
+        "group": "consistency",
+        "status": "supported",
+        "detail": "SET n.x = n.x + 1 inside an auto-committed transaction -> [(363,)]",
+        "ms": 72.6
+      },
+      "optimistic_concurrency": {
+        "title": "Compare-and-set / version or ETag-guarded write",
+        "group": "consistency",
+        "status": "supported",
+        "detail": "read version, SET guarded by WHERE in one tx -> [(1, 2)]",
+        "ms": 64.3
+      },
+      "multi_doc_transaction": {
+        "title": "Multi-document / multi-key ACID transaction with rollback",
+        "group": "consistency",
+        "status": "supported",
+        "detail": "full ACID transactions (multi-statement, commit/rollback)",
+        "ms": 46.2
+      },
+      "tunable_consistency": {
+        "title": "Per-request consistency / write concern / read preference",
+        "group": "consistency",
+        "status": "unsupported",
+        "detail": "single-primary within a cluster; routing (WRITE->leader, READ->followers) but no per-write quorum knob",
+        "ms": 0.0
+      },
+      "nested_query": {
+        "title": "Filter on a field inside a nested object",
+        "group": "model",
+        "status": "supported",
+        "detail": "map properties / flattened; APOC for deep maps",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "array_operators": {
+        "title": "Query and update array-valued fields (contains, push)",
+        "group": "model",
+        "status": "supported",
+        "detail": "list properties + IN / list comprehensions / UNWIND -> 1",
+        "ms": 141.8
+      },
+      "aggregation": {
+        "title": "Server-side group-by aggregation",
+        "group": "model",
+        "status": "supported",
+        "detail": "count/sum/avg/collect + WITH grouping",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "server_side_join": {
+        "title": "Join / lookup between two collections inside the engine",
+        "group": "model",
+        "status": "supported",
+        "detail": "traversals ARE the join: MATCH patterns over relationships (index-free adjacency)",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "graph_traversal": {
+        "title": "Variable-depth traversal over references",
+        "group": "model",
+        "status": "supported",
+        "detail": "variable-length relationships MATCH (a)-[:R*1..5]->(b); shortestPath; APOC",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "schema_validation": {
+        "title": "Server-enforced document schema / constraints",
+        "group": "model",
+        "status": "unsupported",
+        "detail": "existence/type/key constraints are Enterprise-only; Community has UNIQUE constraints only",
+        "ms": 28.0
+      },
+      "change_streams": {
+        "title": "Change feed / watch / keyspace notifications",
+        "group": "operations",
+        "status": "unsupported",
+        "detail": "CDC is Enterprise-only (db.cdc.*); Community has no change feed",
+        "ms": 0.0
+      },
+      "server_side_scripting": {
+        "title": "Stored procedures / Lua / JS / UDF executed by the server",
+        "group": "operations",
+        "status": "supported",
+        "detail": "APOC procedures/functions + custom user-defined procedures (Java) -> APOC 5.26.30",
+        "ms": 25.8
+      },
+      "pubsub": {
+        "title": "Publish/subscribe messaging built into the engine",
+        "group": "operations",
+        "status": "unsupported",
+        "detail": "no pub/sub",
+        "ms": 0.0
+      },
+      "explain_plan": {
+        "title": "Query plan / profile output for a query",
+        "group": "operations",
+        "status": "supported",
+        "detail": "EXPLAIN / PROFILE returns the operator tree (NodeIndexSeek, Expand, ...)",
+        "ms": 120.0
+      },
+      "bulk_import": {
+        "title": "Native bulk import path (bulk API, batch, COPY-like tool)",
+        "group": "operations",
+        "status": "supported",
+        "detail": "UNWIND $rows batches (used here); LOAD CSV; neo4j-admin database import (offline, fastest)",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "large_document": {
+        "title": "Store and read back a 15 MB document / value",
+        "group": "limits",
+        "status": "supported",
+        "detail": "15 MB string property ok (default max is bounded by page/heap, not a fixed doc size)",
+        "ms": 1003.6
+      },
+      "many_fields": {
+        "title": "Document with 5000 top-level fields",
+        "group": "limits",
+        "status": "supported",
+        "detail": "5001 properties on one node",
+        "ms": 1584.9
+      },
+      "read_from_replica": {
+        "title": "Client can direct reads to a replica / secondary",
+        "group": "operations",
+        "status": "unsupported",
+        "detail": "single instance in this lab (Enterprise causal cluster routes reads to secondaries via bolt+routing)",
+        "ms": 0.0
+      },
+      "snapshot_backup": {
+        "title": "Online snapshot / backup command available",
+        "group": "operations",
+        "status": "unsupported",
+        "detail": "Community: neo4j-admin database dump needs the database stopped (STOP DATABASE is rejected, so the server stops); online backup is Enterprise",
+        "ms": 0.0
+      },
+      "incremental_backup": {
+        "title": "Incremental / differential backup (file- or segment-level)",
+        "group": "operations",
+        "status": "unsupported",
+        "detail": "differential backups are Enterprise (neo4j-admin database backup --type=differential)",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "pitr": {
+        "title": "Point-in-time recovery from a continuous change log",
+        "group": "operations",
+        "status": "unsupported",
+        "detail": "Enterprise: full + differential backups restore to a transaction id; Community has full dumps only",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "slow_query_log": {
+        "title": "Server-side slow-query log with a configurable threshold",
+        "group": "logging",
+        "status": "supported",
+        "detail": "query.log (db.logs.query.threshold) stays empty in Community; the in-memory query collector db.stats.collect/retrieve('QUERIES') records every query with elapsed time (status: collecting)",
+        "ms": 39.8
+      },
+      "audit_log": {
+        "title": "Audit / full-query log of statements or auth events",
+        "group": "logging",
+        "status": "unsupported",
+        "detail": "security.log auth events and query.log are Enterprise; Community has the query collector only",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "structured_logs": {
+        "title": "JSON-structured server log out of the box",
+        "group": "logging",
+        "status": "supported",
+        "detail": "log4j2 (conf/server-logs.xml, user-logs.xml): switch the PatternLayout to JsonTemplateLayout; text by default",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "runtime_log_level": {
+        "title": "Change log verbosity at run time (no restart)",
+        "group": "logging",
+        "status": "supported",
+        "detail": "conf/server-logs.xml is re-read every 30 s (log4j2 monitorInterval) \u2014 edit the Root level, no restart; dbms.setConfigValue is Enterprise",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "_seconds": 4.0
+    },
+    "backup": {
+      "_error": "DriverError: Driver closed",
+      "_seconds": 35.2
+    },
+    "logging": {
+      "strategy": {
+        "server_log": "/logs/neo4j.log (user log, also stdout), /logs/debug.log (root logger, 20 MB x 7 rolling), query.log / security.log / http.log \u2014 log4j2 via conf/server-logs.xml + user-logs.xml",
+        "slow_query": "db.logs.query.enabled + db.logs.query.threshold write query.log with parameters/page hits \u2014 Enterprise only in practice (accepted but empty in Community); Community: CALL db.stats.collect/retrieve('QUERIES') in-memory query collector",
+        "audit": "security.log (authentication/authorization events) is Enterprise; no statement audit in Community",
+        "runtime": "log4j2 monitorInterval=30: edit conf/server-logs.xml and the level changes within 30 s, no restart; dbms.setConfigValue is Enterprise"
+      },
+      "threshold_ms": 100,
+      "containers": {
+        "nslab-neo4j": {
+          "driver": "json-file",
+          "options": {
+            "compress": "true",
+            "max-file": "3",
+            "max-size": "50m"
+          },
+          "log_path": "/var/lib/docker/containers/88d428240fba06013e481b50456dfb755f7bd9620746f4767b95696762447cc0/88d428240fba06013e481b50456dfb755f7bd9620746f4767b95696762447cc0-json.log",
+          "user": "root",
+          "started": "2026-09-14T08:43:16.081047322Z",
+          "bytes": 6679,
+          "lines": 77,
+          "json_lines_pct": 0.0,
+          "format": "text",
+          "sample": [
+            "2026-09-14 08:43:27.646+0000 WARN  Java vector incubator module is not readable. For optimal vector performance, pass '--add-modules jdk.incubator.vector' to enable Vector API.",
+            "2026-09-14 08:43:27.841+0000 INFO  Anonymous Usage Data is being sent to Neo4j, see https://neo4j.com/docs/usage-data/",
+            "2026-09-14 08:43:27.880+0000 INFO  Bolt enabled on 0.0.0.0:7687."
+          ]
+        }
+      },
+      "server_log": {
+        "status": "ok",
+        "value": {
+          "format": "text (log4j2 PatternLayout; JsonTemplateLayout available)",
+          "where": "/logs/{neo4j,debug,query,security,http}.log + stdout",
+          "files": [
+            "-rw-r--r-- 1 neo4j neo4j 469620 Sep 14 08:43 debug.log",
+            "-rw-r--r-- 1 neo4j neo4j      0 Sep 14 08:03 http.log",
+            "-rw-r--r-- 1 neo4j neo4j   4536 Sep 14 08:43 neo4j.log",
+            "-rw-r--r-- 1 neo4j neo4j      0 Sep 14 08:03 query.log",
+            "-rw-r--r-- 1 neo4j neo4j      0 Sep 14 08:03 security.log"
+          ],
+          "sample": [
+            "2026-09-14 08:43:27.841+0000 INFO  Anonymous Usage Data is being sent to Neo4j, see https://neo4j.com/docs/usage-data/",
+            "2026-09-14 08:43:27.880+0000 INFO  Bolt enabled on 0.0.0.0:7687."
+          ]
+        },
+        "ms": 79.4
+      },
+      "slow_query": {
+        "setup": {
+          "status": "ok",
+          "value": "db.logs.query.threshold=100ms is configured but Community writes nothing to query.log; using the query collector: CALL db.stats.clear/collect('QUERIES') (in-memory, every query with elapsed \u00b5s; filter >= 100 ms)",
+          "ms": 263.0
+        },
+        "effective_threshold_ms": 100,
+        "fast_op": {
+          "desc": "MATCH (c:Customer {id: $id}) RETURN c.name",
+          "ms": 85.2,
+          "status": "ok",
+          "error": null
+        },
+        "slow_op": {
+          "desc": "MATCH (e:Event) WHERE e.value_num > 0.5 RETURN count(e) (1M-node label scan)",
+          "ms": 924.6,
+          "status": "ok",
+          "error": null
+        },
+        "entries": [
+          {
+            "ms": 722.8,
+            "text": "MATCH (e:Event) WHERE e.value_num > 0.5 RETURN count(e)",
+            "invocations": 1,
+            "compile_ms": 198.4
+          },
+          {
+            "ms": null,
+            "text": "[/logs/query.log] 0 bytes (db.logs.query.enabled=INFO, threshold 100ms \u2014 Enterprise feature, empty in Community)",
+            "kind": "server-log"
+          }
+        ],
+        "entries_status": "ok",
+        "entries_error": null,
+        "slow_op_logged": true,
+        "logged_ms": 722.8,
+        "fast_op_logged": false,
+        "verified": true
+      },
+      "audit": {
+        "setup": {
+          "status": "unsupported",
+          "detail": "security.log (authentication/authorization events) and query.log are Enterprise; Community has no audit log",
+          "ms": 0.0
+        }
+      },
+      "runtime_log_level": {
+        "status": "ok",
+        "value": "edited conf/server-logs.xml Root level INFO->DEBUG; log4j2 monitorInterval=30 picked it up after 20.9s (DEBUG lines appeared in debug.log); reverted",
+        "ms": 21120.2
+      },
+      "log_volume_this_phase": {
+        "nslab-neo4j": {
+          "bytes": 423,
+          "lines": 6
+        }
+      },
+      "_seconds": 23.3
+    }
+  },
+  "partial": false,
+  "server_version": "Neo4j Kernel 5.26.30 (community)",
+  "finished": "2026-09-14T08:43:53+00:00"
+}

@@ -1,0 +1,3 @@
+source: https://github.com/scylladb/agent-skills/tree/main/skills/scylladb-vector-search
+license: Apache-2.0
+vendored: 2026-09-13 (ns-databases lab)

@@ -1,0 +1,27 @@
+{
+  "size": "small",
+  "sizes": {
+    "users": 40000,
+    "conversations": 60000,
+    "group_frac": 0.3,
+    "avg_degree": 25,
+    "max_group": 300,
+    "msg_cap": 800,
+    "msg_skew": 5.0,
+    "user_skew": 2.4,
+    "group_size_skew": 3.5
+  },
+  "seconds": 420.9,
+  "written": {
+    "users": 40000,
+    "friends": 999976,
+    "requests": 119996,
+    "conversations": 60000,
+    "messages": 7983898
+  },
+  "messages_per_s": 18969,
+  "errors": [],
+  "server": "Cassandra 5.0.9 keyspace=chatter RF=3 CL=6 fanout=write",
+  "run_id": "20260913-154631-7ab57f",
+  "saved": "2026-09-13T12:46:31+00:00"
+}

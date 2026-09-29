@@ -1,0 +1,267 @@
+{
+  "engine": "elasticsearch",
+  "display": "Elasticsearch 9",
+  "category": "search / analytics engine (Lucene, inverted index)",
+  "family": "search",
+  "driver": "es",
+  "image": "elasticsearch:9.5.3",
+  "run_id": "20260914-115351-b00988",
+  "started": "2026-09-14T08:53:51+00:00",
+  "scale": 1.0,
+  "notes": "Elasticsearch 9 single node, security disabled. One index per collection, every field indexed at mapping time (inverted index for keyword/text, BKD tree for numeric/geo, HNSW for dense_vector). Eventually consistent for search (30 s refresh; the harness refreshes after load). No multi-document transactions, no server-side joins across indices, no per-document TTL.",
+  "phases": {
+    "capabilities": {
+      "secondary_index": {
+        "title": "Create a secondary index on a non-key field and use it",
+        "group": "indexing",
+        "status": "supported",
+        "detail": "every field is indexed by default (inverted index / BKD tree / doc_values)",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "compound_index": {
+        "title": "Compound / composite index over two fields",
+        "group": "indexing",
+        "status": "supported",
+        "detail": "bool query combines per-field indexes; no explicit composite index needed",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "unique_constraint": {
+        "title": "Unique constraint on a non-key field (duplicate rejected)",
+        "group": "indexing",
+        "status": "unsupported",
+        "detail": "no unique constraint; _id uniqueness only (op_type=create rejects a duplicate _id)",
+        "ms": 0.0
+      },
+      "ttl_expiry": {
+        "title": "Native per-document/key expiry",
+        "group": "indexing",
+        "status": "unsupported",
+        "detail": "per-document _ttl removed in 5.0; use an expiry timestamp + ILM rollover/delete or delete-by-query",
+        "ms": 0.0
+      },
+      "text_index": {
+        "title": "Full-text index with tokenised search",
+        "group": "indexing",
+        "status": "supported",
+        "detail": "analyzed text fields with BM25 (the core feature)",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "geo_index": {
+        "title": "Geospatial index and radius query",
+        "group": "indexing",
+        "status": "supported",
+        "detail": "geo_point / geo_shape (BKD tree) + geo_distance / geo_bounding_box",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "vector_index": {
+        "title": "Vector (ANN) index and kNN query",
+        "group": "indexing",
+        "status": "supported",
+        "detail": "dense_vector with HNSW + kNN search",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "partial_update": {
+        "title": "Update a single field without rewriting the document",
+        "group": "model",
+        "status": "supported",
+        "detail": "_update with a partial doc or painless script (reindexes the document internally)",
+        "ms": 3.4
+      },
+      "atomic_increment": {
+        "title": "Server-side atomic numeric increment",
+        "group": "consistency",
+        "status": "supported",
+        "detail": "_update painless script ctx._source.qty += 1 -> [(251,)]",
+        "ms": 49.4
+      },
+      "optimistic_concurrency": {
+        "title": "Compare-and-set / version or ETag-guarded write",
+        "group": "consistency",
+        "status": "supported",
+        "detail": "if_seq_no + if_primary_term (or external version) -> [(1, 3)]",
+        "ms": 8.2
+      },
+      "multi_doc_transaction": {
+        "title": "Multi-document / multi-key ACID transaction with rollback",
+        "group": "consistency",
+        "status": "unsupported",
+        "detail": "single-document atomicity only; no multi-document transactions",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "tunable_consistency": {
+        "title": "Per-request consistency / write concern / read preference",
+        "group": "consistency",
+        "status": "supported",
+        "detail": "wait_for_active_shards per write; refresh=true|wait_for|false for read-your-write visibility",
+        "ms": 9.2
+      },
+      "nested_query": {
+        "title": "Filter on a field inside a nested object",
+        "group": "model",
+        "status": "supported",
+        "detail": "object/nested field types + nested query",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "array_operators": {
+        "title": "Query and update array-valued fields (contains, push)",
+        "group": "model",
+        "status": "supported",
+        "detail": "arrays are first-class (a field is multi-valued); term query matches any element -> 1044 match 'eco'",
+        "ms": 5.1
+      },
+      "aggregation": {
+        "title": "Server-side group-by aggregation",
+        "group": "model",
+        "status": "supported",
+        "detail": "aggregations framework (terms, date_histogram, metrics, pipeline)",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "server_side_join": {
+        "title": "Join / lookup between two collections inside the engine",
+        "group": "model",
+        "status": "unsupported",
+        "detail": "no server-side joins across indices (denormalise, parent/join field within one index, or terms-lookup)",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "graph_traversal": {
+        "title": "Variable-depth traversal over references",
+        "group": "model",
+        "status": "unsupported",
+        "detail": "no graph traversal (client-side, or X-Pack Graph explore API)",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "schema_validation": {
+        "title": "Server-enforced document schema / constraints",
+        "group": "model",
+        "status": "supported",
+        "detail": "explicit mappings + dynamic:strict rejects unknown fields; field data types enforced at index time",
+        "ms": 0.0
+      },
+      "change_streams": {
+        "title": "Change feed / watch / keyspace notifications",
+        "group": "operations",
+        "status": "unsupported",
+        "detail": "no change feed; poll with a sorted timestamp/_seq_no or use Logstash/change-detection",
+        "ms": 0.0
+      },
+      "server_side_scripting": {
+        "title": "Stored procedures / Lua / JS / UDF executed by the server",
+        "group": "operations",
+        "status": "supported",
+        "detail": "Painless scripts (ingest pipelines, script queries, script fields, _update) -> 2",
+        "ms": 2.4
+      },
+      "pubsub": {
+        "title": "Publish/subscribe messaging built into the engine",
+        "group": "operations",
+        "status": "unsupported",
+        "detail": "no pub/sub",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "explain_plan": {
+        "title": "Query plan / profile output for a query",
+        "group": "operations",
+        "status": "supported",
+        "detail": "_validate/query?explain and Search Profile API (per-shard query/collector timings, took=2ms)",
+        "ms": 7.9
+      },
+      "bulk_import": {
+        "title": "Native bulk import path (bulk API, batch, COPY-like tool)",
+        "group": "operations",
+        "status": "supported",
+        "detail": "_bulk NDJSON API",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "large_document": {
+        "title": "Store and read back a 15 MB document / value",
+        "group": "limits",
+        "status": "supported",
+        "detail": "5 MB _source stored (http.max_content_length 100 MB; large text hurts search)",
+        "ms": 183.9
+      },
+      "many_fields": {
+        "title": "Document with 5000 top-level fields",
+        "group": "limits",
+        "status": "unsupported",
+        "detail": "index.mapping.total_fields.limit default 1000; 5000 distinct fields triggers mapping explosion (use flattened type)",
+        "ms": 0.0
+      },
+      "read_from_replica": {
+        "title": "Client can direct reads to a replica / secondary",
+        "group": "operations",
+        "status": "supported",
+        "detail": "reads are served by any shard copy (primary or replica) automatically; ?preference= pins routing",
+        "ms": 0.0
+      },
+      "snapshot_backup": {
+        "title": "Online snapshot / backup command available",
+        "group": "operations",
+        "status": "supported",
+        "detail": "snapshot API into an fs repository under path.repo (S3/GCS/Azure via repository plugins); SLM schedules + retention (exercised in the backup phase)",
+        "ms": 6.9
+      },
+      "incremental_backup": {
+        "title": "Incremental / differential backup (file- or segment-level)",
+        "group": "operations",
+        "status": "supported",
+        "detail": "repository stores each Lucene segment once: every snapshot after the first only uploads new segments",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "pitr": {
+        "title": "Point-in-time recovery from a continuous change log",
+        "group": "operations",
+        "status": "unsupported",
+        "detail": "no translog replay between snapshots \u2014 the RPO is the SLM schedule",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "slow_query_log": {
+        "title": "Server-side slow-query log with a configurable threshold",
+        "group": "logging",
+        "status": "supported",
+        "detail": "per-index search/indexing slowlog thresholds (index.search.slowlog.threshold.query.warn ...), dynamic, JSON lines with took_millis + source",
+        "ms": 46.8
+      },
+      "audit_log": {
+        "title": "Audit / full-query log of statements or auth events",
+        "group": "logging",
+        "status": "unsupported",
+        "detail": "xpack.security.audit.enabled needs security enabled (off in this lab); JSON audit of auth/access events",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "structured_logs": {
+        "title": "JSON-structured server log out of the box",
+        "group": "logging",
+        "status": "supported",
+        "detail": "ECS JSON on stdout in the docker image (server, deprecation, slowlog datasets)",
+        "source": "declared",
+        "ms": 0.0
+      },
+      "runtime_log_level": {
+        "title": "Change log verbosity at run time (no restart)",
+        "group": "logging",
+        "status": "supported",
+        "detail": "PUT _cluster/settings logger.<package>: DEBUG (transient/persistent), no restart",
+        "ms": 53.0
+      },
+      "_seconds": 0.4
+    }
+  },
+  "partial": false,
+  "server_version": "elasticsearch 9.5.3",
+  "finished": "2026-09-14T08:53:52+00:00"
+}

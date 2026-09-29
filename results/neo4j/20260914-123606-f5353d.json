@@ -1,0 +1,101 @@
+{
+  "engine": "neo4j",
+  "display": "Neo4j 5",
+  "category": "property graph (native, index-free adjacency)",
+  "family": "graph",
+  "driver": "bolt",
+  "image": "neo4j:5-community",
+  "run_id": "20260914-123606-f5353d",
+  "started": "2026-09-14T09:36:06+00:00",
+  "scale": 1.0,
+  "notes": "Neo4j 5 Community, single instance (causal clustering, CDC, online backup and read routing are Enterprise-only). Order items are CONTAINS relationships, categories a CHILD_OF tree, so graph_traversal and join_lookup are native. Built-in full-text (Lucene) and HNSW vector indexes; no native TTL or pub/sub.",
+  "phases": {
+    "load": {
+      "scale": 1.0,
+      "collections": {
+        "customers": {
+          "rows": 20000,
+          "counted": 20000,
+          "expected": 20000,
+          "seconds": 4.49,
+          "rows_per_s": 4456,
+          "method": "bulk_put",
+          "ok": true
+        },
+        "categories": {
+          "rows": 200,
+          "counted": 200,
+          "expected": 200,
+          "seconds": 0.51,
+          "rows_per_s": 393,
+          "method": "bulk_put",
+          "ok": true
+        },
+        "products": {
+          "rows": 5000,
+          "counted": 5000,
+          "expected": 5000,
+          "seconds": 4.2,
+          "rows_per_s": 1191,
+          "method": "bulk_put",
+          "ok": true
+        },
+        "orders": {
+          "rows": 200000,
+          "counted": 200000,
+          "expected": 200000,
+          "seconds": 55.31,
+          "rows_per_s": 3616,
+          "method": "bulk_put",
+          "ok": true
+        },
+        "events": {
+          "rows": 1000000,
+          "counted": 1000000,
+          "expected": 1000000,
+          "seconds": 108.13,
+          "rows_per_s": 9248,
+          "method": "bulk_put",
+          "ok": true
+        },
+        "inventory": {
+          "rows": 20000,
+          "counted": 20000,
+          "expected": 20000,
+          "seconds": 1.53,
+          "rows_per_s": 13050,
+          "method": "bulk_put",
+          "ok": true
+        }
+      },
+      "schema": [
+        "CREATE CONSTRAINT customer_id IF NOT EXISTS",
+        "CREATE CONSTRAINT category_id IF NOT EXISTS",
+        "CREATE CONSTRAINT product_id IF NOT EXISTS",
+        "CREATE CONSTRAINT order_id IF NOT EXISTS",
+        "CREATE CONSTRAINT event_id IF NOT EXISTS",
+        "CREATE CONSTRAINT inv_key IF NOT EXISTS",
+        "CREATE INDEX cust_country_tier IF NOT EXISTS",
+        "CREATE INDEX prod_cat IF NOT EXISTS",
+        "CREATE INDEX order_status_ts IF NOT EXISTS",
+        "CREATE INDEX order_ts IF NOT EXISTS",
+        "CREATE INDEX event_type IF NOT EXISTS",
+        "CREATE POINT INDEX cust_loc IF NOT EXISTS",
+        "FULLTEXT INDEX product_desc",
+        "VECTOR INDEX product_vec (HNSW, cosine, dim 8)"
+      ],
+      "errors": [],
+      "schema_seconds": 2.74,
+      "load_seconds": 174.37,
+      "after_load": [
+        "indexes online"
+      ],
+      "post_seconds": 0.03,
+      "server_version": "Neo4j Kernel 5.26.30 (community)",
+      "_seconds": 177.2
+    }
+  },
+  "partial": false,
+  "server_version": "Neo4j Kernel 5.26.30 (community)",
+  "finished": "2026-09-14T09:39:03+00:00"
+}

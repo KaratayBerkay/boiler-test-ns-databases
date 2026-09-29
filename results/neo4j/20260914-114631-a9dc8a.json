@@ -1,0 +1,128 @@
+{
+  "engine": "neo4j",
+  "display": "Neo4j 5",
+  "category": "property graph (native, index-free adjacency)",
+  "family": "graph",
+  "driver": "bolt",
+  "image": "neo4j:5-community",
+  "run_id": "20260914-114631-a9dc8a",
+  "started": "2026-09-14T08:46:31+00:00",
+  "scale": 1.0,
+  "notes": "Neo4j 5 Community, single instance (causal clustering, CDC, online backup and read routing are Enterprise-only). Order items are CONTAINS relationships, categories a CHILD_OF tree, so graph_traversal and join_lookup are native. Built-in full-text (Lucene) and HNSW vector indexes; no native TTL or pub/sub.",
+  "phases": {
+    "backup": {
+      "tag": "nslab-20260914-114631",
+      "strategy": {
+        "tool": "neo4j-admin database dump (single-file archive) \u2014 Community has no online backup, and STOP DATABASE is rejected, so the server is stopped for the dump",
+        "consistency": "transactionally consistent (store closed while dumping)",
+        "restore": "offline: stop, neo4j-admin database load --overwrite-destination=true, start (both run as the neo4j user in a helper container over the data volume)",
+        "incremental": "Enterprise only (neo4j-admin database backup --type=differential)",
+        "pitr": "Enterprise only (transaction-log based); Community = last full dump",
+        "schedule": "a maintenance window per dump (cron: stop, dump, start) \u2014 or move to Enterprise for online full/differential backups",
+        "retention": "external: dump files under /backups/<tag>/"
+      },
+      "data_bytes": 1839210269,
+      "fingerprint_before": {
+        "counts": {
+          "customers": 20000,
+          "categories": 200,
+          "products": 5000,
+          "inventory": 20000
+        },
+        "customers_present": 50,
+        "probe_count": 100,
+        "post_probe_present": false
+      },
+      "reads_baseline": {
+        "reads": 316,
+        "errors": 0,
+        "latency_ms": {
+          "n": 316,
+          "min": 2.0405090181156993,
+          "p50": 4.172395478235558,
+          "p90": 5.504203989403322,
+          "p95": 5.84339075430762,
+          "p99": 6.702737780869939,
+          "max": 8.55769996996969,
+          "mean": 4.225572138284981,
+          "stdev": 1.0404493246245687
+        }
+      },
+      "backup": {
+        "method": "stop server; neo4j-admin database dump; start (Community: offline)",
+        "online": false,
+        "downtime_ms": 33570.3,
+        "artifact": "/backups/nslab-20260914-114631/neo4j.dump",
+        "artifact_bytes": 306236065,
+        "tool_output": ": 99.0%\nFiles: 67/67, data: 100.0%\nFiles: 67/67, data: 100.0%\nDone: 67 files, 1.713GiB processed in 4.816 seconds.\n2026-09-14 08:46:51.240+0000 INFO  [o.n.c.d.DumpCommand] Dump completed successfully\n",
+        "seconds": 33.79,
+        "status": "ok",
+        "reads_during": {
+          "reads": 69,
+          "errors": 581,
+          "latency_ms": {
+            "n": 69,
+            "min": 2.0002180244773626,
+            "p50": 3.595959977246821,
+            "p90": 7.797155028674753,
+            "p95": 11.260717583354541,
+            "p99": 490.4347811173548,
+            "max": 1479.6966989524662,
+            "mean": 25.887411318051264,
+            "stdev": 176.33175199617196
+          }
+        },
+        "artifact_pct_of_data": 16.7
+      },
+      "fingerprint_after_mutation": {
+        "counts": {
+          "customers": 19950,
+          "categories": 200,
+          "products": 5000,
+          "inventory": 20000
+        },
+        "customers_present": 0,
+        "probe_count": 600,
+        "post_probe_present": true
+      },
+      "restore": {
+        "method": "stop server; neo4j-admin database load --overwrite-destination; start",
+        "online": false,
+        "downtime_ms": 42078.4,
+        "tool_output": "7, data: 96.0%\nFiles: 67/67, data: 97.0%\nFiles: 67/67, data: 98.0%\nFiles: 67/67, data: 99.0%\nFiles: 67/67, data: 100.0%\nFiles: 67/67, data: 100.0%\nDone: 67 files, 1.713GiB processed in 3.925 seconds.\n",
+        "seconds": 42.16,
+        "status": "ok",
+        "availability": {
+          "downtime_ms": 42078.4,
+          "outages": 1
+        },
+        "checks": {
+          "counts_match": true,
+          "deleted_customers_back": true,
+          "probe_count_back_to_pre": true,
+          "post_backup_writes_gone": true
+        },
+        "verified": true
+      },
+      "fingerprint_after_restore": {
+        "counts": {
+          "customers": 20000,
+          "categories": 200,
+          "products": 5000,
+          "inventory": 20000
+        },
+        "customers_present": 50,
+        "probe_count": 100,
+        "post_probe_present": false
+      },
+      "incremental": {
+        "status": "unsupported",
+        "detail": "bolt: no incremental backup"
+      },
+      "_seconds": 84.3
+    }
+  },
+  "partial": false,
+  "server_version": "Neo4j Kernel 5.26.30 (community)",
+  "finished": "2026-09-14T08:47:55+00:00"
+}

@@ -1,0 +1,97 @@
+{
+  "engine": "mongodb",
+  "run_id": "20260914-123107-77bc54",
+  "partial": true,
+  "phases": {
+    "backup": {
+      "dr": {
+        "tag": "nslab-dr-20260914-123107",
+        "fingerprint_before": {
+          "counts": {
+            "customers": 20000,
+            "categories": 200,
+            "products": 5000,
+            "inventory": 20000
+          },
+          "customers_present": 50,
+          "probe_count": 100,
+          "post_probe_present": false
+        },
+        "backup": {
+          "method": "mongodump --oplog --gzip --archive",
+          "online": true,
+          "artifact": "/backups/nslab-dr-20260914-123107.archive.gz",
+          "artifact_bytes": 50799829,
+          "collections_dumped": 10,
+          "dataSize": 267253085.0,
+          "storageSize": 100270080.0,
+          "indexSize": 134123520.0,
+          "data_dir_bytes": 706373393,
+          "oplog_captured": true,
+          "physical_alternative": {
+            "method": "fsyncLock + cp -a /data/db + fsyncUnlock (stand-in for a volume snapshot)",
+            "writes_blocked_ms": 1121.6,
+            "bytes": 841462989
+          },
+          "seconds": 11.98
+        },
+        "export": {
+          "dir": "/home/berkay-server/repos/boilers/raw-codes/databases/ns-databases/data/backups/mongodb/nslab-dr-20260914-123107",
+          "files": [
+            "/home/berkay-server/repos/boilers/raw-codes/databases/ns-databases/data/backups/mongodb/nslab-dr-20260914-123107/nslab-dr-20260914-123107.archive.gz"
+          ],
+          "bytes": 50799829,
+          "seconds": 0.12
+        },
+        "destroy": {
+          "method": "docker compose down -v (data + backups volumes removed)",
+          "seconds": 16.6
+        },
+        "fresh_up": {
+          "seconds": 22.1,
+          "services": [
+            "init",
+            "mongo1",
+            "mongo2",
+            "mongo3"
+          ]
+        },
+        "after_destroy": {
+          "customers": 0,
+          "repl_probe": 0
+        },
+        "import": {
+          "placed": [
+            "nslab-mongo1:/backups/nslab-dr-20260914-123107.archive.gz"
+          ],
+          "seconds": 0.47
+        },
+        "restore": {
+          "method": "dropDatabase + mongorestore --oplogReplay --drop",
+          "online": true,
+          "summary": "2026-09-14T09:33:09.810+0000\t1732906 document(s) restored successfully. 0 document(s) failed to restore.",
+          "index_builds": 0,
+          "seconds": 67.55,
+          "checks": {
+            "counts_match": true,
+            "customers_present": true,
+            "probe_count_match": true
+          },
+          "verified": true
+        },
+        "fingerprint_after_restore": {
+          "counts": {
+            "customers": 20000,
+            "categories": 200,
+            "products": 5000,
+            "inventory": 20000
+          },
+          "customers_present": 50,
+          "probe_count": 100,
+          "post_probe_present": false
+        },
+        "_seconds": 122.6
+      }
+    }
+  }
+}
