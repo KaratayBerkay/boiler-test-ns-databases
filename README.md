@@ -1,5 +1,7 @@
 # ns-databases — NoSQL database lab
 
+**[View Interactive Report](https://karatayberkay.github.io/boiler-test-ns-databases/ns-databases-report.html)**
+
 A reproducible lab that stands up **NoSQL engines in Docker Compose** (key-value, document, wide-column, graph, search,
 vector and embedded stores — single nodes, replica sets, Sentinels, leaderless clusters), loads the *same deterministic
 dataset* into each (the very values used by the sibling relational lab `rd-databases`), and measures six things per engine:
